@@ -26,7 +26,7 @@
         <a href="#footer" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Contact</a>
       </div>
       <div class="flex items-center gap-[18px]">
-        <a href="#login" class="btn btn-outline btn-sm">Login</a>
+        <a href="Login/login.php" class="btn btn-outline btn-sm">Login</a>
         <a href="#signup" class="btn btn-primary btn-sm">Sign Up</a>
       </div>
     </nav>
