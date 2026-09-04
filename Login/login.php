@@ -38,7 +38,7 @@
         <button type="submit">Login</button>
       </form>
 
-      <p class="signup-prompt">Don't have an account? <a href="../index.php">Sign up</a></p>
+      <p class="signup-prompt">Don't have an account? <a href="../SignUp/signup.php">Sign up</a></p>
       <a class="back-link" href="../index.php">Back to Nexora</a>
     </section>
   </main>

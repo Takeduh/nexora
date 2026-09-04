@@ -27,7 +27,7 @@
       </div>
       <div class="flex items-center gap-[18px]">
         <a href="Login/login.php" class="btn btn-outline btn-sm">Login</a>
-        <a href="#signup" class="btn btn-primary btn-sm">Sign Up</a>
+        <a href="SignUp/signup.php" class="btn btn-primary btn-sm">Sign Up</a>
       </div>
     </nav>
   </header>
