@@ -544,54 +544,54 @@ header nav > div:last-child {
 
 @media (min-width: 1440px) {
   .max-w-\[1180px\] {
-    max-width: 1600px;
+    max-width: 1320px;
   }
 
   .final-cta-panel {
-    max-width: 1600px;
+    max-width: 1320px;
   }
 
   header nav .nav-links a {
-    font-size: 16px;
+    font-size: 14.5px;
   }
 
   header nav > div:last-child .btn {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .hero h1 {
-    font-size: 56px;
+    font-size: 48px;
   }
 
   .hero p {
-    font-size: 19px;
+    font-size: 16.5px;
   }
 
   section h2 {
-    font-size: 42px;
+    font-size: 36px;
   }
 
   section p {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .btn {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .car-body h4 {
-    font-size: 18px;
-  }
-
-  .car-price {
     font-size: 16px;
   }
 
+  .car-price {
+    font-size: 14px;
+  }
+
   .car-price b {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .final-cta-content h2 {
-    font-size: 48px;
+    font-size: 42px;
   }
 }
