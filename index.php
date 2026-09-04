@@ -238,70 +238,60 @@
   </div>
 
   <!-- FOOTER -->
-  <footer class="bg-navy-900 text-white/60 pt-16 pb-[26px]" id="footer">
-    <div class="max-w-[1180px] mx-auto px-6">
-      <div class="grid grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr] gap-8 pb-[46px] border-b border-white/[0.08]">
-        <div>
-          <a href="#home" class="flex items-center gap-3 text-white">
-            <img src="Images/nexora-logo.png" alt="Nexora Car Rentals" class="nexora-logo footer-logo" onerror="this.style.display='none'">
-          </a>
-          <p class="text-[13.5px] leading-[1.6] mt-3.5 mb-5 max-w-[240px]">Reliable car rentals across the Philippines. Drive with confidence wherever life takes you.</p>
-          <div class="flex gap-2.5">
-            <a href="https://www.facebook.com" aria-label="Facebook" class="w-[34px] h-[34px] rounded-lg bg-white/[0.06] flex items-center justify-center transition hover:bg-blue-500"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M14 9h3V6h-3c-1.7 0-3 1.3-3 3v2H9v3h2v7h3v-7h3l1-3h-4v-1.5c0-.5.5-.5.5-.5z" fill="currentColor"/></svg></a>
-            <a href="https://www.instagram.com" aria-label="Instagram" class="w-[34px] h-[34px] rounded-lg bg-white/[0.06] flex items-center justify-center transition hover:bg-blue-500"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
-            <a href="https://x.com" aria-label="X" class="w-[34px] h-[34px] rounded-lg bg-white/[0.06] flex items-center justify-center transition hover:bg-blue-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 4l16 16M20 4L4 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></a>
-            <a href="https://www.linkedin.com" aria-label="LinkedIn" class="w-[34px] h-[34px] rounded-lg bg-white/[0.06] flex items-center justify-center transition hover:bg-blue-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M8 10v7M8 7v.01M12 17v-4.5c0-1.4 1-2.5 2.5-2.5S17 11.1 17 12.5V17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></a>
-          </div>
-        </div>
-
-        <div>
-          <h5 class="text-white text-[13.5px] font-bold tracking-[0.04em] uppercase mb-4">Company</h5>
-          <ul class="flex flex-col gap-[11px]">
-            <li><a href="#difference" class="text-[13.8px] transition hover:text-white">About Us</a></li>
-            <li><a href="#fleet" class="text-[13.8px] transition hover:text-white">Our Fleet</a></li>
-            <li><a href="#" class="text-[13.8px] transition hover:text-white">Careers</a></li>
-            <li><a href="#" class="text-[13.8px] transition hover:text-white">News & Updates</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h5 class="text-white text-[13.5px] font-bold tracking-[0.04em] uppercase mb-4">Services</h5>
-          <ul class="flex flex-col gap-[11px]">
-            <li><a href="#" class="text-[13.8px] transition hover:text-white">Daily Rental</a></li>
-            <li><a href="#" class="text-[13.8px] transition hover:text-white">Weekly Rental</a></li>
-            <li><a href="#" class="text-[13.8px] transition hover:text-white">Long-Term Rental</a></li>
-            <li><a href="#" class="text-[13.8px] transition hover:text-white">Corporate Rentals</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h5 class="text-white text-[13.5px] font-bold tracking-[0.04em] uppercase mb-4">Support</h5>
-          <ul class="flex flex-col gap-[11px]">
-            <li><a href="#" class="text-[13.8px] transition hover:text-white">Contact Us</a></li>
-            <li><a href="#" class="text-[13.8px] transition hover:text-white">Booking Guide</a></li>
-            <li><a href="#" class="text-[13.8px] transition hover:text-white">Privacy Policy</a></li>
-            <li><a href="#" class="text-[13.8px] transition hover:text-white">Terms & Conditions</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h5 class="text-white text-[13.5px] font-bold tracking-[0.04em] uppercase mb-4">Stay Updated</h5>
-          <p class="text-[13.5px] mb-0 leading-[1.5]">Get the latest offers, updates, and travel tips.</p>
-          <form class="flex gap-2 mt-3.5" id="newsletterForm">
-            <input type="email" placeholder="Enter your email" aria-label="Email address" required class="flex-1 min-w-0 px-3.5 py-2.5 rounded-lg border border-white/15 bg-white/5 text-white text-[13.5px] outline-none placeholder:text-white/40">
-            <button class="btn btn-primary btn-sm" type="submit">Subscribe</button>
-          </form>
-          <p id="newsletterMessage" class="newsletter-message hidden text-[13.5px] leading-[1.45] text-blue-300" aria-live="polite"></p>
-        </div>
+  <footer class="footer-revamp" id="footer">
+    <div class="footer-inner max-w-[1180px] mx-auto">
+      <div class="footer-topline">
+        <span class="footer-kicker">NEXORA / ROAD AHEAD</span>
+        <p>Good cars, clear roads, and a better way to get there.</p>
       </div>
 
-      <div class="flex justify-between items-center flex-wrap gap-3.5 pt-[26px] text-[12.8px]">
-        <span>© 2026 NEXORA Car Rentals. All Rights Reserved.</span>
-        <div class="flex gap-2">
-          <span class="bg-white/[0.08] px-2.5 py-1.5 rounded-md text-[11px] font-bold text-white/60">VISA</span>
-          <span class="bg-white/[0.08] px-2.5 py-1.5 rounded-md text-[11px] font-bold text-white/60">MASTERCARD</span>
-          <span class="bg-white/[0.08] px-2.5 py-1.5 rounded-md text-[11px] font-bold text-white/60">GCASH</span>
-        </div>
+      <div class="footer-grid">
+        <section class="footer-column footer-brand-column" aria-labelledby="footer-brand-title">
+          <h2 id="footer-brand-title">Drive with confidence.</h2>
+          <p>Reliable rentals, straightforward support, and vehicles ready for the journeys that matter.</p>
+          <div class="social-list" aria-label="Social media links">
+            <a href="https://www.facebook.com" aria-label="Facebook" class="social-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 9h3V6h-3c-1.7 0-3 1.3-3 3v2H9v3h2v7h3v-7h3l1-3h-4v-1.5c0-.5.5-.5.5-.5z" fill="currentColor"/></svg><span>Facebook</span></a>
+            <a href="https://www.instagram.com" aria-label="Instagram" class="social-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg><span>Instagram</span></a>
+            <a href="https://x.com" aria-label="X" class="social-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 4l16 16M20 4L4 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>X</span></a>
+            <a href="https://www.linkedin.com" aria-label="LinkedIn" class="social-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M8 10v7M8 7v.01M12 17v-4.5c0-1.4 1-2.5 2.5-2.5S17 11 17 12.5V17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>LinkedIn</span></a>
+          </div>
+        </section>
+
+        <section class="footer-column" aria-labelledby="footer-explore-title">
+          <h2 id="footer-explore-title" class="footer-heading">Explore</h2>
+          <nav class="footer-links" aria-label="Footer navigation">
+            <a href="#fleet">Our Fleet</a>
+            <a href="#services">Services</a>
+            <a href="#difference">About Nexora</a>
+            <a href="#blog">Customer Stories</a>
+          </nav>
+        </section>
+
+        <section class="footer-column" aria-labelledby="footer-contact-title">
+          <h2 id="footer-contact-title" class="footer-heading">Contact</h2>
+          <ul class="contact-list">
+            <li class="contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><a href="mailto:hello@nexora-rentals.com">hello@nexora-rentals.com</a></li>
+            <li class="contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h3l1.5 4-2 1.5a14 14 0 006 6l1.5-2 4 1.5v3a2 2 0 01-2 2C11.4 19 5 12.6 5 5a2 2 0 012-2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><a href="tel:+63325550147">+63 32 555 0147</a></li>
+            <li class="contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21s7-6.1 7-11.5A7 7 0 105 9.5C5 14.9 12 21 12 21z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="9.5" r="2.2" stroke="currentColor" stroke-width="1.7"/></svg><span>Cebu Business Park<br>Cebu City, Philippines</span></li>
+          </ul>
+          <p class="footer-hours"><strong>Open daily</strong><br>6:00 AM – 10:00 PM</p>
+        </section>
+
+        <section class="newsletter-panel" aria-labelledby="newsletter-title">
+          <span class="footer-kicker">STAY UPDATED</span>
+          <h2 id="newsletter-title">Keep your next trip close.</h2>
+          <p>Get the latest offers, updates, and travel tips.</p>
+          <form class="newsletter-form" id="newsletterForm">
+            <input type="email" placeholder="Enter your email" aria-label="Email address" required>
+            <button type="submit">Subscribe</button>
+          </form>
+          <p id="newsletterMessage" class="newsletter-message hidden" aria-live="polite"></p>
+        </section>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2026 Nexora Car Rentals. All rights reserved.</span>
+        <div class="footer-meta"><span>Secure payments</span><span>Privacy</span><span>Terms</span></div>
       </div>
     </div>
   </footer>
