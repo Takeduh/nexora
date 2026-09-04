@@ -19,7 +19,7 @@
       <div class="nav-links flex items-center gap-[30px]">
         <a href="#home" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Home</a>
         <a href="#fleet" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Fleet</a>
-        <a href="#why" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Services</a>
+        <a href="#services" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Services</a>
         <a href="#difference" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">About</a>
         <a href="#footer" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Locations</a>
         <a href="#footer" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Blog</a>
@@ -75,45 +75,45 @@
 
   </section>
 
-  <!-- WHY CHOOSE -->
-  <section class="bg-navy-900 text-white py-[88px]" id="why">
+  <!-- SERVICES -->
+  <section class="bg-navy-900 text-white py-[88px]" id="services">
     <div class="max-w-[1180px] mx-auto px-6">
       <div class="text-center max-w-[620px] mx-auto mb-12">
-        <h3 class="section-kicker on-dark">Why Choose Nexora</h3>
-        <h2 class="text-[36px] font-bold mb-3.5">Built for Comfort, Driven by Trust.</h2>
-        <p class="text-white/62 text-base leading-relaxed">We make car rentals simple, reliable, and stress-free so you can focus on what truly matters.</p>
+        <h3 class="section-kicker on-dark">Our Services</h3>
+        <h2 class="text-[36px] font-bold mb-3.5">Everything You Need for the Road.</h2>
+        <p class="text-white/62 text-base leading-relaxed">From choosing your car to returning it, Nexora makes every part of your rental simple.</p>
       </div>
 
       <div class="grid grid-cols-3 gap-px bg-white/[0.08] rounded-2xl overflow-hidden">
         <div class="why-card">
-          <div class="why-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z" stroke="currentColor" stroke-width="1.7"/></svg></div>
-          <h4 class="text-white text-base font-bold">Fully Inspected</h4>
-          <p class="text-white/55 text-[13.8px] leading-[1.55]">All vehicles are safe and road-ready before every rental.</p>
+          <div class="why-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 4v5.8M5.1 8l5 2.9M18.9 8l-5 2.9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+          <h4 class="text-white text-base font-bold">Self-Drive Rentals</h4>
+          <p class="text-white/55 text-[13.8px] leading-[1.55]">Choose your own route with clean, reliable vehicles ready for the road.</p>
         </div>
         <div class="why-card">
-          <div class="why-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
-          <h4 class="text-white text-base font-bold">Transparent Pricing</h4>
-          <p class="text-white/55 text-[13.8px] leading-[1.55]">No hidden fees, no surprises — the price you see is final.</p>
+          <div class="why-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 3v4M16 3v4M4 10h16M8 14h3M8 17h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+          <h4 class="text-white text-base font-bold">Flexible Rental Plans</h4>
+          <p class="text-white/55 text-[13.8px] leading-[1.55]">Rent by the day, week, or month with straightforward pricing.</p>
         </div>
         <div class="why-card">
-          <div class="why-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
-          <h4 class="text-white text-base font-bold">24/7 Support</h4>
-          <p class="text-white/55 text-[13.8px] leading-[1.55]">We're here whenever you need us, day or night.</p>
+          <div class="why-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 13h11l3-5h3l2 5v4H3v-4z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14 13l2-5-4-3M17 8l3 5M7 17v2M18 17v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h4 class="text-white text-base font-bold">Airport & City Pickup</h4>
+          <p class="text-white/55 text-[13.8px] leading-[1.55]">Start your trip smoothly with convenient pickup and return locations.</p>
         </div>
         <div class="why-card">
-          <div class="why-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.1 7-11.5A7 7 0 105 9.5C5 14.9 12 21 12 21z" stroke="currentColor" stroke-width="1.7"/></svg></div>
-          <h4 class="text-white text-base font-bold">Multiple Locations</h4>
-          <p class="text-white/55 text-[13.8px] leading-[1.55]">Convenient pick-up and drop-off points nationwide.</p>
+          <div class="why-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="7" width="16" height="13" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M9 7V5h6v2M4 12h16M9 12v2h6v-2" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
+          <h4 class="text-white text-base font-bold">Corporate Travel</h4>
+          <p class="text-white/55 text-[13.8px] leading-[1.55]">Dependable transportation for meetings, teams, and business trips.</p>
         </div>
         <div class="why-card">
-          <div class="why-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M9 3v4M15 3v4M4 10h16" stroke="currentColor" stroke-width="1.7"/></svg></div>
-          <h4 class="text-white text-base font-bold">Easy Booking</h4>
-          <p class="text-white/55 text-[13.8px] leading-[1.55]">Reserve your car in minutes, online or on the app.</p>
+          <div class="why-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M9 3v4M15 3v4M4 10h16l3 3-5 5-2-2-3 3-2-2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h4 class="text-white text-base font-bold">Easy Online Booking</h4>
+          <p class="text-white/55 text-[13.8px] leading-[1.55]">Find a vehicle and request your rental in just a few minutes.</p>
         </div>
         <div class="why-card">
-          <div class="why-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.9 6.26L21 9.27l-4.5 4.36L17.8 20 12 16.9 6.2 20l1.3-6.37L3 9.27 9.1 8.26 12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
-          <h4 class="text-white text-base font-bold">Top Rated Service</h4>
-          <p class="text-white/55 text-[13.8px] leading-[1.55]">Trusted by thousands of satisfied customers nationwide.</p>
+          <div class="why-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 4h14a2 2 0 012 2v9a2 2 0 01-2 2h-5l-2 3-2-3H5a2 2 0 01-2-2V6a2 2 0 012-2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8 11h8M8 8h5M8 14h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+          <h4 class="text-white text-base font-bold">Roadside Support</h4>
+          <p class="text-white/55 text-[13.8px] leading-[1.55]">Get dependable assistance whenever you need help during your trip.</p>
         </div>
       </div>
     </div>
