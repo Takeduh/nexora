@@ -15,6 +15,11 @@
   mix-blend-mode: lighten;
 }
 
+.hero {
+  padding-bottom: 150px;
+  overflow: visible;
+}
+
 .footer-inner {
   padding: 0 24px;
 }
