@@ -291,6 +291,7 @@
             <input type="email" placeholder="Enter your email" aria-label="Email address" required class="flex-1 min-w-0 px-3.5 py-2.5 rounded-lg border border-white/15 bg-white/5 text-white text-[13.5px] outline-none placeholder:text-white/40">
             <button class="btn btn-primary btn-sm" type="submit">Subscribe</button>
           </form>
+          <p id="newsletterMessage" class="newsletter-message hidden text-[13.5px] leading-[1.45] text-blue-300" aria-live="polite"></p>
         </div>
       </div>
 

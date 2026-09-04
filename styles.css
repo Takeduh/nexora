@@ -23,6 +23,10 @@
   width: 154px;
 }
 
+.newsletter-message {
+  margin-top: 16px;
+}
+
 header.sticky {
   position: sticky;
   top: 0;

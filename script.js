@@ -185,6 +185,7 @@ renderTestimonials();
    ========================================================= */
 
 const newsletterForm = document.getElementById("newsletterForm");
+const newsletterMessage = document.getElementById("newsletterMessage");
 
 if (newsletterForm) {
   newsletterForm.addEventListener("submit", event => {
@@ -193,9 +194,11 @@ if (newsletterForm) {
     const email = newsletterForm.querySelector("input[type='email']");
     if (!email.value.trim()) return;
 
-    /* Local-only — no data is sent anywhere */
     email.value = "";
-    alert("Thank you for subscribing to Nexora!");
+    if (newsletterMessage) {
+      newsletterMessage.textContent = "Thank you for subscribing!";
+      newsletterMessage.classList.remove("hidden");
+    }
   });
 }
 
