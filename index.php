@@ -21,8 +21,7 @@
         <a href="#fleet" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Fleet</a>
         <a href="#services" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Services</a>
         <a href="#difference" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">About</a>
-        <a href="#footer" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Locations</a>
-        <a href="#footer" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Blog</a>
+        <a href="#blog" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Blog</a>
         <a href="#footer" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Contact</a>
       </div>
       <div class="flex items-center gap-[18px]">
@@ -58,6 +57,8 @@
             <option>Davao</option>
             <option>Cagayan de Oro</option>
             <option>Dumaguete</option>
+            <option>Palawan</option>
+            <option>Bohol</option>
           </select>
         </div>
         <div class="flex flex-col gap-1.5">
@@ -198,8 +199,8 @@
     </div>
   </section>
 
-  <!-- TESTIMONIALS -->
-  <section class="bg-gray-50 py-[88px]">
+  <!-- BLOG / TESTIMONIALS -->
+  <section class="bg-gray-50 py-[88px]" id="blog">
     <div class="max-w-[1180px] mx-auto px-6">
       <div class="text-center max-w-[620px] mx-auto mb-12">
         <h3 class="section-kicker">Trusted by Thousands</h3>
@@ -246,10 +247,10 @@
           </a>
           <p class="text-[13.5px] leading-[1.6] mt-3.5 mb-5 max-w-[240px]">Reliable car rentals across the Philippines. Drive with confidence wherever life takes you.</p>
           <div class="flex gap-2.5">
-            <a href="#" aria-label="Facebook" class="w-[34px] h-[34px] rounded-lg bg-white/[0.06] flex items-center justify-center transition hover:bg-blue-500"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M14 9h3V6h-3c-1.7 0-3 1.3-3 3v2H9v3h2v7h3v-7h3l1-3h-4v-1.5c0-.5.5-.5.5-.5z" fill="currentColor"/></svg></a>
-            <a href="#" aria-label="Instagram" class="w-[34px] h-[34px] rounded-lg bg-white/[0.06] flex items-center justify-center transition hover:bg-blue-500"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
-            <a href="#" aria-label="X" class="w-[34px] h-[34px] rounded-lg bg-white/[0.06] flex items-center justify-center transition hover:bg-blue-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 4l16 16M20 4L4 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></a>
-            <a href="#" aria-label="LinkedIn" class="w-[34px] h-[34px] rounded-lg bg-white/[0.06] flex items-center justify-center transition hover:bg-blue-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M8 10v7M8 7v.01M12 17v-4.5c0-1.4 1-2.5 2.5-2.5S17 11.1 17 12.5V17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></a>
+            <a href="https://www.facebook.com" aria-label="Facebook" class="w-[34px] h-[34px] rounded-lg bg-white/[0.06] flex items-center justify-center transition hover:bg-blue-500"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M14 9h3V6h-3c-1.7 0-3 1.3-3 3v2H9v3h2v7h3v-7h3l1-3h-4v-1.5c0-.5.5-.5.5-.5z" fill="currentColor"/></svg></a>
+            <a href="https://www.instagram.com" aria-label="Instagram" class="w-[34px] h-[34px] rounded-lg bg-white/[0.06] flex items-center justify-center transition hover:bg-blue-500"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
+            <a href="https://x.com" aria-label="X" class="w-[34px] h-[34px] rounded-lg bg-white/[0.06] flex items-center justify-center transition hover:bg-blue-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 4l16 16M20 4L4 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></a>
+            <a href="https://www.linkedin.com" aria-label="LinkedIn" class="w-[34px] h-[34px] rounded-lg bg-white/[0.06] flex items-center justify-center transition hover:bg-blue-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M8 10v7M8 7v.01M12 17v-4.5c0-1.4 1-2.5 2.5-2.5S17 11.1 17 12.5V17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></a>
           </div>
         </div>
 
@@ -258,7 +259,6 @@
           <ul class="flex flex-col gap-[11px]">
             <li><a href="#difference" class="text-[13.8px] transition hover:text-white">About Us</a></li>
             <li><a href="#fleet" class="text-[13.8px] transition hover:text-white">Our Fleet</a></li>
-            <li><a href="#" class="text-[13.8px] transition hover:text-white">Locations</a></li>
             <li><a href="#" class="text-[13.8px] transition hover:text-white">Careers</a></li>
             <li><a href="#" class="text-[13.8px] transition hover:text-white">News & Updates</a></li>
           </ul>
