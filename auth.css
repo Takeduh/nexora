@@ -1,3 +1,4 @@
+```css
 :root {
   --navy: #031026;
   --navy-light: #0f1f3d;
@@ -8,19 +9,37 @@
   --line: #e2e7ef;
 }
 
+/* =========================
+   RESET
+   ========================= */
+
 * {
   box-sizing: border-box;
 }
 
+html,
 body {
   min-width: 320px;
+  min-height: 100%;
+}
+
+body {
   min-height: 100vh;
   margin: 0;
   color: var(--ink);
-  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 55%, #182f5e 100%);
+  background: linear-gradient(
+    135deg,
+    var(--navy) 0%,
+    var(--navy-light) 55%,
+    #182f5e 100%
+  );
   font-family: "Inter", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+/* =========================
+   AUTH PAGE
+   ========================= */
 
 .auth-page {
   display: grid;
@@ -28,6 +47,10 @@ body {
   padding: 32px 20px;
   place-items: center;
 }
+
+/* =========================
+   AUTH PANEL
+   ========================= */
 
 .auth-panel {
   width: min(100%, 440px);
@@ -38,10 +61,16 @@ body {
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
 }
 
+/* Signup panel */
+
 .auth-panel.wide {
   width: min(100%, 500px);
   padding: 38px 44px 32px;
 }
+
+/* =========================
+   BRAND
+   ========================= */
 
 .brand {
   display: block;
@@ -56,6 +85,10 @@ body {
   object-fit: contain;
   mix-blend-mode: multiply;
 }
+
+/* =========================
+   HEADING
+   ========================= */
 
 .auth-heading {
   margin-bottom: 28px;
@@ -86,6 +119,10 @@ h1 {
   line-height: 1.5;
 }
 
+/* =========================
+   FORM
+   ========================= */
+
 .auth-form {
   display: grid;
   gap: 20px;
@@ -94,6 +131,10 @@ h1 {
 .auth-form.compact-gap {
   gap: 16px;
 }
+
+/* =========================
+   FIELDS
+   ========================= */
 
 .field {
   display: grid;
@@ -111,32 +152,63 @@ h1 {
   font-weight: 400;
 }
 
+/* =========================
+   INPUTS
+   ========================= */
+
 .auth-form input[type="text"],
 .auth-form input[type="email"],
 .auth-form input[type="tel"],
 .auth-form input[type="password"] {
+  display: block;
   width: 100%;
   min-height: 46px;
   padding: 12px 14px;
+
   border: 1.5px solid var(--line);
   border-radius: 9px;
+
   outline: none;
+
   color: var(--ink);
-  background: #fff;
-  font: inherit;
+  background: #ffffff;
+
+  font-family: "Inter", sans-serif;
   font-size: 14px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  line-height: 1.4;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
-.auth-form input:focus {
+.auth-form input[type="text"]:focus,
+.auth-form input[type="email"]:focus,
+.auth-form input[type="tel"]:focus,
+.auth-form input[type="password"]:focus {
   border-color: var(--blue);
   box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.14);
 }
+
+/* =========================
+   NAME FIELDS
+   ========================= */
+
+.name-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* =========================
+   CHECKBOXES
+   ========================= */
 
 .check-row {
   display: flex;
   align-items: center;
   gap: 9px;
+
   color: var(--muted);
   font-size: 13px;
 }
@@ -151,38 +223,69 @@ h1 {
   width: 16px;
   height: 16px;
   flex: 0 0 auto;
+  margin: 0;
   accent-color: var(--blue);
 }
 
+.check-row.top-align input {
+  margin-top: 1px;
+}
+
+/* =========================
+   BUTTON
+   ========================= */
+
 .auth-form button {
+  display: block;
+  width: 100%;
   min-height: 48px;
   margin-top: 2px;
+
+  padding: 12px 16px;
+
   border: 0;
   border-radius: 9px;
-  color: #fff;
-  background: var(--blue);
+
+  color: #ffffff;
+  background: #2f6fed;
+
   box-shadow: 0 8px 20px rgba(47, 111, 237, 0.3);
+
   cursor: pointer;
-  font: inherit;
+
+  font-family: "Inter", sans-serif;
   font-size: 14px;
   font-weight: 700;
-  transition: background 0.15s ease, transform 0.15s ease;
+
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
 }
 
 .auth-form button:hover {
-  background: var(--blue-light);
+  background: #5089ff;
 }
 
 .auth-form button:active {
   transform: translateY(1px);
 }
 
+/* =========================
+   PROMPTS
+   ========================= */
+
 .auth-prompt {
   margin: 26px 0 18px;
+
   color: var(--muted);
+
   font-size: 13px;
   text-align: center;
 }
+
+/* =========================
+   LINKS
+   ========================= */
 
 .auth-prompt a,
 .back-link,
@@ -205,11 +308,9 @@ h1 {
   text-align: center;
 }
 
-.name-fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
+/* =========================
+   RESPONSIVE
+   ========================= */
 
 @media (max-width: 520px) {
   .auth-page {
@@ -218,6 +319,7 @@ h1 {
 
   .auth-panel,
   .auth-panel.wide {
+    width: 100%;
     padding: 32px 24px 28px;
   }
 
@@ -227,6 +329,7 @@ h1 {
 
   .brand img {
     width: 205px;
+    height: auto;
   }
 
   .name-fields {
@@ -234,3 +337,4 @@ h1 {
     gap: 16px;
   }
 }
+```
