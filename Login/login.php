@@ -6,14 +6,16 @@ $email = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
-    $stmt = $pdo->prepare('SELECT id, first_name, password FROM users WHERE email = ? LIMIT 1');
+    $stmt = $pdo->prepare('SELECT id, first_name, role, password FROM users WHERE email = ? LIMIT 1');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
     if ($user && password_verify($password, $user['password'])) {
         session_regenerate_id(true);
         $_SESSION['user_id'] = (int)$user['id'];
         $_SESSION['user_name'] = $user['first_name'];
-        $next = $_GET['next'] ?? '../index.php';
+        $_SESSION['user_role'] = $user['role'] ?? 'user';
+        $defaultNext = $_SESSION['user_role'] === 'admin' ? '../admin-dashboard.php' : '../dashboard.php';
+        $next = $_GET['next'] ?? $defaultNext;
         if (str_contains($next, '://') || str_starts_with($next, '//')) $next = '../index.php';
         header('Location: ' . $next); exit;
     }

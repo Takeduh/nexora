@@ -9,8 +9,8 @@ body.checkout-page a { color: inherit; }
    BOOKING CHECKOUT
    ========================================================= */
 .checkout-header {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e7ef;
+  background: #031026;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -18,8 +18,8 @@ body.checkout-page a { color: inherit; }
 
 .checkout-header-inner {
   width: min(1180px, calc(100% - 48px));
-  min-height: 72px;
   margin: 0 auto;
+  padding: 16px 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -31,15 +31,16 @@ body.checkout-page a { color: inherit; }
 }
 
 .checkout-brand .nexora-logo {
-  max-height: 38px;
-  width: auto;
+  width: 340px;
+  height: 56px;
+  object-fit: contain;
 }
 
 .checkout-secure {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #5b6478;
+  color: rgba(255, 255, 255, 0.72);
   font-size: 13px;
   font-weight: 700;
 }
@@ -50,8 +51,8 @@ body.checkout-page a { color: inherit; }
   border-radius: 50%;
   display: inline-grid;
   place-items: center;
-  background: #eaf1ff;
-  color: #2f6fed;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
   font-size: 12px;
 }
 
@@ -473,6 +474,15 @@ body.checkout-page a { color: inherit; }
   .checkout-header-inner,
   .checkout-shell {
     width: min(100% - 28px, 1180px);
+  }
+
+  .checkout-header-inner {
+    padding: 12px 0;
+  }
+
+  .checkout-brand .nexora-logo {
+    width: 210px;
+    height: 44px;
   }
 
   .checkout-shell {

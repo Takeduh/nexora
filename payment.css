@@ -1,5 +1,5 @@
 :root {
-  --pay-navy: #0a1730;
+  --pay-navy: #031026;
   --pay-blue: #2f6fed;
   --pay-blue-soft: #eaf1ff;
   --pay-ink: #0d1526;
@@ -11,8 +11,8 @@
 .payment-page { min-width: 320px; margin: 0; color: var(--pay-ink); background: var(--pay-bg); font-family: "Inter", Arial, sans-serif; }
 .payment-page *, .payment-page *::before, .payment-page *::after { box-sizing: border-box; }
 .payment-header { border-bottom: 1px solid rgba(255,255,255,.08); background: var(--pay-navy); }
-.payment-nav { width: min(1180px, calc(100% - 40px)); min-height: 74px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-.payment-brand img { display: block; width: 142px; height: auto; }
+.payment-nav { width: min(1180px, calc(100% - 40px)); margin: auto; padding: 16px 0; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.payment-brand img { display: block; width: 340px; height: 56px; object-fit: contain; }
 .payment-security { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,.7); font-size: 12px; font-weight: 700; }
 .payment-security span { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; color: #fff; background: rgba(255,255,255,.12); }
 
@@ -94,8 +94,8 @@
 
 @media (max-width: 600px) {
   .payment-nav, .payment-shell { width: min(100% - 28px, 1180px); }
-  .payment-nav { min-height: 66px; }
-  .payment-brand img { width: 124px; }
+  .payment-nav { padding: 12px 0; }
+  .payment-brand img { width: 210px; height: 44px; }
   .payment-security { font-size: 10.5px; }
   .payment-shell { padding-top: 24px; }
   .payment-progress { overflow-x: auto; white-space: nowrap; }

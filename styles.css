@@ -12,7 +12,6 @@
   height: 56px;
   object-fit: contain;
   display: block;
-  mix-blend-mode: lighten;
 }
 
 .hero {
@@ -645,4 +644,15 @@ header nav > div:last-child {
 .variant-select:focus {
   border-color: var(--blue-500);
   box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.1);
+}
+
+@media (max-width: 640px) {
+  .nexora-logo {
+    width: 210px;
+    height: 44px;
+  }
+
+  header nav > a:first-child {
+    margin-left: 0;
+  }
 }

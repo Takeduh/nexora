@@ -1,5 +1,5 @@
 :root {
-  --contact-navy: #0a1730;
+  --contact-navy: #031026;
   --contact-navy-soft: #122548;
   --contact-blue: #2f6fed;
   --contact-blue-soft: #eaf1ff;
@@ -32,7 +32,6 @@
   width: 340px;
   height: 56px;
   object-fit: contain;
-  mix-blend-mode: lighten;
 }
 .contact-nav-links { display: flex; align-items: center; gap: 28px; }
 .contact-nav-links a { color: rgba(255,255,255,.76); text-decoration: none; font-size: 14px; font-weight: 700; transition: color .2s ease; }
@@ -98,7 +97,6 @@
 @media (max-width: 600px) {
   .contact-shell, .contact-nav { width: min(100% - 28px, 1180px); }
   .contact-nav { min-height: 66px; }
-  .contact-brand img { width: 124px; }
   .contact-nav-links { gap: 14px; }
   .contact-nav-links a { font-size: 12px; }
   .contact-hero { padding: 54px 0; }
@@ -108,7 +106,6 @@
   .contact-form-footer, .contact-footer .contact-shell { align-items: stretch; flex-direction: column; }
   .contact-submit { width: 100%; }
 }
-
 
 @media (max-width: 640px) {
   .contact-brand { margin-left: 0; }

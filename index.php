@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once __DIR__ . '/config/fleet-data.php';
 $fleetCars = getFleetCars($pdo);
 ?>
@@ -30,8 +31,13 @@ $fleetCars = getFleetCars($pdo);
         <a href="contact.php" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Contact</a>
       </div>
       <div class="flex items-center gap-[18px]">
-        <a href="Login/login.php" class="btn btn-outline btn-sm">Login</a>
-        <a href="SignUp/signup.php" class="btn btn-primary btn-sm">Sign Up</a>
+        <?php if (!empty($_SESSION['user_id'])): ?>
+          <a href="<?= ($_SESSION['user_role'] ?? 'user') === 'admin' ? 'admin-dashboard.php' : 'dashboard.php' ?>" class="btn btn-outline btn-sm">Dashboard</a>
+          <a href="logout.php" class="btn btn-primary btn-sm">Logout</a>
+        <?php else: ?>
+          <a href="Login/login.php" class="btn btn-outline btn-sm">Login</a>
+          <a href="SignUp/signup.php" class="btn btn-primary btn-sm">Sign Up</a>
+        <?php endif; ?>
       </div>
     </nav>
   </header>
@@ -47,7 +53,7 @@ $fleetCars = getFleetCars($pdo);
         <h1 class="text-white text-[46px] font-extrabold tracking-[-0.01em] mb-[18px]">Rent the Perfect Car for Every Journey</h1>
         <p class="text-white/70 text-[16.5px] leading-[1.65] max-w-[460px] mb-[30px]">From weekend getaways to business trips across the Philippines, Nexora gets you a clean, reliable car in minutes — transparent pricing, zero surprises.</p>
         <div class="flex gap-3.5 mb-10">
-          <a href="#book" class="btn btn-primary">Book Now</a>
+          <a href="#fleet" class="btn btn-primary">Book Now</a>
           <a href="#fleet" class="btn btn-outline">See Our Fleet</a>
         </div>
       </div>
@@ -228,7 +234,7 @@ $fleetCars = getFleetCars($pdo);
         <span class="eyebrow on-dark">Ready to Hit the Road?</span>
         <h2>Book Your Car Today</h2>
         <p>Fast booking, great cars, better journeys.</p>
-        <a href="#book" class="btn btn-primary">Book Now</a>
+        <a href="#fleet" class="btn btn-primary">Book Now</a>
       </div>
     </div>
   </section>

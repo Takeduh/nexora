@@ -30,9 +30,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $values['phone'] !== '' ? $values['phone'] : null,
                 password_hash($password, PASSWORD_DEFAULT)
             ]);
+            session_regenerate_id(true);
             $_SESSION['user_id'] = (int)$pdo->lastInsertId();
             $_SESSION['user_name'] = $values['first_name'];
-            header('Location: ../index.php');
+            $_SESSION['user_role'] = 'user';
+            header('Location: ../dashboard.php');
             exit;
         }
     }
