@@ -13,6 +13,18 @@ function displayDate(string $date): string
     return $time ? date('m/d/Y', $time) : $date;
 }
 
+function bookingStatusOptions(string $status): array
+{
+    return match ($status) {
+        'pending' => ['pending','confirmed','cancelled'],
+        'confirmed' => ['confirmed','active','cancelled'],
+        'active' => ['active','completed'],
+        'completed' => ['completed'],
+        'cancelled' => ['cancelled'],
+        default => [$status],
+    };
+}
+
 if (empty($_SESSION['user_id'])) {
     header('Location: Login/login.php?next=../admin-dashboard.php');
     exit;
@@ -42,11 +54,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'] ?? '';
         try {
             if ($action === 'booking_status') {
-                $allowed = ['pending', 'confirmed', 'active', 'completed', 'cancelled'];
+                $bookingId = (int)($_POST['booking_id'] ?? 0);
                 $status = $_POST['status'] ?? '';
-                if (!in_array($status, $allowed, true)) throw new RuntimeException('Invalid booking status.');
-                $stmt = $pdo->prepare('UPDATE bookings SET status = ? WHERE id = ?');
-                $stmt->execute([$status, (int)($_POST['booking_id'] ?? 0)]);
+                $reason = trim($_POST['cancellation_reason'] ?? '');
+                $pdo->beginTransaction();
+                $stmt = $pdo->prepare('SELECT status FROM bookings WHERE id = ? LIMIT 1 FOR UPDATE');
+                $stmt->execute([$bookingId]);
+                $current = $stmt->fetchColumn();
+                if ($current === false || !in_array($status, bookingStatusOptions((string)$current), true)) throw new RuntimeException('That booking status transition is not allowed.');
+                if ($status === 'cancelled') {
+                    if ($reason === '' || strlen($reason) > 500) throw new RuntimeException('A cancellation reason is required.');
+                    $pdo->prepare("UPDATE bookings SET status='cancelled', cancelled_at=NOW(), cancellation_reason=? WHERE id=?")->execute([$reason,$bookingId]);
+                    $pdo->prepare("UPDATE payments SET payment_status='refunded' WHERE booking_id=? AND payment_status='paid'")->execute([$bookingId]);
+                } else {
+                    $pdo->prepare('UPDATE bookings SET status=? WHERE id=?')->execute([$status,$bookingId]);
+                }
+                $pdo->commit();
                 header('Location: admin-dashboard.php?saved=booking#bookings'); exit;
             }
 
@@ -69,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: admin-dashboard.php?saved=message#messages'); exit;
             }
         } catch (Throwable $exception) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
             $error = $exception instanceof RuntimeException ? $exception->getMessage() : 'The update could not be saved.';
         }
     }
@@ -82,7 +106,7 @@ $stats = [
 ];
 
 $bookings = $pdo->query(
-    "SELECT b.id, b.vehicle_name, b.transmission, b.pickup_location, b.pickup_date, b.return_date, b.total_amount, b.status, b.created_at,
+    "SELECT b.id, b.vehicle_name, b.transmission, b.pickup_location, b.pickup_date, b.return_date, b.total_amount, b.status, b.cancelled_at, b.cancellation_reason, b.created_at,
             u.first_name, u.last_name, u.email,
             (SELECT p.payment_status FROM payments p WHERE p.booking_id = b.id ORDER BY p.id DESC LIMIT 1) AS payment_status
      FROM bookings b
@@ -92,11 +116,40 @@ $bookings = $pdo->query(
 )->fetchAll();
 
 $variants = $pdo->query(
-    "SELECT v.id, v.transmission, v.daily_rate, v.quantity, v.status, c.brand, c.model, c.category
+    "SELECT v.id, v.car_id, v.transmission, v.daily_rate, v.quantity, v.status,
+            c.brand, c.model, c.category,
+            (SELECT COUNT(*) FROM bookings b
+             WHERE b.car_variant_id = v.id
+               AND b.status IN ('pending','confirmed','active')
+               AND b.pickup_date <= CURDATE()
+               AND b.return_date > CURDATE()) AS booked_today,
+            (SELECT COUNT(*) FROM bookings b
+             WHERE b.car_variant_id = v.id
+               AND b.status IN ('pending','confirmed','active')
+               AND b.return_date > CURDATE()) AS upcoming_reservations
      FROM car_variants v
      JOIN cars c ON c.id = v.car_id
-     ORDER BY c.brand, c.model, v.transmission"
+     ORDER BY c.brand, c.model, FIELD(v.transmission,'automatic','manual')"
 )->fetchAll();
+
+$carsInventory = [];
+foreach ($variants as $variant) {
+    $carId = (int)$variant['car_id'];
+    if (!isset($carsInventory[$carId])) {
+        $carsInventory[$carId] = [
+            'car_id' => $carId,
+            'brand' => $variant['brand'],
+            'model' => $variant['model'],
+            'category' => $variant['category'],
+            'variants' => [],
+        ];
+    }
+    $variant['booked_today'] = (int)$variant['booked_today'];
+    $variant['upcoming_reservations'] = (int)$variant['upcoming_reservations'];
+    $variant['available_today'] = max(0, (int)$variant['quantity'] - $variant['booked_today']);
+    $carsInventory[$carId]['variants'][] = $variant;
+}
+$carsInventory = array_values($carsInventory);
 
 $messages = $pdo->query(
     "SELECT id, name, email, subject, message, status, created_at
@@ -133,7 +186,7 @@ $payments = $pdo->query(
     <title>Admin Dashboard — Nexora</title>
     <link rel="stylesheet" href="output.css">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="dashboard.css?v=1.3">
+    <link rel="stylesheet" href="dashboard.css?v=1.5">
 </head>
 <body class="dashboard-page admin-page">
 <header class="dash-header">
@@ -196,9 +249,10 @@ $payments = $pdo->query(
                                 <input type="hidden" name="action" value="booking_status">
                                 <input type="hidden" name="booking_id" value="<?= (int)$booking['id'] ?>">
                                 <select name="status" aria-label="Booking status">
-                                    <?php foreach (['pending','confirmed','active','completed','cancelled'] as $status): ?><option value="<?= $status ?>" <?= $booking['status'] === $status ? 'selected' : '' ?>><?= ucfirst($status) ?></option><?php endforeach; ?>
+                                    <?php foreach (bookingStatusOptions($booking['status']) as $status): ?><option value="<?= $status ?>" <?= $booking['status'] === $status ? 'selected' : '' ?>><?= ucfirst($status) ?></option><?php endforeach; ?>
                                 </select>
-                                <button>Save</button>
+                                <?php if (in_array($booking['status'], ['pending','confirmed'], true)): ?><input type="text" name="cancellation_reason" maxlength="500" placeholder="Reason if cancelling" aria-label="Cancellation reason"><?php endif; ?>
+                                <button <?= in_array($booking['status'], ['completed','cancelled'], true)?'disabled':'' ?>>Save</button>
                             </form>
                         </td>
                     </tr>
@@ -209,39 +263,81 @@ $payments = $pdo->query(
     </section>
 
     <section class="dash-panel admin-section" id="fleet">
-        <div class="dash-panel-head"><div><span class="dash-section-label">Inventory</span><h2>Fleet variants</h2></div><a href="fleet.php">View public fleet</a></div>
-        <div class="inventory-list" id="fleetVariantList">
+        <div class="dash-panel-head inventory-panel-head">
+            <div><span class="dash-section-label">Inventory</span><h2>Fleet inventory</h2></div>
+            <a href="fleet.php">View public fleet</a>
+        </div>
+
+        <div class="inventory-toolbar">
+            <label class="inventory-search">
+                <span>Search fleet</span>
+                <input type="search" id="inventorySearch" placeholder="Search brand, model, or category">
+            </label>
+            <span class="inventory-summary"><?= count($carsInventory) ?> cars</span>
+        </div>
+
+        <div class="inventory-list grouped-inventory" id="fleetCarList">
             <div class="inventory-list-head" aria-hidden="true">
-                <span>Vehicle</span><span>Transmission / rate</span><span>Quantity</span><span>Status</span><span>Action</span>
+                <span>Vehicle</span><span>Transmission</span><span>Availability today</span><span>Inventory settings</span>
             </div>
-            <?php foreach ($variants as $index => $variant): ?>
-            <article class="inventory-list-row"<?= $index >= 8 ? ' hidden' : '' ?>>
+            <?php foreach ($carsInventory as $index => $car):
+                $first = $car['variants'][0];
+            ?>
+            <article class="inventory-list-row inventory-car-row"
+                     data-search="<?= e(strtolower($car['brand'] . ' ' . $car['model'] . ' ' . $car['category'])) ?>"
+                     <?= $index >= 8 ? ' hidden' : '' ?>>
                 <div class="inventory-vehicle">
-                    <span class="inventory-category"><?= e($variant['category']) ?></span>
-                    <strong><?= e($variant['brand'] . ' ' . $variant['model']) ?></strong>
+                    <span class="inventory-category"><?= e($car['category']) ?></span>
+                    <strong><?= e($car['brand'] . ' ' . $car['model']) ?></strong>
+                    <small><?= count($car['variants']) ?> transmission<?= count($car['variants']) === 1 ? '' : 's' ?></small>
                 </div>
-                <div class="inventory-meta">
-                    <strong><?= e(ucfirst($variant['transmission'])) ?></strong>
-                    <span>₱<?= number_format((float)$variant['daily_rate'], 2) ?>/day</span>
+
+                <div class="inventory-transmission-control">
+                    <label>
+                        <span>Transmission</span>
+                        <select class="variant-selector">
+                            <?php foreach ($car['variants'] as $variant): ?>
+                            <option
+                                value="<?= (int)$variant['id'] ?>"
+                                data-rate="<?= e(number_format((float)$variant['daily_rate'], 2, '.', '')) ?>"
+                                data-quantity="<?= (int)$variant['quantity'] ?>"
+                                data-status="<?= e($variant['status']) ?>"
+                                data-booked="<?= (int)$variant['booked_today'] ?>"
+                                data-available="<?= (int)$variant['available_today'] ?>"
+                                data-upcoming="<?= (int)$variant['upcoming_reservations'] ?>">
+                                <?= e(ucfirst($variant['transmission'])) ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                    <span class="variant-rate">₱<?= number_format((float)$first['daily_rate'], 2) ?>/day</span>
                 </div>
-                <form method="post" class="inventory-row-form">
+
+                <div class="inventory-live-stats">
+                    <strong class="available-count"><?= (int)$first['available_today'] ?> / <?= (int)$first['quantity'] ?> available</strong>
+                    <span><b class="booked-count"><?= (int)$first['booked_today'] ?></b> booked today</span>
+                    <span><b class="upcoming-count"><?= (int)$first['upcoming_reservations'] ?></b> upcoming reservations</span>
+                </div>
+
+                <form method="post" class="inventory-row-form grouped-form">
                     <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                     <input type="hidden" name="action" value="variant_update">
-                    <input type="hidden" name="variant_id" value="<?= (int)$variant['id'] ?>">
-                    <label class="inventory-field"><span>Quantity</span><input type="number" min="0" name="quantity" value="<?= (int)$variant['quantity'] ?>"></label>
-                    <label class="inventory-field"><span>Status</span><select name="status"><?php foreach (['available','unavailable','maintenance'] as $status): ?><option value="<?= $status ?>" <?= $variant['status'] === $status ? 'selected' : '' ?>><?= ucfirst($status) ?></option><?php endforeach; ?></select></label>
+                    <input type="hidden" name="variant_id" class="variant-id-input" value="<?= (int)$first['id'] ?>">
+                    <label class="inventory-field"><span>Total units</span><input class="quantity-input" type="number" min="0" name="quantity" value="<?= (int)$first['quantity'] ?>"></label>
+                    <label class="inventory-field"><span>Status</span><select class="status-input" name="status"><?php foreach (['available','unavailable','maintenance'] as $status): ?><option value="<?= $status ?>" <?= $first['status'] === $status ? 'selected' : '' ?>><?= ucfirst($status) ?></option><?php endforeach; ?></select></label>
                     <button type="submit">Update</button>
                 </form>
             </article>
             <?php endforeach; ?>
         </div>
-        <?php if (count($variants) > 8): ?>
+
+        <?php if (count($carsInventory) > 8): ?>
         <div class="inventory-load-more">
             <div class="inventory-buttons">
-                <button type="button" id="loadMoreVariants" class="dash-secondary-btn">Load more</button>
-                <button type="button" id="showLessVariants" class="dash-secondary-btn" hidden>Show less</button>
+                <button type="button" id="loadMoreCars" class="dash-secondary-btn">Load more</button>
+                <button type="button" id="showLessCars" class="dash-secondary-btn" hidden>Show less</button>
             </div>
-            <span id="variantCount">Showing 8 of <?= count($variants) ?> variants</span>
+            <span id="carCount">Showing 8 of <?= count($carsInventory) ?> cars</span>
         </div>
         <?php endif; ?>
     </section>
@@ -281,35 +377,62 @@ $payments = $pdo->query(
 </main>
 <script>
 (() => {
-    const list = document.getElementById('fleetVariantList');
-    const loadMore = document.getElementById('loadMoreVariants');
-    const showLess = document.getElementById('showLessVariants');
-    const counter = document.getElementById('variantCount');
+    const list = document.getElementById('fleetCarList');
+    const search = document.getElementById('inventorySearch');
+    const loadMore = document.getElementById('loadMoreCars');
+    const showLess = document.getElementById('showLessCars');
+    const counter = document.getElementById('carCount');
     const initialVisible = 8;
+    let visibleLimit = initialVisible;
 
-    if (!list || !loadMore || !showLess) return;
+    if (!list) return;
+    const rows = [...list.querySelectorAll('.inventory-car-row')];
 
-    const rows = [...list.querySelectorAll('.inventory-list-row')];
+    const syncVariant = (row) => {
+        const selector = row.querySelector('.variant-selector');
+        const option = selector?.selectedOptions[0];
+        if (!option) return;
 
-    const updateControls = () => {
-        const visible = rows.filter(row => !row.hidden).length;
-        if (counter) counter.textContent = `Showing ${visible} of ${rows.length} variants`;
-        loadMore.hidden = visible >= rows.length;
-        showLess.hidden = visible <= initialVisible;
+        row.querySelector('.variant-id-input').value = option.value;
+        row.querySelector('.quantity-input').value = option.dataset.quantity || '0';
+        row.querySelector('.status-input').value = option.dataset.status || 'available';
+        row.querySelector('.variant-rate').textContent = `₱${Number(option.dataset.rate || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}/day`;
+        row.querySelector('.available-count').textContent = `${option.dataset.available || 0} / ${option.dataset.quantity || 0} available`;
+        row.querySelector('.booked-count').textContent = option.dataset.booked || '0';
+        row.querySelector('.upcoming-count').textContent = option.dataset.upcoming || '0';
     };
 
-    loadMore.addEventListener('click', () => {
-        rows.filter(row => row.hidden).slice(0, 8).forEach(row => { row.hidden = false; });
-        updateControls();
+    rows.forEach(row => {
+        row.querySelector('.variant-selector')?.addEventListener('change', () => syncVariant(row));
+        syncVariant(row);
     });
 
-    showLess.addEventListener('click', () => {
-        rows.forEach((row, index) => { row.hidden = index >= initialVisible; });
-        updateControls();
+    const matchingRows = () => {
+        const term = (search?.value || '').trim().toLowerCase();
+        return rows.filter(row => !term || row.dataset.search.includes(term));
+    };
+
+    const render = () => {
+        const matches = matchingRows();
+        const searching = Boolean((search?.value || '').trim());
+        rows.forEach(row => { row.hidden = true; });
+        matches.slice(0, searching ? matches.length : visibleLimit).forEach(row => { row.hidden = false; });
+
+        const shown = matches.filter(row => !row.hidden).length;
+        if (counter) counter.textContent = `Showing ${shown} of ${matches.length} cars`;
+        if (loadMore) loadMore.hidden = searching || shown >= matches.length;
+        if (showLess) showLess.hidden = searching || visibleLimit <= initialVisible;
+    };
+
+    search?.addEventListener('input', () => { visibleLimit = initialVisible; render(); });
+    loadMore?.addEventListener('click', () => { visibleLimit += 8; render(); });
+    showLess?.addEventListener('click', () => {
+        visibleLimit = initialVisible;
+        render();
         document.getElementById('fleet')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    updateControls();
+    render();
 })();
 </script>
 </body>

@@ -20,7 +20,7 @@ $locationSupported = false;
 foreach ($supportedLocationKeywords as $keyword) { if (str_contains($normalizedLocation, $keyword)) { $locationSupported = true; break; } }
 $start = DateTime::createFromFormat('Y-m-d', $pickup);
 $end = DateTime::createFromFormat('Y-m-d', $returnDate);
-if (!$variantId || !$location || !$start || !$end || $start->format('Y-m-d') !== $pickup || $end->format('Y-m-d') !== $returnDate || $end <= $start) exit('Invalid booking details. Please return to the fleet and try again.');
+if (!$variantId || !$location || !$start || !$end || $start->format('Y-m-d') !== $pickup || $end->format('Y-m-d') !== $returnDate || $end <= $start || $start < new DateTime('today')) exit('Invalid booking details. Please return to the fleet and try again.');
 if (!$locationSupported) exit('Please enter a pick-up location containing a supported major area such as Cebu, Dumaguete, Bohol, Bacolod, Iloilo, or Manila.');
 
 $stmt = $pdo->prepare("SELECT v.id, v.quantity, v.status AS variant_status, c.status AS car_status FROM car_variants v INNER JOIN cars c ON c.id=v.car_id WHERE v.id=? LIMIT 1");
@@ -29,7 +29,9 @@ $variant = $stmt->fetch();
 if (!$variant || $variant['car_status'] !== 'active' || $variant['variant_status'] !== 'available' || (int)$variant['quantity'] < 1) exit('This vehicle variant is currently unavailable.');
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM bookings WHERE car_variant_id=? AND status IN ('pending','confirmed','active') AND pickup_date < ? AND return_date > ?");
 $stmt->execute([$variantId, $returnDate, $pickup]);
-if ((int)$stmt->fetchColumn() >= (int)$variant['quantity']) exit('That transmission is already fully booked for the selected dates. Please choose another variant or different dates.');
+$reservedCount = (int)$stmt->fetchColumn();
+$remaining = max(0, (int)$variant['quantity'] - $reservedCount);
+if ($remaining < 1) exit('That transmission is fully booked for the selected dates. Please choose another variant or different dates.');
 
 $_SESSION['booking_draft'] = [
     'car_variant_id' => (int)$variantId,
@@ -37,6 +39,7 @@ $_SESSION['booking_draft'] = [
     'pickup_date' => $pickup,
     'return_date' => $returnDate,
     'special_requests' => $special,
+    'remaining_at_check' => $remaining,
 ];
 header('Location: payment.php');
 exit;

@@ -150,20 +150,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($action === 'booking_cancel') {
                 $bookingId = filter_input(INPUT_POST, 'booking_id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-                if (!$bookingId) {
-                    throw new RuntimeException('Invalid booking.');
-                }
-                $stmt = $pdo->prepare("SELECT b.status, (SELECT p.payment_status FROM payments p WHERE p.booking_id = b.id ORDER BY p.id DESC LIMIT 1) AS payment_status FROM bookings b WHERE b.id = ? AND b.user_id = ? LIMIT 1");
+                $reason = trim($_POST['cancellation_reason'] ?? '');
+                if (!$bookingId) throw new RuntimeException('Invalid booking.');
+                if ($reason === '' || strlen($reason) > 500) throw new RuntimeException('Please provide a cancellation reason of up to 500 characters.');
+
+                $pdo->beginTransaction();
+                $stmt = $pdo->prepare("SELECT b.status, (SELECT p.payment_status FROM payments p WHERE p.booking_id=b.id ORDER BY p.id DESC LIMIT 1) AS payment_status FROM bookings b WHERE b.id=? AND b.user_id=? LIMIT 1 FOR UPDATE");
                 $stmt->execute([(int)$bookingId, $userId]);
                 $targetBooking = $stmt->fetch();
-                if (!$targetBooking || !in_array($targetBooking['status'], ['pending', 'confirmed'], true)) {
-                    throw new RuntimeException('Only pending or confirmed bookings can be cancelled from your dashboard.');
-                }
-                if (($targetBooking['payment_status'] ?? '') === 'paid') {
-                    throw new RuntimeException('Paid bookings need to be cancelled through Nexora support so the payment can be handled correctly.');
-                }
-                $stmt = $pdo->prepare("UPDATE bookings SET status = 'cancelled' WHERE id = ? AND user_id = ?");
-                $stmt->execute([(int)$bookingId, $userId]);
+                if (!$targetBooking || !in_array($targetBooking['status'], ['pending','confirmed'], true)) throw new RuntimeException('Only pending or confirmed bookings can be cancelled from your dashboard.');
+                if (($targetBooking['payment_status'] ?? '') === 'paid') throw new RuntimeException('Paid bookings require admin cancellation so the payment can be marked for refund.');
+
+                $pdo->prepare("UPDATE bookings SET status='cancelled', cancelled_at=NOW(), cancellation_reason=? WHERE id=? AND user_id=?")->execute([$reason,(int)$bookingId,$userId]);
+                $pdo->commit();
                 header('Location: dashboard.php?saved=cancelled#bookings');
                 exit;
             }
@@ -220,7 +219,7 @@ foreach ($bookings as $booking) {
     <title>My Dashboard — Nexora</title>
     <link rel="stylesheet" href="output.css">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="dashboard.css?v=1.4">
+    <link rel="stylesheet" href="dashboard.css?v=1.5">
 </head>
 <body class="dashboard-page">
 <header class="dash-header">
@@ -323,13 +322,22 @@ foreach ($bookings as $booking) {
                             <strong>₱<?= number_format((float)$booking['total_amount'], 2) ?></strong>
                             <span>Payment: <?= e(ucfirst((string)($booking['payment_status'] ?? 'not recorded'))) ?></span>
                             <?php if (!empty($booking['payment_method'])): ?><span><?= e(methodName((string)$booking['payment_method'])) ?></span><?php endif; ?>
-                            <?php if (in_array($booking['status'], ['pending', 'confirmed'], true)): ?>
-                                <form method="post" class="user-cancel-form" onsubmit="return confirm('Cancel this booking?');">
-                                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
-                                    <input type="hidden" name="action" value="booking_cancel">
-                                    <input type="hidden" name="booking_id" value="<?= (int)$booking['id'] ?>">
-                                    <button type="submit">Cancel booking</button>
-                                </form>
+                            <?php if (in_array($booking['status'], ['pending','confirmed'], true) && ($booking['payment_status'] ?? '') !== 'paid'): ?>
+                                <details class="user-cancel-details">
+                                    <summary>Cancel booking</summary>
+                                    <form method="post" class="user-cancel-form" onsubmit="return confirm('Cancel this booking? This cannot be undone.');">
+                                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                        <input type="hidden" name="action" value="booking_cancel">
+                                        <input type="hidden" name="booking_id" value="<?= (int)$booking['id'] ?>">
+                                        <textarea name="cancellation_reason" maxlength="500" required placeholder="Reason for cancellation"></textarea>
+                                        <button type="submit">Confirm cancellation</button>
+                                    </form>
+                                </details>
+                            <?php elseif (in_array($booking['status'], ['pending','confirmed'], true) && ($booking['payment_status'] ?? '') === 'paid'): ?>
+                                <span class="booking-help-text">Contact support to cancel this paid booking.</span>
+                            <?php endif; ?>
+                            <?php if ($booking['status'] === 'cancelled' && !empty($booking['cancellation_reason'])): ?>
+                                <span class="booking-cancel-reason">Reason: <?= e($booking['cancellation_reason']) ?></span>
                             <?php endif; ?>
                         </div>
                     </article>

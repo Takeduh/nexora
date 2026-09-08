@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once __DIR__ . '/config/fleet-data.php';
 $fleetCars = getFleetCars($pdo);
 ?>
@@ -10,9 +11,9 @@ $fleetCars = getFleetCars($pdo);
   <title>Our Fleet — Nexora</title>
   <link rel="stylesheet" href="output.css">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="fleet.css?v=20260908-1">
+  <link rel="stylesheet" href="fleet.css?v=20260908-2">
   <script>window.NEXORA_FLEET = <?= json_encode($fleetCars, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;</script>
-  <script src="fleet.js" defer></script>
+  <script src="fleet.js?v=20260908-2" defer></script>
 </head>
 <body class="bg-white text-ink antialiased">
 
@@ -31,8 +32,13 @@ $fleetCars = getFleetCars($pdo);
         <a href="contact.php" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Contact</a>
       </div>
       <div class="flex items-center gap-[18px]">
-        <a href="Login/login.php" class="btn btn-outline btn-sm">Login</a>
-        <a href="SignUp/signup.php" class="btn btn-primary btn-sm">Sign Up</a>
+        <?php if (!empty($_SESSION['user_id'])): ?>
+          <a href="<?= ($_SESSION['user_role'] ?? 'user') === 'admin' ? 'admin-dashboard.php' : 'dashboard.php' ?>" class="btn btn-outline btn-sm">Dashboard</a>
+          <a href="logout.php" class="btn btn-primary btn-sm">Logout</a>
+        <?php else: ?>
+          <a href="Login/login.php" class="btn btn-outline btn-sm">Login</a>
+          <a href="SignUp/signup.php" class="btn btn-primary btn-sm">Sign Up</a>
+        <?php endif; ?>
       </div>
     </nav>
   </header>

@@ -20,6 +20,8 @@ let activeCategory = "all";
 let activeKeyword = "";
 let visibleCount = PAGE_SIZE;
 let activeSort = "recommended";
+let availabilityByVariant = {};
+let availabilityApplied = false;
 
 const carIcon = `
 <svg viewBox="0 0 64 34" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -133,12 +135,23 @@ function refreshBookingLinks() {
   });
 }
 
+function variantAvailability(variantId) {
+  return availabilityByVariant[String(variantId)] || null;
+}
+
 function variantOptions(car) {
-  return car.variants.map(variant => `
-    <option value="${variant.id}" data-rate="${variant.dailyRate}">
-      ${escapeHtml(variant.transmissionLabel)} — PHP ${peso(variant.dailyRate)}/day
-    </option>
-  `).join("");
+  return car.variants.map(variant => {
+    const availability = variantAvailability(variant.id);
+    const disabled = availabilityApplied && availability && !availability.available;
+    const suffix = availabilityApplied && availability
+      ? (availability.available ? ` — ${availability.remaining} left` : " — Fully booked")
+      : "";
+    return `
+      <option value="${variant.id}" data-rate="${variant.dailyRate}" ${disabled ? "disabled" : ""}>
+        ${escapeHtml(variant.transmissionLabel)} — PHP ${peso(variant.dailyRate)}/day${suffix}
+      </option>
+    `;
+  }).join("");
 }
 
 function renderResults() {
@@ -148,7 +161,10 @@ function renderResults() {
   const visible = matches.slice(0, visibleCount);
 
   resultsGrid.innerHTML = visible.map(car => {
-    const firstVariant = car.variants[0];
+    const firstVariant = availabilityApplied
+      ? (car.variants.find(variant => variantAvailability(variant.id)?.available) || car.variants[0])
+      : car.variants[0];
+    const hasAvailableVariant = !availabilityApplied || car.variants.some(variant => variantAvailability(variant.id)?.available);
     const categoryClass = String(car.cat || "car").replace(/[^a-z0-9-]/g, "");
     const specs = [
       car.seats ? `${car.seats} seats` : null,
@@ -174,7 +190,7 @@ function renderResults() {
             </select>
           </label>
 
-          <a href="${buildFleetBookingLink(firstVariant.id)}" class="btn btn-primary btn-block variant-book-button">Select This Car</a>
+          <a href="${hasAvailableVariant ? buildFleetBookingLink(firstVariant.id) : "#"}" class="btn btn-primary btn-block variant-book-button${hasAvailableVariant ? "" : " fleet-book-disabled"}" ${hasAvailableVariant ? "" : "aria-disabled=\"true\""}>${hasAvailableVariant ? "Select This Car" : "Unavailable for dates"}</a>
         </div>
       </div>
     `;
@@ -188,7 +204,14 @@ function renderResults() {
     select?.addEventListener("change", () => {
       const option = select.options[select.selectedIndex];
       if (price) price.textContent = `PHP ${peso(option.dataset.rate)}`;
-      if (bookButton) bookButton.href = buildFleetBookingLink(select.value);
+      if (bookButton) {
+        const availability = variantAvailability(select.value);
+        const available = !availabilityApplied || !availability || availability.available;
+        bookButton.href = available ? buildFleetBookingLink(select.value) : "#";
+        bookButton.classList.toggle("fleet-book-disabled", !available);
+        bookButton.setAttribute("aria-disabled", available ? "false" : "true");
+        bookButton.textContent = available ? "Select This Car" : "Unavailable for dates";
+      }
     });
   });
 
@@ -238,11 +261,13 @@ const formNote = document.getElementById("fleetFormNote");
   input?.addEventListener("input", () => {
     autoFormatDate(input);
     syncFleetDates();
+    availabilityApplied = false;
+    availabilityByVariant = {};
     refreshBookingLinks();
   });
 });
 
-fleetSearchForm?.addEventListener("submit", event => {
+fleetSearchForm?.addEventListener("submit", async event => {
   event.preventDefault();
   syncFleetDates();
 
@@ -274,13 +299,44 @@ fleetSearchForm?.addEventListener("submit", event => {
     return;
   }
 
-  refreshBookingLinks();
-  if (formNote) {
-    formNote.textContent = pickupDate && returnDate
-      ? `Trip details applied: ${pickupDisplay.value} to ${returnDisplay.value}.`
-      : "Location applied. You can choose dates during checkout.";
-    formNote.className = "fleet-form-note show";
+  if (pickupDate && returnDate) {
+    if (formNote) {
+      formNote.textContent = "Checking live availability...";
+      formNote.className = "fleet-form-note show";
+    }
+    try {
+      const response = await fetch(`availability.php?pickup=${encodeURIComponent(toISODate(pickupDate))}&return=${encodeURIComponent(toISODate(returnDate))}`, { headers: { "Accept": "application/json" } });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.message || "Availability check failed.");
+      availabilityByVariant = data.variants || {};
+      availabilityApplied = true;
+      visibleCount = PAGE_SIZE;
+      renderResults();
+      const availableVehicles = cars.filter(car => car.variants.some(variant => variantAvailability(variant.id)?.available)).length;
+      if (formNote) {
+        formNote.textContent = `${availableVehicles} vehicle model${availableVehicles === 1 ? "" : "s"} available for ${pickupDisplay.value} to ${returnDisplay.value}.`;
+        formNote.className = "fleet-form-note show";
+      }
+    } catch (error) {
+      availabilityApplied = false;
+      availabilityByVariant = {};
+      renderResults();
+      if (formNote) {
+        formNote.textContent = error.message || "Could not check availability. Try again.";
+        formNote.className = "fleet-form-note show error";
+      }
+      return;
+    }
+  } else {
+    availabilityApplied = false;
+    availabilityByVariant = {};
+    renderResults();
+    if (formNote) {
+      formNote.textContent = "Location applied. You can choose dates during checkout.";
+      formNote.className = "fleet-form-note show";
+    }
   }
+  refreshBookingLinks();
   resultsGrid?.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 

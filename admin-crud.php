@@ -222,43 +222,74 @@ try {
 
     if ($action === 'booking_update') {
         $bookingId = requirePositiveId('booking_id');
-        $status = $_POST['status'] ?? '';
+        $requestedStatus = $_POST['status'] ?? '';
         $pickupLocation = clean($_POST['pickup_location'] ?? '');
         $pickupDate = clean($_POST['pickup_date'] ?? '');
         $returnDate = clean($_POST['return_date'] ?? '');
         $specialRequests = clean($_POST['special_requests'] ?? '');
-        $allowed = ['pending', 'confirmed', 'active', 'completed', 'cancelled'];
+        $reason = clean($_POST['cancellation_reason'] ?? '');
 
-        if (!in_array($status, $allowed, true)) {
-            throw new RuntimeException('Invalid booking status.');
-        }
-        if ($pickupLocation === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $pickupDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $returnDate)) {
-            throw new RuntimeException('Enter valid booking details.');
-        }
-        $start = new DateTimeImmutable($pickupDate);
-        $end = new DateTimeImmutable($returnDate);
-        if ($end <= $start) {
-            throw new RuntimeException('Return date must be after pickup date.');
-        }
-
-        $stmt = $pdo->prepare('SELECT daily_rate FROM bookings WHERE id = ?');
+        $pdo->beginTransaction();
+        $stmt = $pdo->prepare("SELECT id, car_variant_id, daily_rate, status FROM bookings WHERE id=? LIMIT 1 FOR UPDATE");
         $stmt->execute([$bookingId]);
-        $rate = $stmt->fetchColumn();
-        if ($rate === false) {
-            throw new RuntimeException('Booking not found.');
+        $booking = $stmt->fetch();
+        if (!$booking) throw new RuntimeException('Booking not found.');
+
+        $transitions = [
+            'pending' => ['pending','confirmed','cancelled'],
+            'confirmed' => ['confirmed','active','cancelled'],
+            'active' => ['active','completed'],
+            'completed' => ['completed'],
+            'cancelled' => ['cancelled'],
+        ];
+        if (!in_array($requestedStatus, $transitions[$booking['status']] ?? [], true)) throw new RuntimeException('That booking status transition is not allowed.');
+        if (in_array($booking['status'], ['completed','cancelled'], true)) throw new RuntimeException('Completed and cancelled bookings are read-only.');
+
+        if ($requestedStatus === 'cancelled') {
+            if ($reason === '' || strlen($reason) > 500) throw new RuntimeException('A cancellation reason is required.');
+            $pdo->prepare("UPDATE bookings SET status='cancelled', cancelled_at=NOW(), cancellation_reason=? WHERE id=?")->execute([$reason,$bookingId]);
+            $pdo->prepare("UPDATE payments SET payment_status='refunded' WHERE booking_id=? AND payment_status='paid'")->execute([$bookingId]);
+            $pdo->commit();
+            redirectBack('Booking cancelled. Any recorded paid payment was marked refunded.');
         }
-        $days = (int)$start->diff($end)->days;
-        $total = $days * (float)$rate;
-        $stmt = $pdo->prepare('UPDATE bookings SET pickup_location = ?, dropoff_location = ?, pickup_date = ?, return_date = ?, total_days = ?, total_amount = ?, special_requests = ?, status = ? WHERE id = ?');
-        $stmt->execute([$pickupLocation, $pickupLocation, $pickupDate, $returnDate, $days, $total, $specialRequests ?: null, $status, $bookingId]);
+
+        if ($booking['status'] === 'active') {
+            $pdo->prepare("UPDATE bookings SET status=? WHERE id=?")->execute([$requestedStatus,$bookingId]);
+            $pdo->commit();
+            redirectBack($requestedStatus === 'completed' ? 'Booking completed.' : 'Booking updated.');
+        }
+
+        if ($pickupLocation === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/',$pickupDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/',$returnDate)) throw new RuntimeException('Enter valid booking details.');
+        $startDate = new DateTimeImmutable($pickupDate); $endDate = new DateTimeImmutable($returnDate);
+        if ($endDate <= $startDate) throw new RuntimeException('Return date must be after pickup date.');
+
+        if (!empty($booking['car_variant_id'])) {
+            $variantStmt=$pdo->prepare("SELECT quantity,status FROM car_variants WHERE id=? LIMIT 1 FOR UPDATE");
+            $variantStmt->execute([(int)$booking['car_variant_id']]); $variant=$variantStmt->fetch();
+            if (!$variant || $variant['status']!=='available' || (int)$variant['quantity']<1) throw new RuntimeException('The assigned vehicle variant is not available.');
+            $check=$pdo->prepare("SELECT COUNT(*) FROM bookings WHERE car_variant_id=? AND id<>? AND status IN ('pending','confirmed','active') AND pickup_date < ? AND return_date > ?");
+            $check->execute([(int)$booking['car_variant_id'],$bookingId,$returnDate,$pickupDate]);
+            if ((int)$check->fetchColumn()>=(int)$variant['quantity']) throw new RuntimeException('Those dates would overbook this vehicle variant.');
+        }
+
+        $days=(int)$startDate->diff($endDate)->days; $total=$days*(float)$booking['daily_rate'];
+        $stmt=$pdo->prepare('UPDATE bookings SET pickup_location=?,dropoff_location=?,pickup_date=?,return_date=?,total_days=?,total_amount=?,special_requests=?,status=? WHERE id=?');
+        $stmt->execute([$pickupLocation,$pickupLocation,$pickupDate,$returnDate,$days,$total,$specialRequests?:null,$requestedStatus,$bookingId]);
+        $pdo->commit();
         redirectBack('Booking updated.');
     }
 
     if ($action === 'booking_cancel') {
         $bookingId = requirePositiveId('booking_id');
-        $stmt = $pdo->prepare("UPDATE bookings SET status = 'cancelled' WHERE id = ? AND status NOT IN ('completed','cancelled')");
-        $stmt->execute([$bookingId]);
-        redirectBack('Booking cancelled.');
+        $reason = clean($_POST['cancellation_reason'] ?? '');
+        if ($reason === '' || strlen($reason) > 500) throw new RuntimeException('A cancellation reason is required.');
+        $pdo->beginTransaction();
+        $stmt=$pdo->prepare("SELECT status FROM bookings WHERE id=? LIMIT 1 FOR UPDATE"); $stmt->execute([$bookingId]); $currentStatus=$stmt->fetchColumn();
+        if (!in_array($currentStatus,['pending','confirmed'],true)) throw new RuntimeException('Only pending or confirmed bookings can be cancelled.');
+        $pdo->prepare("UPDATE bookings SET status='cancelled',cancelled_at=NOW(),cancellation_reason=? WHERE id=?")->execute([$reason,$bookingId]);
+        $pdo->prepare("UPDATE payments SET payment_status='refunded' WHERE booking_id=? AND payment_status='paid'")->execute([$bookingId]);
+        $pdo->commit();
+        redirectBack('Booking cancelled. Any recorded paid payment was marked refunded.');
     }
 
     if ($action === 'payment_create' || $action === 'payment_update') {

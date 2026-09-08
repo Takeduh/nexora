@@ -12,6 +12,7 @@ if ($variantId) {
             v.id AS variant_id,
             v.transmission,
             v.daily_rate,
+            v.quantity,
             c.brand,
             c.model,
             c.category,
@@ -41,6 +42,23 @@ function validDate(string $date): bool
 
 $days = null;
 $total = null;
+
+$availabilityRemaining = null;
+$availabilityLow = false;
+$availabilityFull = false;
+if ($vehicle && validDate($pickup) && validDate($returnDate)) {
+    $aStart = new DateTimeImmutable($pickup);
+    $aEnd = new DateTimeImmutable($returnDate);
+    if ($aEnd > $aStart && $aStart >= new DateTimeImmutable('today')) {
+        $availabilityStmt = $pdo->prepare("SELECT COUNT(*) FROM bookings WHERE car_variant_id=? AND status IN ('pending','confirmed','active') AND pickup_date < ? AND return_date > ?");
+        $availabilityStmt->execute([(int)$vehicle['variant_id'], $returnDate, $pickup]);
+        $reserved = (int)$availabilityStmt->fetchColumn();
+        $availabilityRemaining = max(0, (int)$vehicle['quantity'] - $reserved);
+        $availabilityLow = $availabilityRemaining > 0 && $availabilityRemaining <= 2;
+        $availabilityFull = $availabilityRemaining < 1;
+    }
+}
+
 if ($vehicle && validDate($pickup) && validDate($returnDate)) {
     $start = new DateTime($pickup);
     $end = new DateTime($returnDate);
@@ -258,8 +276,9 @@ if ($vehicle && validDate($pickup) && validDate($returnDate)) {
               <strong id="summaryTotal"><?= $total !== null ? '₱' . number_format($total, 0) : '—' ?></strong>
             </div>
 
-            <button id="continueBookingButton" type="submit" class="checkout-primary-button" <?= (!$days || $location === '') ? 'disabled' : '' ?>>
-              Continue to confirmation
+            <div id="availabilityMessage" class="checkout-date-message <?= $availabilityFull ? 'is-error' : ($availabilityRemaining !== null ? 'is-success' : '') ?>"><?php if ($availabilityRemaining !== null): ?><?= $availabilityFull ? 'Fully booked for these dates.' : ($availabilityLow ? 'Low availability: only '.(int)$availabilityRemaining.' left for these dates.' : (int)$availabilityRemaining.' available for these dates.') ?><?php endif; ?></div>
+            <button id="continueBookingButton" type="submit" class="checkout-primary-button" <?= (!$days || $location === '' || $availabilityFull) ? 'disabled' : '' ?>>
+              Confirm Booking
             </button>
 
             <p class="checkout-disclaimer">
@@ -278,7 +297,7 @@ if ($vehicle && validDate($pickup) && validDate($returnDate)) {
   </main>
 
   <?php if ($vehicle): ?>
-    <script src="booking-summary.js"></script>
+    <script src="booking-summary.js?v=20260908-2"></script>
   <?php endif; ?>
 </body>
 </html>

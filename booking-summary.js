@@ -13,6 +13,12 @@
   const dateMessage = document.getElementById('dateMessage');
   const submitButton = document.getElementById('continueBookingButton');
   const returnQuery = document.getElementById('returnQuery');
+  const availabilityMessage = document.getElementById('availabilityMessage');
+  const variantId = form.querySelector('[name="car_variant_id"]').value;
+  let availabilityReady = false;
+  let availabilityAvailable = true;
+  let availabilityTimer = null;
+  let availabilityRequest = 0;
 
   const dailyRate = Number(form.dataset.dailyRate || 0);
   const oneDay = 24 * 60 * 60 * 1000;
@@ -100,6 +106,57 @@
     returnQuery.value = params.toString();
   };
 
+  const checkAvailability = (start, end) => {
+    if (!start || !end || end <= start) {
+      availabilityReady = false;
+      availabilityAvailable = true;
+      if (availabilityMessage) { availabilityMessage.textContent = ''; availabilityMessage.className = 'checkout-date-message'; }
+      return;
+    }
+
+    clearTimeout(availabilityTimer);
+    const requestId = ++availabilityRequest;
+    availabilityReady = false;
+    if (availabilityMessage) {
+      availabilityMessage.textContent = 'Checking availability for these dates...';
+      availabilityMessage.className = 'checkout-date-message';
+    }
+
+    availabilityTimer = setTimeout(async () => {
+      try {
+        const response = await fetch(`availability.php?pickup=${encodeURIComponent(toISODate(start))}&return=${encodeURIComponent(toISODate(end))}`, { headers: { 'Accept': 'application/json' } });
+        const data = await response.json();
+        if (requestId !== availabilityRequest) return;
+        if (!response.ok || !data.ok) throw new Error(data.message || 'Availability check failed.');
+        const info = data.variants?.[String(variantId)];
+        availabilityReady = true;
+        availabilityAvailable = Boolean(info?.available);
+        if (availabilityMessage) {
+          if (!info || !info.available) {
+            availabilityMessage.textContent = 'Fully booked for these dates. Choose different dates or another vehicle.';
+            availabilityMessage.className = 'checkout-date-message is-error';
+          } else if (info.low_stock) {
+            availabilityMessage.textContent = `Low availability: only ${info.remaining} left for these dates.`;
+            availabilityMessage.className = 'checkout-date-message is-error';
+          } else {
+            availabilityMessage.textContent = `${info.remaining} available for these dates.`;
+            availabilityMessage.className = 'checkout-date-message is-success';
+          }
+        }
+        submitButton.disabled = !(availabilityAvailable && hasSupportedLocation(pickupLocation.value));
+      } catch (error) {
+        if (requestId !== availabilityRequest) return;
+        availabilityReady = false;
+        availabilityAvailable = false;
+        if (availabilityMessage) {
+          availabilityMessage.textContent = 'Could not verify availability. Please try again.';
+          availabilityMessage.className = 'checkout-date-message is-error';
+        }
+        submitButton.disabled = true;
+      }
+    }, 250);
+  };
+
   const updateSummary = () => {
     const start = syncHiddenDate(pickupDateDisplay, pickupDate);
     const end = syncHiddenDate(returnDateDisplay, returnDate);
@@ -157,7 +214,14 @@
       formulaOutput.textContent = 'Based on your rental duration';
     }
 
-    submitButton.disabled = !(validDates && locationReady);
+    if (validDates) {
+      checkAvailability(start, end);
+    } else {
+      availabilityReady = false;
+      availabilityAvailable = true;
+      if (availabilityMessage) { availabilityMessage.textContent = ''; availabilityMessage.className = 'checkout-date-message'; }
+    }
+    submitButton.disabled = !(validDates && locationReady && availabilityReady && availabilityAvailable);
     buildReturnQuery();
   };
 
@@ -176,8 +240,16 @@
   pickupLocation.addEventListener('input', updateSummary);
 
   form.addEventListener('submit', (event) => {
-    updateSummary();
-    if (submitButton.disabled) event.preventDefault();
+    const start = syncHiddenDate(pickupDateDisplay, pickupDate);
+    const end = syncHiddenDate(returnDateDisplay, returnDate);
+    const locationReady = hasSupportedLocation(pickupLocation.value);
+
+    const validDates = Boolean(start && end && end > start);
+    const canProceed = validDates && locationReady && availabilityReady && availabilityAvailable;
+
+    if (!canProceed || !form.checkValidity()) {
+      event.preventDefault();
+    }
   });
 
   // Normalize any server-provided ISO values into the visible MM/DD/YYYY fields.
