@@ -6,6 +6,7 @@
   <title>Nexora — Rent the Perfect Car for Every Journey</title>
   <link rel="stylesheet" href="output.css">
   <link rel="stylesheet" href="styles.css">
+  <script src="vehicles-data.js" defer></script>
   <script src="script.js" defer></script>
 </head>
 <body class="bg-white text-ink antialiased">
@@ -143,7 +144,7 @@
       <div class="grid grid-cols-4 gap-[22px]" id="fleetGrid"></div>
 
       <div class="text-center mt-10">
-        <a href="#book" class="btn btn-dark-outline">View All Vehicles</a>
+        <a href="fleet.php" class="btn btn-dark-outline">View All Vehicles</a>
       </div>
     </div>
   </section>

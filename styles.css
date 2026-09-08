@@ -507,6 +507,67 @@ header nav > div:last-child {
   min-width: 0;
 }
 
+/* =========================================================
+   FLEET PAGE + BOOKING SUMMARY (Phase 1)
+   ========================================================= */
+
+.fleet-keyword-wrap {
+  width: 100%;
+  max-width: 320px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #eef0f4;
+  font-size: 14.5px;
+}
+
+.summary-row span {
+  color: #6b7280;
+}
+
+.summary-row b {
+  font-weight: 700;
+}
+
+.summary-row.summary-total {
+  border-bottom: none;
+  padding-top: 16px;
+  font-size: 16px;
+}
+
+.summary-row.summary-total b {
+  color: #2f6fed;
+  font-size: 18px;
+}
+
+#fleetResultsGrid .car-card,
+#fleetGrid .car-card {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  #fleetResultsGrid,
+  #fleetGrid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 560px) {
+  #fleetResultsGrid,
+  #fleetGrid {
+    grid-template-columns: 1fr !important;
+  }
+
+  #fleetSearchForm,
+  #book {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 .car-media > div[style*="display:none"] svg {
   width: 180px;
   height: auto;
