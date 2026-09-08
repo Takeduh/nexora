@@ -27,6 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php if ($error): ?><div class="auth-message auth-error"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
 <form class="auth-form" method="post" autocomplete="on"><div class="field"><label for="email">Email address</label><input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" value="<?php echo htmlspecialchars($email); ?>" required></div>
 <div class="field"><label for="password">Password</label><input type="password" id="password" name="password" autocomplete="current-password" placeholder="Enter your password" required></div>
-<label class="check-row"><input type="checkbox" name="remember" value="1"><span>Remember me</span></label><button type="submit">Login</button></form>
+<button type="submit">Login</button></form>
 <p class="auth-prompt">Don't have an account? <a href="../SignUp/signup.php">Sign up</a></p><a class="back-link" href="../index.php">Back to Nexora</a>
 </section></main></body></html>

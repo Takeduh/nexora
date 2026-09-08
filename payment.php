@@ -3,7 +3,7 @@ session_start();
 require_once __DIR__ . '/config/database.php';
 if (empty($_SESSION['user_id'])) { header('Location: Login/login.php'); exit; }
 $bookingId = (int)($_GET['booking'] ?? $_POST['booking_id'] ?? 0);
-$stmt = $pdo->prepare('SELECT * FROM bookings WHERE id = ? AND user_id = ? LIMIT 1');
+$stmt = $pdo->prepare('SELECT id, vehicle_name, total_amount FROM bookings WHERE id = ? AND user_id = ? LIMIT 1');
 $stmt->execute([$bookingId, (int)$_SESSION['user_id']]);
 $booking = $stmt->fetch();
 if (!$booking) { http_response_code(404); exit('Booking not found.'); }
@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $allowed = ['cash','gcash','card','bank_transfer'];
     if (in_array($method, $allowed, true)) {
         $reference = trim($_POST['transaction_reference'] ?? '');
-        $payStatus = $method === 'cash' ? 'pending' : 'pending';
+        $payStatus = 'pending';
         $stmt = $pdo->prepare('INSERT INTO payments (booking_id,amount,payment_method,payment_status,transaction_reference) VALUES (?,?,?,?,?)');
         $stmt->execute([$bookingId,$booking['total_amount'],$method,$payStatus,$reference !== '' ? $reference : null]);
         $message = 'Payment option saved. Your booking is pending confirmation.';

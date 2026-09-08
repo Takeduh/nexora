@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . '/config/fleet-data.php';
+$fleetCars = getFleetCars($pdo);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +10,7 @@
   <title>Nexora — Rent the Perfect Car for Every Journey</title>
   <link rel="stylesheet" href="output.css">
   <link rel="stylesheet" href="styles.css">
-  <script src="vehicles-data.js" defer></script>
+  <script>window.NEXORA_FLEET = <?= json_encode($fleetCars, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;</script>
   <script src="script.js" defer></script>
 </head>
 <body class="bg-white text-ink antialiased">
@@ -64,11 +68,13 @@
         </div>
         <div class="flex flex-col gap-1.5">
           <label for="pickup" class="text-[11.5px] font-bold tracking-[0.06em] uppercase text-gray-500">Pick-up Date</label>
-          <input type="date" id="pickup" required class="border-[1.5px] border-gray-200 rounded-[9px] px-3 py-2.5 text-sm text-ink bg-white outline-none transition focus:border-blue-500">
+          <input type="text" id="pickupDisplay" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="MM/DD/YYYY" required class="border-[1.5px] border-gray-200 rounded-[9px] px-3 py-2.5 text-sm text-ink bg-white outline-none transition focus:border-blue-500">
+          <input type="hidden" id="pickup">
         </div>
         <div class="flex flex-col gap-1.5">
           <label for="return" class="text-[11.5px] font-bold tracking-[0.06em] uppercase text-gray-500">Return Date</label>
-          <input type="date" id="return" required class="border-[1.5px] border-gray-200 rounded-[9px] px-3 py-2.5 text-sm text-ink bg-white outline-none transition focus:border-blue-500">
+          <input type="text" id="returnDisplay" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="MM/DD/YYYY" required class="border-[1.5px] border-gray-200 rounded-[9px] px-3 py-2.5 text-sm text-ink bg-white outline-none transition focus:border-blue-500">
+          <input type="hidden" id="return">
         </div>
         <button type="submit" class="btn btn-primary whitespace-nowrap h-11 self-end">Search Cars</button>
         <p class="booking-note" id="bookingNote"></p>
@@ -211,7 +217,6 @@
       <div class="max-w-[760px] mx-auto relative">
         <!-- populated by script.js -->
         <div class="t-card" id="tCard"></div>
-        <a href="#" class="block text-center mt-[22px] text-sm font-bold text-blue-500 hover:underline">Read all 10,000+ reviews →</a>
       </div>
     </div>
   </section>

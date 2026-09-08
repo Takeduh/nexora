@@ -1,71 +1,122 @@
+(() => {
 /* =========================================================
-   FLEET DATA now lives in vehicles-data.js (loaded before this
-   file) so the homepage and the full fleet page share one
-   source of truth: the `cars` array and `carIcon` markup.
+   HOMEPAGE FLEET — MySQL-backed cars + transmission variants.
+   Data is injected by index.php as window.NEXORA_FLEET.
    ========================================================= */
 
-
-/* =========================================================
-   RENDER FLEET
-   ========================================================= */
-
+const cars = Array.isArray(window.NEXORA_FLEET) ? window.NEXORA_FLEET : [];
 const fleetGrid = document.getElementById("fleetGrid");
 const defaultFleetLimit = 8;
+
+const carIcon = `
+<svg viewBox="0 0 64 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M4 24 L8 12 Q10 8 16 8 H44 Q50 8 52 12 L58 24" stroke="#0A1730" stroke-width="2" fill="rgba(10,23,48,0.06)"/>
+  <rect x="2" y="22" width="60" height="7" rx="3.5" fill="#0A1730"/>
+  <rect x="20" y="10" width="20" height="9" rx="1.5" fill="rgba(255,255,255,.7)"/>
+  <circle cx="15" cy="29" r="5" fill="#0A1730" stroke="white" stroke-width="1.4"/>
+  <circle cx="49" cy="29" r="5" fill="#0A1730" stroke="white" stroke-width="1.4"/>
+</svg>`;
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function peso(amount) {
+  return Number(amount).toLocaleString("en-PH", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  });
+}
+
+function buildBookingLink(variantId) {
+  const params = new URLSearchParams({ variant: variantId });
+  const loc = document.getElementById("loc");
+  const pickup = document.getElementById("pickup");
+  const ret = document.getElementById("return");
+
+  if (loc?.value) params.set("loc", loc.value);
+  if (pickup?.value) params.set("pickup", pickup.value);
+  if (ret?.value) params.set("return", ret.value);
+
+  return `booking-summary.php?${params.toString()}`;
+}
 
 function renderFleet(filter = "all") {
   if (!fleetGrid) return;
 
   const visibleCars = filter === "all"
     ? cars.slice(0, defaultFleetLimit)
-    : cars.filter(car => car.cat === filter);
+    : cars.filter(car => car.cat === filter).slice(0, defaultFleetLimit);
 
-  fleetGrid.innerHTML = visibleCars.map(car => `
-    <div class="car-card" data-cat="${car.cat}">
-      <div class="car-media media-${car.cat}">
-        <span class="car-tag cat-${car.cat}">${car.label}</span>
-        <img src="${car.image}" alt="${car.name}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-        <div style="display:none">${carIcon}</div>
+  if (visibleCars.length === 0) {
+    const label = filter === "all" ? "vehicles" : `${filter.toUpperCase()} vehicles`;
+    fleetGrid.innerHTML = `
+      <div class="fleet-empty-state" style="grid-column: 1 / -1; text-align:center; padding:48px 20px;">
+        <h4 style="font-size:20px; margin-bottom:8px;">No ${label} available</h4>
+        <p style="color:#5B6478;">Add an active car and an available transmission variant in phpMyAdmin.</p>
+      </div>`;
+    return;
+  }
+
+  fleetGrid.innerHTML = visibleCars.map(car => {
+    const firstVariant = car.variants[0];
+    if (!firstVariant) return "";
+    const categoryClass = String(car.cat || "car").replace(/[^a-z0-9-]/g, "");
+    const specs = [car.seats ? `${car.seats} seats` : null, car.fuel || null].filter(Boolean).join(" · ");
+    const options = car.variants.map(variant => `
+      <option value="${variant.id}" data-rate="${variant.dailyRate}">
+        ${escapeHtml(variant.transmissionLabel)} — PHP ${peso(variant.dailyRate)}/day
+      </option>
+    `).join("");
+
+    return `
+      <div class="car-card" data-cat="${escapeHtml(car.cat)}">
+        <div class="car-media media-${categoryClass}">
+          <span class="car-tag cat-${categoryClass}">${escapeHtml(car.label)}</span>
+          ${car.image ? `<img src="${escapeHtml(car.image)}" alt="${escapeHtml(car.name)}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">` : ""}
+          <div style="${car.image ? "display:none" : "display:block"}">${carIcon}</div>
+        </div>
+        <div class="car-body">
+          <h4>${escapeHtml(car.name)}</h4>
+          <p class="car-specs">${escapeHtml(specs)}</p>
+          <p class="car-price">Starting at <b>PHP ${peso(firstVariant.dailyRate)}</b> /day</p>
+          <label class="car-variant-field">
+            <span>Transmission</span>
+            <select class="variant-select" aria-label="Choose transmission for ${escapeHtml(car.name)}">
+              ${options}
+            </select>
+          </label>
+          <a href="${buildBookingLink(firstVariant.id)}" class="btn btn-primary btn-block variant-book-button">Book Now</a>
+        </div>
       </div>
-      <div class="car-body">
-        <h4>${car.name}</h4>
-        <p class="car-price">Starting at <b>PHP ${car.price.toLocaleString()}</b> /day</p>
-        <a href="${buildBookingLink(car.id)}" class="btn btn-primary btn-block">Book Now</a>
-      </div>
-    </div>
-  `).join("");
-}
+    `;
+  }).join("");
 
-/* Carries whatever the hero search widget currently has (location,
-   pick-up, return) into the booking summary link for a given car,
-   so selecting a car doesn't lose the search the user already did. */
-function buildBookingLink(carId) {
-  const params = new URLSearchParams({ car: carId });
+  fleetGrid.querySelectorAll(".car-card").forEach(card => {
+    const select = card.querySelector(".variant-select");
+    const price = card.querySelector(".car-price b");
+    const bookButton = card.querySelector(".variant-book-button");
 
-  const loc = document.getElementById("loc");
-  const pickup = document.getElementById("pickup");
-  const ret = document.getElementById("return");
-
-  if (loc && loc.value) params.set("loc", loc.value);
-  if (pickup && pickup.value) params.set("pickup", pickup.value);
-  if (ret && ret.value) params.set("return", ret.value);
-
-  return `booking-summary.php?${params.toString()}`;
+    select?.addEventListener("change", () => {
+      const option = select.options[select.selectedIndex];
+      if (price) price.textContent = `PHP ${peso(option.dataset.rate)}`;
+      if (bookButton) bookButton.href = buildBookingLink(select.value);
+    });
+  });
 }
 
 renderFleet();
 
-
-/* =========================================================
-   FLEET FILTER
-   ========================================================= */
-
 const filterTabs = document.querySelectorAll(".filter-tab");
-
 filterTabs.forEach(tab => {
   tab.addEventListener("click", () => {
     filterTabs.forEach(button => button.classList.remove("active"));
     tab.classList.add("active");
-
     renderFleet(tab.dataset.filter);
   });
 });
@@ -80,43 +131,86 @@ const bookingNote = document.getElementById("bookingNote");
 const locationInput = document.getElementById("loc");
 const pickupInput = document.getElementById("pickup");
 const returnInput = document.getElementById("return");
+const pickupDisplay = document.getElementById("pickupDisplay");
+const returnDisplay = document.getElementById("returnDisplay");
 
-/* Prevent selecting dates in the past */
-const today = new Date().toISOString().split("T")[0];
-if (pickupInput) pickupInput.min = today;
-if (returnInput) returnInput.min = today;
-
-/* Return date follows pick-up date */
-if (pickupInput && returnInput) {
-  pickupInput.addEventListener("change", () => {
-    returnInput.min = pickupInput.value;
-    if (returnInput.value && returnInput.value < pickupInput.value) {
-      returnInput.value = "";
-    }
-  });
+function homepageParseUSDate(value) {
+  if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return null;
+  const [month, day, year] = value.split("/").map(Number);
+  const date = new Date(year, month - 1, day);
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) return null;
+  return date;
 }
+
+function homepageToISODate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function homepageAutoFormatDate(input) {
+  const digits = input.value.replace(/\D/g, "").slice(0, 8);
+  let value = digits;
+  if (digits.length > 2) value = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  if (digits.length > 4) value = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+  input.value = value;
+}
+
+function homepageSyncDate(displayInput, hiddenInput) {
+  const parsed = homepageParseUSDate(displayInput.value.trim());
+  hiddenInput.value = parsed ? homepageToISODate(parsed) : "";
+  return parsed;
+}
+
+function updateHomepageBookingDates() {
+  if (!pickupDisplay || !returnDisplay || !pickupInput || !returnInput) return;
+  homepageSyncDate(pickupDisplay, pickupInput);
+  homepageSyncDate(returnDisplay, returnInput);
+}
+
+[pickupDisplay, returnDisplay].forEach((input) => {
+  if (!input) return;
+  input.addEventListener("input", () => {
+    homepageAutoFormatDate(input);
+    updateHomepageBookingDates();
+  });
+});
 
 if (bookingForm) {
   bookingForm.addEventListener("submit", function (event) {
     event.preventDefault();
+    updateHomepageBookingDates();
 
     const location = locationInput.value;
-    const pickup = pickupInput.value;
-    const returnDate = returnInput.value;
+    const pickupDate = homepageParseUSDate(pickupDisplay.value.trim());
+    const returnDate = homepageParseUSDate(returnDisplay.value.trim());
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    if (!pickup || !returnDate) {
-      bookingNote.textContent = "Please select both a pick-up and return date.";
+    if (!pickupDate || !returnDate) {
+      bookingNote.textContent = "Please enter both dates in MM/DD/YYYY format.";
       bookingNote.classList.add("show");
       return;
     }
 
-    if (returnDate < pickup) {
-      bookingNote.textContent = "Return date cannot be earlier than the pick-up date.";
+    if (pickupDate < today) {
+      bookingNote.textContent = "Pick-up date cannot be in the past.";
       bookingNote.classList.add("show");
       return;
     }
 
-    bookingNote.textContent = `Showing available cars in ${location} from ${pickup} to ${returnDate} ↓`;
+    if (returnDate <= pickupDate) {
+      bookingNote.textContent = "Return date must be at least one day after the pick-up date.";
+      bookingNote.classList.add("show");
+      return;
+    }
+
+    bookingNote.textContent = `Showing available cars in ${location} from ${pickupDisplay.value} to ${returnDisplay.value} ↓`;
     bookingNote.classList.add("show");
 
     const fleet = document.getElementById("fleet");
@@ -142,28 +236,17 @@ const testimonials = [
 ];
 
 const testimonialCard = document.getElementById("tCard");
-const testimonialLocations = [
-  "Cebu City",
-  "Manila",
-  "Davao",
-  "Cagayan de Oro",
-  "Dumaguete",
-  "Palawan",
-  "Bohol"
-];
 
 function renderTestimonials() {
   if (!testimonialCard) return;
 
-  const randomizedLocations = [...testimonialLocations].sort(() => Math.random() - 0.5);
-
-  testimonialCard.innerHTML = testimonials.map((testimonial, index) => `
+  testimonialCard.innerHTML = testimonials.map(testimonial => `
     <article class="t-slide">
       <div class="t-stars">★★★★★</div>
       <p class="t-quote">"${testimonial.quote}"</p>
       <div class="t-person">
         <div class="t-name">${testimonial.name}</div>
-        <div class="t-loc">${randomizedLocations[index] || testimonialLocations[Math.floor(Math.random() * testimonialLocations.length)]}</div>
+        <div class="t-loc">${testimonial.loc}</div>
       </div>
     </article>
   `).join("");
@@ -193,12 +276,4 @@ if (newsletterForm) {
     }
   });
 }
-
-
-/* =========================================================
-   PREVENT PLACEHOLDER LINKS FROM JUMPING
-   ========================================================= */
-
-document.querySelectorAll("a[href='#']").forEach(link => {
-  link.addEventListener("click", event => event.preventDefault());
-});
+})();

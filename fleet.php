@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . '/config/fleet-data.php';
+$fleetCars = getFleetCars($pdo);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,8 +10,8 @@
   <title>Our Fleet — Nexora</title>
   <link rel="stylesheet" href="output.css">
   <link rel="stylesheet" href="styles.css">
-  <script src="vehicles-data.js" defer></script>
-  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="fleet.css?v=20260908-1">
+  <script>window.NEXORA_FLEET = <?= json_encode($fleetCars, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;</script>
   <script src="fleet.js" defer></script>
 </head>
 <body class="bg-white text-ink antialiased">
@@ -34,21 +38,32 @@
   </header>
 
   <!-- PAGE HEADER -->
-  <section class="bg-navy-900 text-white py-[88px]">
-    <div class="max-w-[1180px] mx-auto px-6 text-center">
-      <h3 class="section-kicker on-dark">Our Full Fleet</h3>
-      <h1 class="text-[36px] font-extrabold tracking-[-0.01em] mb-3.5">Find Your Perfect Ride</h1>
-      <p class="text-white/62 text-base leading-relaxed max-w-[460px] mx-auto">Browse every vehicle in the Nexora fleet, filter by type, and pick the one that fits your trip.</p>
+  <section class="fleet-hero">
+    <div class="fleet-shell fleet-hero-inner">
+      <div>
+        <span class="fleet-eyebrow">NEXORA FLEET</span>
+        <h1>Choose the right car for the road ahead.</h1>
+        <p>Compare categories, transmissions, and daily rates in one place. Simple choices, clear pricing.</p>
+      </div>
+      <div class="fleet-hero-stat">
+        <strong><?= count($fleetCars) ?></strong>
+        <span>vehicle models currently listed</span>
+      </div>
     </div>
   </section>
 
-  <!-- SEARCH -->
-  <section class="bg-gray-50 border-b border-gray-200">
-    <div class="max-w-[1180px] mx-auto px-6 py-[30px]">
-      <form class="bg-white rounded-[14px] shadow-card-lg p-[22px] grid grid-cols-[1.2fr_1fr_1fr_auto] gap-3.5 items-end" id="fleetSearchForm" novalidate>
-        <div class="flex flex-col gap-1.5">
-          <label for="fleetLoc" class="text-[11.5px] font-bold tracking-[0.06em] uppercase text-gray-500">Pick-up Location</label>
-          <select id="fleetLoc" class="border-[1.5px] border-gray-200 rounded-[9px] px-3 py-2.5 text-sm text-ink bg-white outline-none transition focus:border-blue-500">
+  <!-- TRIP DETAILS -->
+  <section class="fleet-trip-section">
+    <div class="fleet-shell">
+      <form class="fleet-trip-card" id="fleetSearchForm" novalidate>
+        <div class="fleet-trip-heading">
+          <span>Trip details</span>
+          <small>Optional — you can also choose dates during checkout.</small>
+        </div>
+
+        <label class="fleet-field">
+          <span>Pick-up location</span>
+          <select id="fleetLoc">
             <option>Cebu City</option>
             <option>Manila</option>
             <option>Davao</option>
@@ -57,30 +72,57 @@
             <option>Palawan</option>
             <option>Bohol</option>
           </select>
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label for="fleetPickup" class="text-[11.5px] font-bold tracking-[0.06em] uppercase text-gray-500">Pick-up Date</label>
-          <input type="date" id="fleetPickup" class="border-[1.5px] border-gray-200 rounded-[9px] px-3 py-2.5 text-sm text-ink bg-white outline-none transition focus:border-blue-500">
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label for="fleetReturn" class="text-[11.5px] font-bold tracking-[0.06em] uppercase text-gray-500">Return Date</label>
-          <input type="date" id="fleetReturn" class="border-[1.5px] border-gray-200 rounded-[9px] px-3 py-2.5 text-sm text-ink bg-white outline-none transition focus:border-blue-500">
-        </div>
-        <button type="submit" class="btn btn-primary whitespace-nowrap h-11 self-end">Apply to Search</button>
+        </label>
+
+        <label class="fleet-field">
+          <span>Pick-up date</span>
+          <input type="text" id="fleetPickupDisplay" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="MM/DD/YYYY">
+          <input type="hidden" id="fleetPickup">
+        </label>
+
+        <label class="fleet-field">
+          <span>Return date</span>
+          <input type="text" id="fleetReturnDisplay" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="MM/DD/YYYY">
+          <input type="hidden" id="fleetReturn">
+        </label>
+
+        <button type="submit" class="btn btn-primary fleet-apply-btn">Apply trip details</button>
+        <p class="fleet-form-note" id="fleetFormNote" aria-live="polite"></p>
       </form>
     </div>
   </section>
 
   <!-- RESULTS -->
-  <section class="bg-white py-[88px]">
-    <div class="max-w-[1180px] mx-auto px-6">
-
-      <div class="flex flex-wrap items-center justify-between gap-3.5 mb-7">
-        <div class="fleet-keyword-wrap">
-          <input type="text" id="fleetKeyword" placeholder="Search by car name..." class="w-full border-[1.5px] border-gray-200 rounded-[9px] px-3.5 py-2.5 text-sm text-ink bg-white outline-none transition focus:border-blue-500">
+  <section class="fleet-results-section">
+    <div class="fleet-shell">
+      <div class="fleet-results-header">
+        <div>
+          <span class="fleet-eyebrow fleet-eyebrow-dark">AVAILABLE VEHICLES</span>
+          <h2>Browse the fleet</h2>
+          <p id="fleetResultsCount">Choose a category or search for a specific model.</p>
         </div>
-        <div class="flex justify-center gap-2 flex-wrap" role="tablist" aria-label="Filter vehicles by category">
-          <button class="filter-tab active" data-filter="all">All Vehicles</button>
+
+        <div class="fleet-sort-wrap">
+          <label for="fleetSort">Sort by</label>
+          <select id="fleetSort">
+            <option value="recommended">Recommended</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="name-asc">Name: A to Z</option>
+            <option value="name-desc">Name: Z to A</option>
+            <option value="seats-desc">Seats: Most to Least</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fleet-toolbar">
+        <div class="fleet-search-box">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.8-3.8"></path></svg>
+          <input type="text" id="fleetKeyword" placeholder="Search Toyota, SUV, Vios...">
+        </div>
+
+        <div class="fleet-category-tabs" role="tablist" aria-label="Filter vehicles by category">
+          <button class="filter-tab active" data-filter="all">All</button>
           <button class="filter-tab" data-filter="sedan">Sedan</button>
           <button class="filter-tab" data-filter="suv">SUV</button>
           <button class="filter-tab" data-filter="mpv">MPV</button>
@@ -90,14 +132,14 @@
         </div>
       </div>
 
-      <p class="text-sm text-gray-500 mb-5" id="fleetResultsCount"></p>
+      <div class="fleet-grid" id="fleetResultsGrid"></div>
 
-      <!-- populated by fleet.js -->
-      <div class="grid grid-cols-4 gap-[22px]" id="fleetResultsGrid"></div>
+      <div class="fleet-empty hidden" id="fleetEmptyState">
+        <strong>No vehicles found</strong>
+        <span>Try another category or search term.</span>
+      </div>
 
-      <p class="text-center text-gray-500 py-[30px] hidden" id="fleetEmptyState">No vehicles match your filters. Try a different category or keyword.</p>
-
-      <div class="text-center mt-10">
+      <div class="fleet-load-more-wrap">
         <button type="button" class="btn btn-dark-outline" id="fleetLoadMore">Load More Vehicles</button>
       </div>
     </div>

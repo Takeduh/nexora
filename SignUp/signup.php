@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="field"><label for="phone">Phone number <span>(optional)</span></label><input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="+63 912 345 6789" value="<?php echo htmlspecialchars($values['phone']); ?>"></div>
 <div class="field"><label for="password">Password</label><input type="password" id="password" name="password" autocomplete="new-password" placeholder="At least 8 characters" minlength="8" required></div>
 <div class="field"><label for="confirm-password">Confirm password</label><input type="password" id="confirm-password" name="confirm_password" autocomplete="new-password" placeholder="Re-enter your password" minlength="8" required></div>
-<label class="check-row top-align"><input type="checkbox" name="terms" value="1" required><span>I agree to Nexora's <a class="inline-link" href="#terms">Terms of Service</a> and <a class="inline-link" href="#privacy">Privacy Policy</a>.</span></label>
+<label class="check-row top-align"><input type="checkbox" name="terms" value="1" required><span>I agree to Nexora's Terms of Service and Privacy Policy.</span></label>
 <button type="submit">Create account</button></form>
 <p class="auth-prompt">Already have an account? <a href="../Login/login.php">Log in</a></p><a class="back-link" href="../index.php">Back to Nexora</a>
 </section></main></body></html>

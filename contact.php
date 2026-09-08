@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once __DIR__ . '/config/database.php';
 $success = false; $error = '';
 $name = ''; $email = ''; $subject = ''; $message = '';

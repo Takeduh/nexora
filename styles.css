@@ -507,67 +507,6 @@ header nav > div:last-child {
   min-width: 0;
 }
 
-/* =========================================================
-   FLEET PAGE + BOOKING SUMMARY (Phase 1)
-   ========================================================= */
-
-.fleet-keyword-wrap {
-  width: 100%;
-  max-width: 320px;
-}
-
-.summary-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid #eef0f4;
-  font-size: 14.5px;
-}
-
-.summary-row span {
-  color: #6b7280;
-}
-
-.summary-row b {
-  font-weight: 700;
-}
-
-.summary-row.summary-total {
-  border-bottom: none;
-  padding-top: 16px;
-  font-size: 16px;
-}
-
-.summary-row.summary-total b {
-  color: #2f6fed;
-  font-size: 18px;
-}
-
-#fleetResultsGrid .car-card,
-#fleetGrid .car-card {
-  min-width: 0;
-}
-
-@media (max-width: 900px) {
-  #fleetResultsGrid,
-  #fleetGrid {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-}
-
-@media (max-width: 560px) {
-  #fleetResultsGrid,
-  #fleetGrid {
-    grid-template-columns: 1fr !important;
-  }
-
-  #fleetSearchForm,
-  #book {
-    grid-template-columns: 1fr !important;
-  }
-}
-
 .car-media > div[style*="display:none"] svg {
   width: 180px;
   height: auto;
@@ -660,4 +599,50 @@ header nav > div:last-child {
   .final-cta-content h2 {
     font-size: 42px;
   }
+}
+
+/* =========================================================
+   MYSQL FLEET VARIANTS
+   ========================================================= */
+.car-specs {
+  margin: 4px 0 10px;
+  color: var(--gray-600);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.car-variant-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 14px 0;
+}
+
+.car-variant-field > span {
+  color: var(--gray-600);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.variant-select {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 34px 9px 11px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 9px;
+  color: var(--ink);
+  background: var(--white);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.variant-select:focus {
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.1);
 }

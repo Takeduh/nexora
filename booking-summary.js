@@ -1,84 +1,170 @@
-/* =========================================================
-   BOOKING SUMMARY — reads ?car=&loc=&pickup=&return= from the
-   URL (set when a car is selected on the homepage or fleet
-   page) and renders a summary against the shared `cars` data.
+(() => {
+  const form = document.getElementById('bookingCheckoutForm');
+  if (!form) return;
 
-   No server-side session yet — that's Phase 2. For now the
-   selection travels entirely through the URL, which is also
-   why refreshing or sharing this link keeps working.
-   ========================================================= */
+  const pickupLocation = document.getElementById('pickupLocation');
+  const pickupDate = document.getElementById('pickupDate');
+  const returnDate = document.getElementById('returnDate');
+  const pickupDateDisplay = document.getElementById('pickupDateDisplay');
+  const returnDateDisplay = document.getElementById('returnDateDisplay');
+  const durationOutput = document.getElementById('summaryDuration');
+  const totalOutput = document.getElementById('summaryTotal');
+  const formulaOutput = document.getElementById('summaryFormula');
+  const dateMessage = document.getElementById('dateMessage');
+  const submitButton = document.getElementById('continueBookingButton');
+  const returnQuery = document.getElementById('returnQuery');
 
-const params = new URLSearchParams(window.location.search);
-const carId = params.get("car");
-const loc = params.get("loc");
-const pickup = params.get("pickup");
-const returnDate = params.get("return");
+  const dailyRate = Number(form.dataset.dailyRate || 0);
+  const oneDay = 24 * 60 * 60 * 1000;
 
-const summaryContent = document.getElementById("summaryContent");
-const summaryNotFound = document.getElementById("summaryNotFound");
+  const parseISODate = (value) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+    const [year, month, day] = value.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    if (
+      date.getFullYear() !== year ||
+      date.getMonth() !== month - 1 ||
+      date.getDate() !== day
+    ) return null;
+    return date;
+  };
 
-function formatDate(dateStr) {
-  if (!dateStr) return null;
-  const d = new Date(dateStr + "T00:00:00");
-  if (isNaN(d)) return null;
-  return d.toLocaleDateString("en-PH", { year: "numeric", month: "short", day: "numeric" });
-}
+  const parseUSDate = (value) => {
+    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return null;
+    const [month, day, year] = value.split('/').map(Number);
+    const date = new Date(year, month - 1, day);
+    if (
+      date.getFullYear() !== year ||
+      date.getMonth() !== month - 1 ||
+      date.getDate() !== day
+    ) return null;
+    return date;
+  };
 
-function nightsBetween(pickupStr, returnStr) {
-  if (!pickupStr || !returnStr) return null;
-  const start = new Date(pickupStr + "T00:00:00");
-  const end = new Date(returnStr + "T00:00:00");
-  if (isNaN(start) || isNaN(end) || end <= start) return null;
-  return Math.round((end - start) / 86400000);
-}
+  const toISODate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
-function renderSummary() {
-  const car = carId ? getCarById(carId) : null;
+  const formatUSDate = (date) => {
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
 
-  if (!car) {
-    if (summaryContent) summaryContent.classList.add("hidden");
-    if (summaryNotFound) summaryNotFound.classList.remove("hidden");
-    return;
-  }
+  const formatPeso = (amount) =>
+    new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP',
+      maximumFractionDigits: 0
+    }).format(amount).replace('PHP', '₱').trim();
 
-  const nights = nightsBetween(pickup, returnDate);
-  const total = nights ? nights * car.price : null;
+  const autoFormatDate = (input) => {
+    const digits = input.value.replace(/\D/g, '').slice(0, 8);
+    let value = digits;
+    if (digits.length > 2) value = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    if (digits.length > 4) value = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+    input.value = value;
+  };
 
-  summaryContent.innerHTML = `
-    <div class="bg-white rounded-[14px] shadow-card-lg overflow-hidden mb-5">
-      <div class="car-media media-${car.cat}" style="aspect-ratio:16/8">
-        <span class="car-tag cat-${car.cat}">${car.label}</span>
-        <img src="${car.image}" alt="${car.name}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-        <div style="display:none">${carIcon}</div>
-      </div>
-      <div class="p-[22px]">
-        <h2 class="text-2xl font-extrabold mb-2">${car.name}</h2>
-        <p class="text-gray-500 text-sm mb-5">${car.seats} seats &middot; ${car.transmission} &middot; ${car.fuel}</p>
+  const syncHiddenDate = (displayInput, hiddenInput) => {
+    const parsed = parseUSDate(displayInput.value.trim());
+    hiddenInput.value = parsed ? toISODate(parsed) : '';
+    return parsed;
+  };
 
-        <div class="summary-row"><span>Pick-up Location</span><b>${loc || "Not selected yet"}</b></div>
-        <div class="summary-row"><span>Pick-up Date</span><b>${formatDate(pickup) || "Not selected yet"}</b></div>
-        <div class="summary-row"><span>Return Date</span><b>${formatDate(returnDate) || "Not selected yet"}</b></div>
-        <div class="summary-row"><span>Duration</span><b>${nights ? nights + (nights === 1 ? " night" : " nights") : "—"}</b></div>
-        <div class="summary-row"><span>Rate</span><b>PHP ${car.price.toLocaleString()} /day</b></div>
-        <div class="summary-row summary-total"><span>Estimated Total</span><b>${total ? "PHP " + total.toLocaleString() : "Select both dates to see a total"}</b></div>
+  const buildReturnQuery = () => {
+    const params = new URLSearchParams({
+      variant: form.querySelector('[name="car_variant_id"]').value,
+      loc: pickupLocation.value.trim(),
+      pickup: pickupDate.value,
+      return: returnDate.value
+    });
+    returnQuery.value = params.toString();
+  };
 
-        <form method="post" action="process-booking.php" class="mt-7">
-          <input type="hidden" name="vehicle_code" value="${car.id}">
-          <input type="hidden" name="vehicle_name" value="${car.name.replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">
-          <input type="hidden" name="pickup_location" value="${(loc || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">
-          <input type="hidden" name="pickup_date" value="${pickup || ''}">
-          <input type="hidden" name="return_date" value="${returnDate || ''}">
-          <input type="hidden" name="daily_rate" value="${car.price}">
-          <input type="hidden" name="return_query" value="${params.toString().replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">
-          <label class="block text-sm font-semibold mb-2" for="specialRequests">Special requests <span class="text-gray-500 font-normal">(optional)</span></label>
-          <textarea id="specialRequests" name="special_requests" rows="3" class="w-full border-[1.5px] border-gray-200 rounded-[9px] px-3 py-2.5 text-sm outline-none focus:border-blue-500" placeholder="Anything we should know about your booking?"></textarea>
-          <button type="submit" class="btn btn-primary btn-block mt-4" ${(!nights || !loc) ? 'disabled' : ''}>Continue Booking</button>
-        </form>
+  const updateSummary = () => {
+    const start = syncHiddenDate(pickupDateDisplay, pickupDate);
+    const end = syncHiddenDate(returnDateDisplay, returnDate);
+    const locationReady = pickupLocation.value.trim().length > 0;
 
-        <a href="fleet.php" class="block text-center mt-3.5 text-sm font-bold text-blue-500 hover:underline">← Choose a different car</a>
-      </div>
-    </div>
-  `;
-}
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-renderSummary();
+    let validDates = false;
+    let days = 0;
+    let error = '';
+
+    if (start && start < today) {
+      error = 'Pick-up date cannot be in the past.';
+    } else if (start && end) {
+      days = Math.round((end - start) / oneDay);
+      if (days <= 0) {
+        error = 'Return date must be at least one day after the pick-up date.';
+      } else {
+        validDates = true;
+      }
+    }
+
+    if (!pickupDateDisplay.value && !returnDateDisplay.value) {
+      dateMessage.textContent = 'Enter your pick-up and return dates in MM/DD/YYYY format.';
+      dateMessage.className = 'checkout-date-message';
+    } else if (!pickupDateDisplay.value || !returnDateDisplay.value) {
+      dateMessage.textContent = 'Enter both dates in MM/DD/YYYY format to calculate your rental duration.';
+      dateMessage.className = 'checkout-date-message';
+    } else if (!start || !end) {
+      dateMessage.textContent = 'Use a valid date in MM/DD/YYYY format.';
+      dateMessage.className = 'checkout-date-message is-error';
+    } else if (error) {
+      dateMessage.textContent = error;
+      dateMessage.className = 'checkout-date-message is-error';
+    } else {
+      dateMessage.textContent = `${days}-day rental selected. Your estimate has been updated.`;
+      dateMessage.className = 'checkout-date-message is-success';
+    }
+
+    if (validDates) {
+      const total = days * dailyRate;
+      durationOutput.textContent = `${days} ${days === 1 ? 'day' : 'days'}`;
+      totalOutput.textContent = formatPeso(total);
+      formulaOutput.textContent = `${days} × ${formatPeso(dailyRate)} per day`;
+    } else {
+      durationOutput.textContent = 'Select dates';
+      totalOutput.textContent = '—';
+      formulaOutput.textContent = 'Based on your rental duration';
+    }
+
+    submitButton.disabled = !(validDates && locationReady);
+    buildReturnQuery();
+  };
+
+  [pickupDateDisplay, returnDateDisplay].forEach((input) => {
+    input.addEventListener('input', () => {
+      autoFormatDate(input);
+      updateSummary();
+    });
+    input.addEventListener('blur', () => {
+      const parsed = parseUSDate(input.value.trim());
+      if (parsed) input.value = formatUSDate(parsed);
+      updateSummary();
+    });
+  });
+
+  pickupLocation.addEventListener('input', updateSummary);
+
+  form.addEventListener('submit', (event) => {
+    updateSummary();
+    if (submitButton.disabled) event.preventDefault();
+  });
+
+  // Normalize any server-provided ISO values into the visible MM/DD/YYYY fields.
+  const initialPickup = parseISODate(pickupDate.value);
+  const initialReturn = parseISODate(returnDate.value);
+  if (initialPickup) pickupDateDisplay.value = formatUSDate(initialPickup);
+  if (initialReturn) returnDateDisplay.value = formatUSDate(initialReturn);
+
+  updateSummary();
+})();
