@@ -1,9 +1,10 @@
 <?php
 session_start();
-require_once __DIR__ . '/config/database.php';
+require_once dirname(__DIR__) . '/config/database.php';
+require_once dirname(__DIR__) . '/utils/validation.php';
 
 if (empty($_SESSION['user_id'])) {
-    header('Location: Login/login.php?next=../admin-dashboard.php');
+    header('Location: ../auth/login.php?next=../admin/admin-dashboard.php');
     exit;
 }
 
@@ -59,11 +60,12 @@ function redirectBack(string $message = '', string $error = ''): never
 
 function requirePositiveId(string $key): int
 {
-    $id = filter_input(INPUT_POST, $key, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-    if (!$id) {
-        throw new RuntimeException('Invalid record identifier.');
+    $raw = $_POST[$key] ?? null;
+    $error = validatePositiveId($raw, 'Record');
+    if ($error !== null) {
+        throw new RuntimeException($error);
     }
-    return (int)$id;
+    return (int)$raw;
 }
 
 try {

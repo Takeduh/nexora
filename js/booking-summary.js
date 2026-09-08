@@ -252,7 +252,7 @@
     }
   });
 
-  // Normalize any server-provided ISO values into the visible MM/DD/YYYY fields.
+  
   const initialPickup = parseISODate(pickupDate.value);
   const initialReturn = parseISODate(returnDate.value);
   if (initialPickup) pickupDateDisplay.value = formatUSDate(initialPickup);

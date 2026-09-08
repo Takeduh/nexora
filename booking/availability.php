@@ -1,10 +1,10 @@
 <?php
-require_once __DIR__ . '/config/database.php';
+require_once dirname(__DIR__) . '/config/database.php';
+require_once dirname(__DIR__) . '/utils/validation.php';
 header('Content-Type: application/json; charset=utf-8');
-function validIsoDate(string $value): bool { $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value); return $date !== false && $date->format('Y-m-d') === $value; }
 $pickup = trim($_GET['pickup'] ?? '');
 $returnDate = trim($_GET['return'] ?? '');
-if (!validIsoDate($pickup) || !validIsoDate($returnDate)) { http_response_code(422); echo json_encode(['ok'=>false,'message'=>'Enter valid pickup and return dates.']); exit; }
+if (validateIsoDate($pickup, 'Pick-up date') !== null || validateIsoDate($returnDate, 'Return date') !== null) { http_response_code(422); echo json_encode(['ok'=>false,'message'=>'Enter valid pickup and return dates.']); exit; }
 $start = new DateTimeImmutable($pickup); $end = new DateTimeImmutable($returnDate); $today = new DateTimeImmutable('today');
 if ($start < $today || $end <= $start) { http_response_code(422); echo json_encode(['ok'=>false,'message'=>'Return date must be after pickup and pickup cannot be in the past.']); exit; }
 $sql = "SELECT v.id, v.quantity, v.status AS variant_status, c.status AS car_status, COUNT(b.id) AS reserved_count FROM car_variants v INNER JOIN cars c ON c.id=v.car_id LEFT JOIN bookings b ON b.car_variant_id=v.id AND b.status IN ('pending','confirmed','active') AND b.pickup_date < ? AND b.return_date > ? GROUP BY v.id,v.quantity,v.status,c.status";

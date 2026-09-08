@@ -1,5 +1,7 @@
 <?php
-require_once __DIR__ . '/config/database.php';
+if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
+require_once dirname(__DIR__) . '/config/database.php';
+require_once dirname(__DIR__) . '/utils/validation.php';
 
 function e(string $value): string
 {
@@ -19,18 +21,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $subject = trim($_POST['subject'] ?? '');
     $message = trim($_POST['message'] ?? '');
 
-    if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || $message === '') {
-        $error = 'Please enter your name, a valid email address, and your message.';
+    $errors = validationErrors([
+        validateRequired($name, 'Name'),
+        validateRequired($email, 'Email'),
+        validateEmailFormat($email),
+        validateRequired($message, 'Message'),
+        validateLength($name, 'Name', 1, 120),
+        validateLength($subject, 'Subject', 0, 180),
+        validateLength($message, 'Message', 1, 5000),
+    ]);
+
+    if ($errors) {
+        $error = implode(' ', $errors);
     } else {
         $stmt = $pdo->prepare(
-            'INSERT INTO contact_messages (name, email, subject, message) VALUES (?, ?, ?, ?)'
+            'INSERT INTO contact_messages (name, email, subject, message)
+             VALUES (:name, :email, :subject, :message)'
         );
-        $stmt->execute([
-            $name,
-            $email,
-            $subject !== '' ? $subject : null,
-            $message,
-        ]);
+        $stmt->bindValue(':name', $name);
+        $stmt->bindValue(':email', strtolower($email));
+        $stmt->bindValue(':subject', $subject !== '' ? $subject : null);
+        $stmt->bindValue(':message', $message);
+        $stmt->execute();
 
         header('Location: contact.php?sent=1');
         exit;
@@ -44,23 +56,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us — Nexora</title>
     <meta name="description" content="Get in touch with Nexora for booking, fleet, payment, or rental support.">
-    <link rel="stylesheet" href="output.css">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="contact.css?v=3.0">
+    <link rel="stylesheet" href="../css/output.css">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/contact.css?v=3.0">
+  <link rel="stylesheet" href="../css/responsive.css?v=1.0">
 </head>
 <body class="contact-page">
-<header class="contact-header">
-    <nav class="contact-nav">
-        <a href="index.php" class="contact-brand" aria-label="Nexora home">
-            <img src="Images/nexora-logo.png" alt="Nexora">
-        </a>
-        <div class="contact-nav-links">
-            <a href="index.php">Home</a>
-            <a href="fleet.php">Fleet</a>
-            <a href="contact.php" aria-current="page">Contact</a>
-        </div>
-    </nav>
-</header>
+<?php
+$siteRoot = '../';
+    $siteHeaderVariant = 'public';
+$siteActivePage = 'contact';
+require dirname(__DIR__) . '/includes/header.php';
+?>
 
 <main>
     <section class="contact-hero">
@@ -179,11 +186,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </section>
 </main>
 
-<footer class="contact-footer">
-    <div class="contact-shell">
-        <p>© <?= date('Y') ?> Nexora. Drive your journey.</p>
-        <a href="index.php">Back to homepage</a>
-    </div>
-</footer>
+<?php
+$siteFooterNewsletter = false;
+require dirname(__DIR__) . '/includes/footer.php';
+?>
 </body>
 </html>

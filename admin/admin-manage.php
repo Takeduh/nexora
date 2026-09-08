@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/config/database.php';
+require_once dirname(__DIR__) . '/config/database.php';
 
 function e(string $value): string { return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); }
 function selected(string $a, string $b): string { return $a === $b ? 'selected' : ''; }
@@ -17,7 +17,7 @@ function bookingStatusOptions(string $status): array
 }
 
 if (empty($_SESSION['user_id'])) {
-    header('Location: Login/login.php?next=../admin-manage.php');
+    header('Location: ../auth/login.php?next=../admin/admin-manage.php');
     exit;
 }
 
@@ -66,22 +66,18 @@ $returnTo = 'admin-manage.php?section=' . urlencode($section);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Records — Nexora</title>
-    <link rel="stylesheet" href="output.css">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="dashboard.css?v=1.5">
+    <link rel="stylesheet" href="../css/output.css">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css?v=1.5">
+  <link rel="stylesheet" href="../css/responsive.css?v=1.0">
 </head>
 <body class="dashboard-page admin-page">
-<header class="dash-header">
-    <nav class="dash-nav">
-        <a href="index.php" class="dash-brand"><img src="Images/nexora-logo.png" alt="Nexora"></a>
-        <div class="dash-nav-links">
-            <a href="admin-dashboard.php">Admin dashboard</a>
-            <a href="dashboard.php">My dashboard</a>
-            <a href="fleet.php">Fleet</a>
-            <a href="logout.php" class="dash-logout">Logout</a>
-        </div>
-    </nav>
-</header>
+<?php
+$siteRoot = '../';
+$siteHeaderVariant = 'dashboard';
+$siteDashboardMode = 'manage';
+require dirname(__DIR__) . '/includes/header.php';
+?>
 
 <main class="dash-shell">
     <section class="dash-hero admin-hero">

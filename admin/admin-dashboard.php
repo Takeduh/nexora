@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/config/database.php';
+require_once dirname(__DIR__) . '/config/database.php';
 
 function e(string $value): string
 {
@@ -26,7 +26,7 @@ function bookingStatusOptions(string $status): array
 }
 
 if (empty($_SESSION['user_id'])) {
-    header('Location: Login/login.php?next=../admin-dashboard.php');
+    header('Location: ../auth/login.php?next=../admin/admin-dashboard.php');
     exit;
 }
 
@@ -184,22 +184,18 @@ $payments = $pdo->query(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard — Nexora</title>
-    <link rel="stylesheet" href="output.css">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="dashboard.css?v=1.5">
+    <link rel="stylesheet" href="../css/output.css">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css?v=1.5">
+  <link rel="stylesheet" href="../css/responsive.css?v=1.0">
 </head>
 <body class="dashboard-page admin-page">
-<header class="dash-header">
-    <nav class="dash-nav">
-        <a href="index.php" class="dash-brand"><img src="Images/nexora-logo.png" alt="Nexora"></a>
-        <div class="dash-nav-links">
-            <a href="dashboard.php">My dashboard</a>
-            <a href="fleet.php">Fleet</a>
-            <a href="contact.php">Contact</a>
-            <a href="logout.php" class="dash-logout">Logout</a>
-        </div>
-    </nav>
-</header>
+<?php
+$siteRoot = '../';
+$siteHeaderVariant = 'dashboard';
+$siteDashboardMode = 'admin';
+require dirname(__DIR__) . '/includes/header.php';
+?>
 
 <main class="dash-shell">
     <section class="dash-hero admin-hero">
@@ -265,7 +261,7 @@ $payments = $pdo->query(
     <section class="dash-panel admin-section" id="fleet">
         <div class="dash-panel-head inventory-panel-head">
             <div><span class="dash-section-label">Inventory</span><h2>Fleet inventory</h2></div>
-            <a href="fleet.php">View public fleet</a>
+            <a href="../pages/fleet.php">View public fleet</a>
         </div>
 
         <div class="inventory-toolbar">

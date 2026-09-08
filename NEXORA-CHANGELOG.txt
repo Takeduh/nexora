@@ -1,0 +1,290 @@
+VERSION 1.0 — FOUNDATION AND FIRST WEBSITE BUILD
+September 3–5, 2026
+
+This version covers the first complete stage of the website.
+
+Main changes:
+- Created the first NEXORA website layout.
+- Added the main homepage and basic styling.
+- Added images for the vehicle fleet.
+- Added the Login page and connected it to the homepage.
+- Added the Sign Up page.
+- Added and improved the Services section.
+- Added more rental locations.
+- Added more customer testimonials.
+- Removed the old Location link from the navbar.
+- Connected the Blog navbar link to the testimonials section.
+- Added a temporary newsletter confirmation in the footer.
+- Redesigned and fixed the footer.
+- Reduced oversized spacing and made the page less bulky.
+- Fixed the homepage booking widget.
+- Created one shared auth.css file for Login and Sign Up.
+- Removed the old separate login.css and signup.css files.
+- Fixed small styling problems in the authentication pages.
+
+GitHub commits included:
+- Initial NEXORA website setup
+- Added images for fleet cars
+- Added login page, integrated into index.php
+- Integrated sign-up sheet without CRUD yet
+- Edited services section
+- Added dummy newsletter subscribe confirmation button in footer
+- Added new locations and testimonials
+- Revamped footer, fixed bugs
+- Refreshed entire page size to be less bulky
+- Quick bug fix for booking widget
+- Created auth.css to share assets with Login and Sign Up forms
+- Fixed bugs regarding auth.css and removed login.css/signup.css
+
+
+VERSION 2.0 — FIRST BOOKING SYSTEM
+September 8, 2026
+
+Main changes:
+- Created the first working booking flow.
+- Users could choose a vehicle and enter rental details.
+- Added a booking summary page.
+- Added basic price calculation.
+- The booking system was working before full database integration.
+
+GitHub commit:
+- Version 2.0: Phase 1 of website created, Booking system implemented without db yet
+
+
+VERSION 2.1 — DATABASE INTEGRATION
+September 8, 2026
+
+Main changes:
+- Connected the website to MySQL using PHP PDO.
+- Added database support for users.
+- Added database support for bookings.
+- Added payment records.
+- Added contact messages.
+- Used prepared statements for safer SQL queries.
+- Added password hashing for user accounts.
+- Added session-based login.
+
+GitHub commit:
+- Version 2.1: Database integration for users, bookings, payments, and contact messages
+
+
+VERSION 3.0 — DATABASE-BACKED FLEET AND CHECKOUT
+September 8, 2026
+
+Main changes:
+- Connected the Fleet page to the database.
+- Added vehicle variants and transmission options.
+- Added Automatic and Manual variants where appropriate.
+- Improved sorting, filters, and vehicle search.
+- Rebuilt the booking checkout flow.
+- Made prices come from the server instead of trusting browser values.
+- Improved booking date handling.
+- Cleaned old and unused code.
+- Removed obsolete fleet files and duplicate scripts.
+
+GitHub commit:
+- Version 3.0: Complete fleet DB integration, checkout revamp, and code cleanup
+
+
+VERSION 3.1 — BETTER BOOKING VALIDATION
+September 8, 2026
+
+Main changes:
+- Improved pickup-location checking.
+- Added server-side checks for booking details.
+- Supported more Philippine location keywords.
+- Improved validation so users cannot bypass important booking rules.
+
+GitHub commit:
+- Version 3.1: Improve booking location validation and server-side checks
+
+
+VERSION 3.2 — USER AND ADMIN DASHBOARDS
+September 8, 2026
+
+Main changes:
+- Added the user dashboard.
+- Added the admin dashboard.
+- Added booking history and current bookings.
+- Added user profile information.
+- Added admin statistics.
+- Added fleet inventory controls.
+- Improved dashboard styling.
+
+GitHub commit:
+- Version 3.2: Added user and admin dashboard (finally), And adjusting css files
+
+
+VERSION 3.3 — ADMIN CRUD SYSTEM
+September 8, 2026
+
+Main changes:
+- Added admin management pages.
+- Added CRUD controls for cars and vehicle variants.
+- Added customer management.
+- Added booking management.
+- Added payment management.
+- Added contact-message management.
+- Added safety checks before deleting important records.
+
+GitHub commit:
+- Version 3.3: Added CRUD System to Admin Dashboard
+
+
+VERSION 3.4 — PAYMENT METHOD SYSTEM
+September 8, 2026
+
+Main changes:
+- Added saved payment methods.
+- Added GCash, Card, Bank Transfer, and Cash options.
+- Only safe information is stored for non-cash methods.
+- Full card numbers, CVV, PIN, and bank passwords are never stored.
+- Added default payment method support.
+- Added add, edit, and remove payment method controls.
+- Improved the final booking confirmation flow.
+
+GitHub commit:
+- Version 3.4: Improved payment method system
+
+
+VERSION 3.5 — BOOKING WORKFLOW, AVAILABILITY, AND INVENTORY
+September 8, 2026
+
+Main changes:
+- Added the booking status flow:
+  pending -> confirmed -> active -> completed
+- Added booking cancellation support.
+- Added cancellation reasons and cancellation dates.
+- Prevented invalid booking status changes.
+- Added quantity-aware vehicle availability.
+- Added date-overlap checking.
+- Cancelled and completed bookings no longer reserve vehicles.
+- Added low-stock and fully-booked messages.
+- Added a final availability check before a booking is created.
+- Improved admin inventory.
+- Grouped Automatic and Manual variants under the same vehicle.
+- Added transmission selection inside admin inventory.
+- Added booked and available vehicle counts.
+
+GitHub commit:
+- Version 3.5: Improve booking workflow, availability, and admin inventory
+
+
+VERSION 4.0 — FINAL PROJECT BUILD
+September 8, 2026
+
+This is the final NEXORA website version.
+
+Authentication and booking:
+- Users can browse vehicles without an account.
+- Users must Log In or Sign Up before booking a vehicle.
+- The selected vehicle and rental details are kept after Login or Sign Up.
+- Protected booking pages cannot be opened without authentication.
+- Admin and normal users have separate dashboard access.
+
+Instructor-required PHP/PDO improvements:
+- Added a reusable getConnection() database function.
+- Added reusable validation functions.
+- Improved server-side validation.
+- Continued using PDO prepared statements.
+- Improved ID and form-input checking.
+- Kept password_hash() and password_verify() for passwords.
+
+Shared website structure:
+- Added one shared header include.
+- Added one shared footer include.
+- Made navbar behavior consistent across pages.
+- Fixed logged-in navigation on Fleet and other pages.
+- Restored footer social and contact icons.
+
+Responsive and UI improvements:
+- Added final mobile and tablet adjustments.
+- Improved Fleet, booking, payment, dashboard, admin, contact, Login, and Sign Up layouts.
+- Improved the Payment Methods wallet design.
+- Added a clear Default badge.
+- Made Remove actions red.
+- Changed Add Payment Method into a plus-style expandable control.
+- Changed Login and Sign Up backgrounds to the NEXORA blue/navy style.
+- Removed the unnecessary Learn More button.
+
+Final cleanup:
+- Removed source-code comments.
+- Removed dead or unused helper code where safe.
+- Removed obsolete files and duplicate code.
+- Rechecked PHP and JavaScript syntax.
+- Reorganized the project into clear one-word folders.
+- Kept index.php and styles.css in the project root.
+- Updated file paths after reorganizing folders.
+- Kept the Images folder name because existing database image paths use it.
+- Preserved Git and GitHub project history.
+- No unnecessary database.sql file is included in normal update packages.
+
+
+FINAL PROJECT STRUCTURE
+=======================
+
+Root:
+- index.php
+- styles.css
+
+Main folders:
+- account
+- admin
+- auth
+- booking
+- config
+- css
+- docs
+- Images
+- includes
+- js
+- pages
+- utils
+
+
+FINAL FEATURES
+==============
+
+User features:
+- Register and log in
+- Browse and search vehicles
+- Choose Automatic or Manual transmission
+- Check date-based vehicle availability
+- Book a vehicle
+- View booking history
+- Cancel eligible bookings
+- Manage profile information
+- Save payment methods
+- View booking and payment status
+- Contact NEXORA support
+
+Admin features:
+- Admin dashboard
+- Vehicle and variant CRUD
+- Customer management
+- Booking management
+- Manual booking status updates
+- Payment management
+- Contact-message management
+- Inventory and availability monitoring
+
+Technical features:
+- PHP
+- MySQL / MariaDB
+- PDO
+- Prepared statements
+- Password hashing
+- Sessions
+- Role-based access
+- Server-side validation
+- Client-side validation
+- CSRF protection on important actions
+- Responsive design
+- Reusable PHP includes
+- Git / GitHub version control
+
+
+FINAL STATUS
+============
+
+NEXORA is complete and ready for final testing, demonstration, and submission.

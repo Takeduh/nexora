@@ -1,8 +1,5 @@
 @import "tailwindcss";
 
-/* =========================================================
-   LOCAL FONTS
-   ========================================================= */
 
 @font-face { font-family: "Montserrat"; src: url("Fonts/Montserrat-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
 @font-face { font-family: "Montserrat"; src: url("Fonts/Montserrat-SemiBold.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
@@ -14,10 +11,6 @@
 @font-face { font-family: "Inter"; src: url("Fonts/Inter-SemiBold.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
 @font-face { font-family: "Inter"; src: url("Fonts/Inter-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
 
-
-/* =========================================================
-   THEME TOKENS
-   ========================================================= */
 
 @theme {
   --color-navy-900: #0A1730;
@@ -47,12 +40,6 @@
 body { font-family: var(--font-body); }
 h1, h2, h3, h4, h5 { font-family: var(--font-heading); }
 
-
-/* =========================================================
-   COMPONENTS
-   Several rules reuse the SAME class names script.js already
-   toggles (.active, .hidden, .show) so no JS needs to change.
-   ========================================================= */
 
 @layer components {
 
@@ -100,10 +87,6 @@ h1, h2, h3, h4, h5 { font-family: var(--font-heading); }
   .booking-note.show { @apply block; }
 }
 
-
-/* =========================================================
-   ACCESSIBILITY / MISC
-   ========================================================= */
 
 a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
   outline: 2.5px solid var(--color-blue-400);

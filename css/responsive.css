@@ -1,0 +1,77 @@
+
+html { -webkit-text-size-adjust: 100%; }
+img { max-width: 100%; }
+
+.site-step-header { background:#031026; border-bottom:1px solid rgba(255,255,255,.08); }
+.site-step-header-inner { max-width:1180px; margin:0 auto; padding:14px 24px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+.site-step-brand img { width:210px; max-height:44px; object-fit:contain; object-position:left center; }
+.site-step-security { color:rgba(255,255,255,.82); display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700; white-space:nowrap; }
+.site-step-security span { color:#5089ff; }
+
+@media (max-width: 1024px) {
+  .site-public-nav { gap:18px; }
+  .site-nav-links { gap:18px !important; }
+  .site-nav-links a { font-size:13px !important; }
+  .site-auth-links { gap:10px !important; }
+  .dash-nav { gap:18px; }
+  .dash-nav-links { flex-wrap:wrap; justify-content:flex-end; }
+  .crud-grid, .payment-layout, .checkout-layout, .contact-hero-grid, .contact-main-grid { min-width:0; }
+}
+
+@media (max-width: 820px) {
+  .site-public-nav { flex-wrap:wrap; padding:12px 18px !important; }
+  .site-public-nav > a { flex:1 1 auto; }
+  .site-public-nav .nexora-logo { width:210px; height:auto; }
+  .site-nav-links { order:3; width:100%; overflow-x:auto; padding:4px 0 2px; gap:20px !important; scrollbar-width:none; }
+  .site-nav-links::-webkit-scrollbar { display:none; }
+  .site-nav-links a { white-space:nowrap; }
+  .site-auth-links { margin-left:auto; }
+
+  .dash-nav { padding-left:18px; padding-right:18px; align-items:flex-start; }
+  .dash-brand img { max-width:190px; }
+  .dash-nav-links { gap:8px 14px; font-size:13px; }
+
+  .footer-grid { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+  .newsletter-panel { grid-column:1 / -1; }
+
+  .payment-layout, .checkout-layout, .contact-main-grid, .contact-hero-grid, .crud-grid { grid-template-columns:1fr !important; }
+  .payment-summary-card, .checkout-summary, .booking-summary-card { position:static !important; top:auto !important; }
+  .admin-section-nav, .crud-tabs { overflow-x:auto; flex-wrap:nowrap !important; scrollbar-width:none; }
+  .admin-section-nav a, .crud-tabs a { white-space:nowrap; }
+  .inventory-list { overflow-x:auto; }
+  .grouped-inventory .inventory-list-head, .grouped-inventory .inventory-list-row { min-width:780px; }
+}
+
+@media (max-width: 600px) {
+  .site-public-nav { display:grid !important; grid-template-columns:1fr auto; }
+  .site-public-nav > a .nexora-logo { width:170px; }
+  .site-auth-links .btn { padding:9px 11px; font-size:12px; }
+  .site-nav-links { grid-column:1 / -1; }
+
+  .site-step-header-inner { padding:12px 16px; }
+  .site-step-brand img { width:170px; }
+  .site-step-security { font-size:12px; }
+
+  .dash-nav { flex-direction:column; align-items:stretch; }
+  .dash-nav-links { justify-content:flex-start; overflow-x:auto; flex-wrap:nowrap; padding-bottom:4px; }
+  .dash-nav-links a { white-space:nowrap; }
+
+  .footer-inner { padding-left:18px !important; padding-right:18px !important; }
+  .footer-grid { grid-template-columns:1fr !important; }
+  .footer-topline, .footer-bottom { align-items:flex-start !important; flex-direction:column; gap:10px; }
+  .footer-meta { flex-wrap:wrap; }
+
+  .dash-shell, .fleet-shell, .contact-shell, .checkout-shell, .payment-shell { width:100%; padding-left:16px !important; padding-right:16px !important; }
+  .dash-hero { flex-direction:column; align-items:flex-start; gap:16px; }
+  .dash-hero h1, .fleet-hero h1, .contact-hero h1 { overflow-wrap:anywhere; }
+  .dash-panel, .payment-panel, .payment-summary-card, .checkout-card, .contact-form-card { min-width:0; }
+  .crud-form, .profile-form, .payment-modal-form { grid-template-columns:1fr !important; }
+  .payment-progress { overflow-x:auto; white-space:nowrap; }
+  .payment-modal-dialog { width:calc(100% - 24px) !important; max-height:90vh; overflow:auto; }
+  .booking-actions, .payment-bottom-links { flex-direction:column; align-items:stretch !important; }
+  .booking-actions .btn, .payment-bottom-links a { width:100%; text-align:center; }
+
+  .hero h1 { font-size:clamp(32px,10vw,46px) !important; }
+  .fleet-card-grid, .fleet-grid { grid-template-columns:1fr !important; }
+  input, select, textarea, button { max-width:100%; }
+}

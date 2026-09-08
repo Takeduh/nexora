@@ -1,13 +1,11 @@
-/* Dedicated checkout stylesheet */
+
 * { box-sizing: border-box; }
 html { background: #f6f8fb; }
 body.checkout-page { margin: 0; min-width: 320px; min-height: 100vh; background: #f6f8fb; color: #0d1526; font-family: Inter, Arial, sans-serif; }
 body.checkout-page img { max-width: 100%; display: block; }
 body.checkout-page a { color: inherit; }
 
-/* =========================================================
-   BOOKING CHECKOUT
-   ========================================================= */
+
 .checkout-header {
   background: #031026;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);

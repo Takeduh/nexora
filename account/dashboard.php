@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/config/database.php';
+require_once dirname(__DIR__) . '/config/database.php';
 
 function e(string $value): string
 {
@@ -25,7 +25,7 @@ function methodName(string $type): string
 }
 
 if (empty($_SESSION['user_id'])) {
-    header('Location: Login/login.php?next=../dashboard.php');
+    header('Location: ../auth/login.php?next=../account/dashboard.php');
     exit;
 }
 
@@ -35,7 +35,7 @@ $stmt->execute([$userId]);
 $user = $stmt->fetch();
 
 if (!$user) {
-    header('Location: logout.php');
+    header('Location: ../auth/logout.php');
     exit;
 }
 
@@ -217,19 +217,19 @@ foreach ($bookings as $booking) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Dashboard — Nexora</title>
-    <link rel="stylesheet" href="output.css">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="dashboard.css?v=1.5">
+    <link rel="stylesheet" href="../css/output.css">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css?v=1.5">
 </head>
 <body class="dashboard-page">
 <header class="dash-header">
     <nav class="dash-nav">
-        <a href="index.php" class="dash-brand"><img src="Images/nexora-logo.png" alt="Nexora"></a>
+        <a href="../index.php" class="dash-brand"><img src="../Images/nexora-logo.png" alt="Nexora"></a>
         <div class="dash-nav-links">
-            <a href="fleet.php">Fleet</a>
-            <a href="contact.php">Support</a>
-            <?php if ($user['role'] === 'admin'): ?><a href="admin-dashboard.php">Admin</a><?php endif; ?>
-            <a href="logout.php" class="dash-logout">Logout</a>
+            <a href="../pages/fleet.php">Fleet</a>
+            <a href="../pages/contact.php">Support</a>
+            <?php if ($user['role'] === 'admin'): ?><a href="../admin/admin-dashboard.php">Admin</a><?php endif; ?>
+            <a href="../auth/logout.php" class="dash-logout">Logout</a>
         </div>
     </nav>
 </header>
@@ -256,7 +256,7 @@ foreach ($bookings as $booking) {
             <h1>Welcome back, <?= e($user['first_name']) ?>.</h1>
             <p>Track your reservations, payment status, and rental history in one place.</p>
         </div>
-        <a href="fleet.php" class="dash-primary-btn">Book another car</a>
+        <a href="../pages/fleet.php" class="dash-primary-btn">Book another car</a>
     </section>
 
     <section class="dash-stats" aria-label="Account summary">
@@ -286,7 +286,7 @@ foreach ($bookings as $booking) {
             <span>Estimated total</span>
             <strong>₱<?= number_format((float)$nextBooking['total_amount'], 2) ?></strong>
             <?php if (empty($nextBooking['payment_status']) && !in_array($nextBooking['status'], ['cancelled', 'completed'], true)): ?>
-                <a href="payment.php?booking=<?= (int)$nextBooking['id'] ?>" class="dash-primary-btn">Add payment method</a>
+                <a href="../booking/payment.php?booking=<?= (int)$nextBooking['id'] ?>" class="dash-primary-btn">Add payment method</a>
             <?php else: ?>
                 <span class="payment-pill"><?= e(ucfirst((string)($nextBooking['payment_status'] ?? 'not recorded'))) ?></span>
             <?php endif; ?>
@@ -298,7 +298,7 @@ foreach ($bookings as $booking) {
         <section class="dash-panel" id="bookings">
             <div class="dash-panel-head">
                 <div><span class="dash-section-label">Reservations</span><h2>Booking history</h2></div>
-                <a href="fleet.php">Browse fleet</a>
+                <a href="../pages/fleet.php">Browse fleet</a>
             </div>
 
             <?php if (!$bookings): ?>
@@ -370,7 +370,7 @@ foreach ($bookings as $booking) {
                     <div class="dash-method-list">
                     <?php foreach ($paymentMethods as $method): ?>
                         <article class="dash-method-item">
-                            <div class="dash-method-title"><strong><?= e($method['display_label']) ?></strong><?php if ($method['is_default']): ?><span>Default</span><?php endif; ?></div>
+                            <div class="dash-method-title"><strong><?= e($method['display_label']) ?></strong><?php if ($method['is_default']): ?><span class="dash-method-badge">Default</span><?php endif; ?></div>
                             <small><?= e(methodName($method['method_type'])) ?><?= $method['last_four'] ? ' •••• ' . e($method['last_four']) : '' ?></small>
                             <?php if ($method['method_type'] !== 'cash'): ?>
                             <form method="post" class="dash-method-edit">
@@ -389,7 +389,7 @@ foreach ($bookings as $booking) {
                     </div>
                 <?php endif; ?>
                 <details class="dash-method-add">
-                    <summary>+ Add payment method</summary>
+                    <summary class="dash-method-summary">Add payment method</summary>
                     <form method="post" class="profile-edit-form">
                         <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>"><input type="hidden" name="action" value="payment_method_add">
                         <label>Method<select name="method_type" id="dashboardMethodType" required><option value="gcash">GCash</option><option value="card">Card</option><option value="bank_transfer">Bank transfer</option><option value="cash">Cash</option></select></label>
@@ -404,7 +404,7 @@ foreach ($bookings as $booking) {
                 <span class="dash-section-label">Need help?</span>
                 <h2>Rental support</h2>
                 <p>Questions about your booking, payment, or pickup location?</p>
-                <a href="contact.php" class="dash-secondary-btn">Contact Nexora</a>
+                <a href="../pages/contact.php" class="dash-secondary-btn">Contact Nexora</a>
             </section>
         </aside>
     </div>

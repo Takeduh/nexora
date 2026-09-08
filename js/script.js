@@ -1,8 +1,5 @@
 (() => {
-/* =========================================================
-   HOMEPAGE FLEET — MySQL-backed cars + transmission variants.
-   Data is injected by index.php as window.NEXORA_FLEET.
-   ========================================================= */
+
 
 const cars = Array.isArray(window.NEXORA_FLEET) ? window.NEXORA_FLEET : [];
 const fleetGrid = document.getElementById("fleetGrid");
@@ -43,7 +40,11 @@ function buildBookingLink(variantId) {
   if (pickup?.value) params.set("pickup", pickup.value);
   if (ret?.value) params.set("return", ret.value);
 
-  return `booking-summary.php?${params.toString()}`;
+  const bookingUrl = `booking/booking-summary.php?${params.toString()}`;
+  if (window.NEXORA_IS_AUTHENTICATED) return bookingUrl;
+
+  const next = `../${bookingUrl}`;
+  return `auth/login.php?next=${encodeURIComponent(next)}`;
 }
 
 function renderFleet(filter = "all") {
@@ -121,10 +122,6 @@ filterTabs.forEach(tab => {
   });
 });
 
-
-/* =========================================================
-   BOOKING WIDGET
-   ========================================================= */
 
 const bookingForm = document.getElementById("book");
 const bookingNote = document.getElementById("bookingNote");
@@ -219,10 +216,6 @@ if (bookingForm) {
 }
 
 
-/* =========================================================
-  TESTIMONIALS
-   ========================================================= */
-
 const testimonials = [
   { quote: "Nexora made our trips easier! The car was clean, the process was fast, and the staff were very helpful.", name: "Rad A.B.", loc: "Cagayan de Oro" },
   { quote: "Best car rental experience I've ever had. Transparent pricing and great service!", name: "Harvey M.", loc: "Dumaguete" },
@@ -254,10 +247,6 @@ function renderTestimonials() {
 
 renderTestimonials();
 
-
-/* =========================================================
-   NEWSLETTER
-   ========================================================= */
 
 const newsletterForm = document.getElementById("newsletterForm");
 const newsletterMessage = document.getElementById("newsletterMessage");

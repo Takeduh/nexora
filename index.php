@@ -1,5 +1,5 @@
 <?php
-session_start();
+if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
 require_once __DIR__ . '/config/fleet-data.php';
 $fleetCars = getFleetCars($pdo);
 ?>
@@ -9,40 +9,25 @@ $fleetCars = getFleetCars($pdo);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nexora — Rent the Perfect Car for Every Journey</title>
-  <link rel="stylesheet" href="output.css">
+  <link rel="stylesheet" href="css/output.css">
   <link rel="stylesheet" href="styles.css">
-  <script>window.NEXORA_FLEET = <?= json_encode($fleetCars, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;</script>
-  <script src="script.js" defer></script>
+  <script>
+    window.NEXORA_FLEET = <?= json_encode($fleetCars, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
+    window.NEXORA_IS_AUTHENTICATED = <?= !empty($_SESSION['user_id']) ? 'true' : 'false' ?>;
+  </script>
+  <script src="js/script.js" defer></script>
+  <link rel="stylesheet" href="css/responsive.css?v=1.0">
 </head>
 <body class="bg-white text-ink antialiased">
+  
+  <?php
+    $siteRoot = '';
+    $siteHeaderVariant = 'public';
+    $siteActivePage = 'home';
+    require __DIR__ . '/includes/header.php';
+  ?>
 
-  <!-- NAVIGATION -->
-  <header class="sticky top-0 z-[100] bg-navy-900/92 backdrop-blur-md border-b border-white/[0.06]">
-    <nav class="flex items-center justify-between px-6 py-4 max-w-[1180px] mx-auto">
-      <a href="#home" class="flex items-center gap-3 text-white">
-        <img src="Images/nexora-logo.png" alt="Nexora Car Rentals" class="nexora-logo" onerror="this.style.display='none'">
-      </a>
-      <div class="nav-links flex items-center gap-[30px]">
-        <a href="#home" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Home</a>
-        <a href="#fleet" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Fleet</a>
-        <a href="#services" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Services</a>
-        <a href="#difference" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">About</a>
-        <a href="#blog" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Blog</a>
-        <a href="contact.php" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Contact</a>
-      </div>
-      <div class="flex items-center gap-[18px]">
-        <?php if (!empty($_SESSION['user_id'])): ?>
-          <a href="<?= ($_SESSION['user_role'] ?? 'user') === 'admin' ? 'admin-dashboard.php' : 'dashboard.php' ?>" class="btn btn-outline btn-sm">Dashboard</a>
-          <a href="logout.php" class="btn btn-primary btn-sm">Logout</a>
-        <?php else: ?>
-          <a href="Login/login.php" class="btn btn-outline btn-sm">Login</a>
-          <a href="SignUp/signup.php" class="btn btn-primary btn-sm">Sign Up</a>
-        <?php endif; ?>
-      </div>
-    </nav>
-  </header>
 
-  <!-- HERO -->
   <section class="hero relative overflow-hidden bg-navy-900 pt-16" id="home">
     <img src="Images/hero-bg.png" alt="Nexora rental car driving through the city" class="hero-background" onerror="this.style.display='none'">
     <div class="absolute inset-0 z-[1] pointer-events-none bg-[linear-gradient(100deg,rgba(10,23,48,0.96)_0%,rgba(10,23,48,0.82)_34%,rgba(10,23,48,0.35)_66%,rgba(10,23,48,0.15)_100%)]"></div>
@@ -53,12 +38,14 @@ $fleetCars = getFleetCars($pdo);
         <h1 class="text-white text-[46px] font-extrabold tracking-[-0.01em] mb-[18px]">Rent the Perfect Car for Every Journey</h1>
         <p class="text-white/70 text-[16.5px] leading-[1.65] max-w-[460px] mb-[30px]">From weekend getaways to business trips across the Philippines, Nexora gets you a clean, reliable car in minutes — transparent pricing, zero surprises.</p>
         <div class="flex gap-3.5 mb-10">
-          <a href="#fleet" class="btn btn-primary">Book Now</a>
+          <a href="<?= !empty($_SESSION['user_id'])
+            ? '#book'
+            : 'auth/login.php?next=' . rawurlencode('../index.php#book') ?>" class="btn btn-primary">Book Now</a>
           <a href="#fleet" class="btn btn-outline">See Our Fleet</a>
         </div>
       </div>
 
-      <!-- BOOKING WIDGET -->
+      
       <form class="bg-white rounded-[14px] shadow-card-lg p-[22px] grid grid-cols-[1.2fr_1fr_1fr_auto] gap-3.5 items-end relative -mt-1.5 translate-y-[70px] z-[2]" id="book" novalidate>
         <div class="flex flex-col gap-1.5">
           <label for="loc" class="text-[11.5px] font-bold tracking-[0.06em] uppercase text-gray-500">Pick-up Location</label>
@@ -89,7 +76,7 @@ $fleetCars = getFleetCars($pdo);
 
   </section>
 
-  <!-- SERVICES -->
+  
   <section class="bg-navy-900 text-white py-[88px]" id="services">
     <div class="max-w-[1180px] mx-auto px-6">
       <div class="text-center max-w-[620px] mx-auto mb-12">
@@ -133,7 +120,7 @@ $fleetCars = getFleetCars($pdo);
     </div>
   </section>
 
-  <!-- FLEET -->
+  
   <section class="bg-gray-50 py-[88px]" id="fleet">
     <div class="max-w-[1180px] mx-auto px-6">
       <div class="text-center max-w-[620px] mx-auto mb-12">
@@ -152,16 +139,16 @@ $fleetCars = getFleetCars($pdo);
         <button class="filter-tab" data-filter="sport">Sport</button>
       </div>
 
-      <!-- populated by script.js -->
+      
       <div class="grid grid-cols-4 gap-[22px]" id="fleetGrid"></div>
 
       <div class="text-center mt-10">
-        <a href="fleet.php" class="btn btn-dark-outline">View All Vehicles</a>
+        <a href="pages/fleet.php" class="btn btn-dark-outline">View All Vehicles</a>
       </div>
     </div>
   </section>
 
-  <!-- DIFFERENCE -->
+  
   <section class="bg-white py-[88px]" id="difference">
     <div class="max-w-[1180px] mx-auto px-6">
       <div class="grid grid-cols-2 gap-[60px] items-center">
@@ -187,7 +174,6 @@ $fleetCars = getFleetCars($pdo);
               Hassle-free pick-up and return
             </div>
           </div>
-          <a href="#footer" class="btn btn-primary">Learn More</a>
         </div>
 
         <div class="grid grid-cols-2 grid-rows-2 gap-3.5 aspect-square">
@@ -212,7 +198,7 @@ $fleetCars = getFleetCars($pdo);
     </div>
   </section>
 
-  <!-- BLOG / TESTIMONIALS -->
+  
   <section class="bg-gray-50 py-[88px]" id="blog">
     <div class="max-w-[1180px] mx-auto px-6">
       <div class="text-center max-w-[620px] mx-auto mb-12">
@@ -221,25 +207,27 @@ $fleetCars = getFleetCars($pdo);
       </div>
 
       <div class="max-w-[760px] mx-auto relative">
-        <!-- populated by script.js -->
+        
         <div class="t-card" id="tCard"></div>
       </div>
     </div>
   </section>
 
-  <!-- FINAL CTA -->
+  
   <section class="final-cta-section">
     <div class="final-cta-panel">
       <div class="final-cta-content">
         <span class="eyebrow on-dark">Ready to Hit the Road?</span>
         <h2>Book Your Car Today</h2>
         <p>Fast booking, great cars, better journeys.</p>
-        <a href="#fleet" class="btn btn-primary">Book Now</a>
+        <a href="<?= !empty($_SESSION['user_id'])
+            ? '#book'
+            : 'auth/login.php?next=' . rawurlencode('../index.php#book') ?>" class="btn btn-primary">Book Now</a>
       </div>
     </div>
   </section>
 
-  <!-- TRUST STRIP -->
+  
   <div class="bg-navy-800 border-t border-white/[0.08]">
     <div class="max-w-[1180px] mx-auto px-6 flex justify-between flex-wrap gap-[18px] py-[22px]">
       <div class="trust-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="text-blue-400 shrink-0"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.6"/></svg>Free cancellation up to 24 hrs before pick-up</div>
@@ -249,65 +237,11 @@ $fleetCars = getFleetCars($pdo);
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer class="footer-revamp" id="footer">
-    <div class="footer-inner max-w-[1180px] mx-auto">
-      <div class="footer-topline">
-        <span class="footer-kicker">NEXORA / ROAD AHEAD</span>
-        <p>Good cars, clear roads, and a better way to get there.</p>
-      </div>
-
-      <div class="footer-grid">
-        <section class="footer-column footer-brand-column" aria-labelledby="footer-brand-title">
-          <h2 id="footer-brand-title">Drive with confidence.</h2>
-          <p>Reliable rentals, straightforward support, and vehicles ready for the journeys that matter.</p>
-          <div class="social-list" aria-label="Social media links">
-            <a href="https://www.facebook.com" aria-label="Facebook" class="social-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M14 9h3V6h-3c-1.7 0-3 1.3-3 3v2H9v3h2v7h3v-7h3l1-3h-4v-1.5c0-.5.5-.5.5-.5z" fill="currentColor"/></svg><span>Facebook</span></a>
-            <a href="https://www.instagram.com" aria-label="Instagram" class="social-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg><span>Instagram</span></a>
-            <a href="https://x.com" aria-label="X" class="social-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 4l16 16M20 4L4 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>X</span></a>
-            <a href="https://www.linkedin.com" aria-label="LinkedIn" class="social-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M8 10v7M8 7v.01M12 17v-4.5c0-1.4 1-2.5 2.5-2.5S17 11 17 12.5V17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>LinkedIn</span></a>
-          </div>
-        </section>
-
-        <section class="footer-column" aria-labelledby="footer-explore-title">
-          <h2 id="footer-explore-title" class="footer-heading">Explore</h2>
-          <nav class="footer-links" aria-label="Footer navigation">
-            <a href="#fleet">Our Fleet</a>
-            <a href="#services">Services</a>
-            <a href="#difference">About Nexora</a>
-            <a href="#blog">Customer Stories</a>
-          </nav>
-        </section>
-
-        <section class="footer-column" aria-labelledby="footer-contact-title">
-          <h2 id="footer-contact-title" class="footer-heading">Contact</h2>
-          <p><a href="contact.php" style="font-weight:700">Send us a message</a></p>
-          <ul class="contact-list">
-            <li class="contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><a href="mailto:hello@nexora-rentals.com">hello@nexora-rentals.com</a></li>
-            <li class="contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h3l1.5 4-2 1.5a14 14 0 006 6l1.5-2 4 1.5v3a2 2 0 01-2 2C11.4 19 5 12.6 5 5a2 2 0 012-2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><a href="tel:+63325550147">+63 32 555 0147</a></li>
-            <li class="contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21s7-6.1 7-11.5A7 7 0 105 9.5C5 14.9 12 21 12 21z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="9.5" r="2.2" stroke="currentColor" stroke-width="1.7"/></svg><span>Cebu Business Park<br>Cebu City, Philippines</span></li>
-          </ul>
-          <p class="footer-hours"><strong>Open daily</strong><br>6:00 AM – 10:00 PM</p>
-        </section>
-
-        <section class="newsletter-panel" aria-labelledby="newsletter-title">
-          <span class="footer-kicker">STAY UPDATED</span>
-          <h2 id="newsletter-title">Keep your next trip close.</h2>
-          <p>Get the latest offers, updates, and travel tips.</p>
-          <form class="newsletter-form" id="newsletterForm">
-            <input type="email" placeholder="Enter your email" aria-label="Email address" required>
-            <button type="submit">Subscribe</button>
-          </form>
-          <p id="newsletterMessage" class="newsletter-message hidden" aria-live="polite"></p>
-        </section>
-      </div>
-
-      <div class="footer-bottom">
-        <span>© 2026 Nexora Car Rentals. All rights reserved.</span>
-        <div class="footer-meta"><span>Secure payments</span><span>Privacy</span><span>Terms</span></div>
-      </div>
-    </div>
-  </footer>
+  
+  <?php
+    $siteFooterNewsletter = true;
+    require __DIR__ . '/includes/footer.php';
+  ?>
 
 </body>
 </html>

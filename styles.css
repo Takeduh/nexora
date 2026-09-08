@@ -1,4 +1,4 @@
-/* Local assets and small fleet overrides. */
+
 @font-face {
   font-family: "Montserrat";
   src: url("Fonts/Montserrat-Regular.woff2") format("woff2");
@@ -285,7 +285,7 @@
   }
 }
 
-/* Keep the footer utility classes below from changing the redesigned layout. */
+
 .footer-revamp .footer-grid > div {
   width: auto;
 }
@@ -600,9 +600,7 @@ header nav > div:last-child {
   }
 }
 
-/* =========================================================
-   MYSQL FLEET VARIANTS
-   ========================================================= */
+
 .car-specs {
   margin: 4px 0 10px;
   color: var(--gray-600);

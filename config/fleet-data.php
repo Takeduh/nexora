@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/database.php';
 
-function getFleetCars(PDO $pdo): array
+function getFleetCars(PDO $pdo, string $assetPrefix = ''): array
 {
     $sql = "SELECT
                 c.id,
@@ -37,7 +37,7 @@ function getFleetCars(PDO $pdo): array
                 'label' => $row['category'],
                 'seats' => (int)$row['seats'],
                 'fuel' => $row['fuel_type'],
-                'image' => $row['image'] ?: '',
+                'image' => !empty($row['image']) && !preg_match('~^(?:https?:)?//~i', $row['image']) ? $assetPrefix . ltrim($row['image'], '/') : ($row['image'] ?: ''),
                 'variants' => [],
             ];
         }
