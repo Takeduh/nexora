@@ -191,6 +191,16 @@ $stmt = $pdo->prepare(
 $stmt->execute([$userId]);
 $bookings = $stmt->fetchAll();
 
+$supportStmt = $pdo->prepare(
+    "SELECT id, subject, message, status, admin_reply, replied_at, created_at
+     FROM contact_messages
+     WHERE user_id = ? OR (user_id IS NULL AND LOWER(email) = LOWER(?))
+     ORDER BY created_at DESC
+     LIMIT 10"
+);
+$supportStmt->execute([$userId, $user['email']]);
+$supportMessages = $supportStmt->fetchAll();
+
 $activeStatuses = ['pending', 'confirmed', 'active'];
 $activeCount = 0;
 $completedCount = 0;
@@ -398,6 +408,34 @@ foreach ($bookings as $booking) {
                         <button class="dash-secondary-btn" type="submit">Add method</button>
                     </form>
                 </details>
+            </section>
+
+            <section class="dash-panel support-inbox" id="support">
+                <span class="dash-section-label">Support</span>
+                <h2>Support inbox</h2>
+                <?php if (!$supportMessages): ?>
+                    <p class="support-empty">No support messages yet.</p>
+                <?php else: ?>
+                    <div class="support-thread-list">
+                        <?php foreach ($supportMessages as $support): ?>
+                        <article class="support-thread">
+                            <div class="support-thread-head">
+                                <strong><?= e($support['subject'] ?: 'General inquiry') ?></strong>
+                                <span class="status-badge status-<?= $support['status'] === 'replied' ? 'confirmed' : 'pending' ?>"><?= e(ucfirst($support['status'])) ?></span>
+                            </div>
+                            <small><?= e(date('m/d/Y g:i A', strtotime($support['created_at']))) ?></small>
+                            <p><?= e($support['message']) ?></p>
+                            <?php if (!empty($support['admin_reply'])): ?>
+                                <div class="support-reply">
+                                    <strong>Nexora reply</strong>
+                                    <p><?= e($support['admin_reply']) ?></p>
+                                    <?php if (!empty($support['replied_at'])): ?><small><?= e(date('m/d/Y g:i A', strtotime($support['replied_at']))) ?></small><?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        </article>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
             </section>
 
             <section class="dash-panel help-card">

@@ -10,6 +10,16 @@ function e(string $value): string
 
 $name = '';
 $email = '';
+$contactUserId = !empty($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
+
+if ($contactUserId) {
+    $userStmt = $pdo->prepare('SELECT first_name, last_name, email FROM users WHERE id = ? LIMIT 1');
+    $userStmt->execute([$contactUserId]);
+    if ($contactUser = $userStmt->fetch()) {
+        $name = trim($contactUser['first_name'] . ' ' . $contactUser['last_name']);
+        $email = (string)$contactUser['email'];
+    }
+}
 $subject = '';
 $message = '';
 $error = '';
@@ -35,9 +45,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = implode(' ', $errors);
     } else {
         $stmt = $pdo->prepare(
-            'INSERT INTO contact_messages (name, email, subject, message)
-             VALUES (:name, :email, :subject, :message)'
+            'INSERT INTO contact_messages (user_id, name, email, subject, message)
+             VALUES (:user_id, :name, :email, :subject, :message)'
         );
+        $stmt->bindValue(':user_id', $contactUserId, $contactUserId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
         $stmt->bindValue(':name', $name);
         $stmt->bindValue(':email', strtolower($email));
         $stmt->bindValue(':subject', $subject !== '' ? $subject : null);

@@ -44,8 +44,8 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-$notice = $_GET['saved'] ?? '';
-$error = '';
+$notice = $_GET['saved'] ?? ($_GET['crud_saved'] ?? '');
+$error = $_GET['crud_error'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
@@ -152,14 +152,14 @@ foreach ($variants as $variant) {
 $carsInventory = array_values($carsInventory);
 
 $messages = $pdo->query(
-    "SELECT id, name, email, subject, message, status, created_at
+    "SELECT id, user_id, name, email, subject, message, status, admin_reply, replied_at, created_at
      FROM contact_messages
      ORDER BY created_at DESC
      LIMIT 20"
 )->fetchAll();
 
 $users = $pdo->query(
-    "SELECT u.id, u.first_name, u.last_name, u.email, u.phone, u.created_at,
+    "SELECT u.id, u.first_name, u.last_name, u.email, u.phone, u.role, u.created_at,
             (SELECT COUNT(*) FROM bookings b WHERE b.user_id = u.id) AS booking_count
      FROM users u
      WHERE u.role = 'user'
@@ -240,16 +240,20 @@ require dirname(__DIR__) . '/includes/header.php';
                         <td>₱<?= number_format((float)$booking['total_amount'], 2) ?></td>
                         <td><?= e(ucfirst((string)($booking['payment_status'] ?? 'not recorded'))) ?></td>
                         <td>
-                            <form method="post" class="inline-admin-form">
-                                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
-                                <input type="hidden" name="action" value="booking_status">
-                                <input type="hidden" name="booking_id" value="<?= (int)$booking['id'] ?>">
-                                <select name="status" aria-label="Booking status">
-                                    <?php foreach (bookingStatusOptions($booking['status']) as $status): ?><option value="<?= $status ?>" <?= $booking['status'] === $status ? 'selected' : '' ?>><?= ucfirst($status) ?></option><?php endforeach; ?>
-                                </select>
-                                <?php if (in_array($booking['status'], ['pending','confirmed'], true)): ?><input type="text" name="cancellation_reason" maxlength="500" placeholder="Reason if cancelling" aria-label="Cancellation reason"><?php endif; ?>
-                                <button <?= in_array($booking['status'], ['completed','cancelled'], true)?'disabled':'' ?>>Save</button>
-                            </form>
+                            <button type="button" class="admin-edit-toggle">Edit</button>
+                            <div class="admin-edit-panel" hidden>
+                                <form method="post" class="inline-admin-form">
+                                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                    <input type="hidden" name="action" value="booking_status">
+                                    <input type="hidden" name="booking_id" value="<?= (int)$booking['id'] ?>">
+                                    <select name="status" aria-label="Booking status">
+                                        <?php foreach (bookingStatusOptions($booking['status']) as $status): ?><option value="<?= $status ?>" <?= $booking['status'] === $status ? 'selected' : '' ?>><?= ucfirst($status) ?></option><?php endforeach; ?>
+                                    </select>
+                                    <?php if (in_array($booking['status'], ['pending','confirmed'], true)): ?><input type="text" name="cancellation_reason" maxlength="500" placeholder="Reason if cancelling" aria-label="Cancellation reason"><?php endif; ?>
+                                    <button <?= in_array($booking['status'], ['completed','cancelled'], true)?'disabled':'' ?>>Update</button>
+                                </form>
+                                <small class="admin-edit-note">Bookings are retained for rental history, so they are not deleted from the dashboard.</small>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -315,14 +319,26 @@ require dirname(__DIR__) . '/includes/header.php';
                     <span><b class="upcoming-count"><?= (int)$first['upcoming_reservations'] ?></b> upcoming reservations</span>
                 </div>
 
-                <form method="post" class="inventory-row-form grouped-form">
-                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
-                    <input type="hidden" name="action" value="variant_update">
-                    <input type="hidden" name="variant_id" class="variant-id-input" value="<?= (int)$first['id'] ?>">
-                    <label class="inventory-field"><span>Total units</span><input class="quantity-input" type="number" min="0" name="quantity" value="<?= (int)$first['quantity'] ?>"></label>
-                    <label class="inventory-field"><span>Status</span><select class="status-input" name="status"><?php foreach (['available','unavailable','maintenance'] as $status): ?><option value="<?= $status ?>" <?= $first['status'] === $status ? 'selected' : '' ?>><?= ucfirst($status) ?></option><?php endforeach; ?></select></label>
-                    <button type="submit">Update</button>
-                </form>
+                <div class="inventory-edit-shell">
+                    <button type="button" class="admin-edit-toggle">Edit</button>
+                    <div class="admin-edit-panel inventory-edit-panel" hidden>
+                        <form method="post" class="inventory-row-form grouped-form">
+                            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                            <input type="hidden" name="action" value="variant_update">
+                            <input type="hidden" name="variant_id" class="variant-id-input" value="<?= (int)$first['id'] ?>">
+                            <label class="inventory-field"><span>Total units</span><input class="quantity-input" type="number" min="0" name="quantity" value="<?= (int)$first['quantity'] ?>"></label>
+                            <label class="inventory-field"><span>Status</span><select class="status-input" name="status"><?php foreach (['available','unavailable','maintenance'] as $status): ?><option value="<?= $status ?>" <?= $first['status'] === $status ? 'selected' : '' ?>><?= ucfirst($status) ?></option><?php endforeach; ?></select></label>
+                            <button type="submit">Update</button>
+                        </form>
+                        <form method="post" action="admin-crud.php" class="admin-delete-form" onsubmit="return confirm('Delete this transmission variant? This is blocked if it has active or upcoming bookings.');">
+                            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                            <input type="hidden" name="action" value="variant_delete">
+                            <input type="hidden" name="return_to" value="admin-dashboard.php#fleet">
+                            <input type="hidden" name="variant_id" class="variant-delete-id" value="<?= (int)$first['id'] ?>">
+                            <button type="submit" class="admin-danger-btn">Delete</button>
+                        </form>
+                    </div>
+                </div>
             </article>
             <?php endforeach; ?>
         </div>
@@ -340,15 +356,79 @@ require dirname(__DIR__) . '/includes/header.php';
 
     <section class="dash-panel admin-section" id="customers">
         <div class="dash-panel-head"><div><span class="dash-section-label">Accounts</span><h2>Recent customers</h2></div><span><?= count($users) ?> shown</span></div>
-        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Customer</th><th>Contact</th><th>Bookings</th><th>Joined</th></tr></thead><tbody>
-        <?php foreach ($users as $customer): ?><tr><td><strong><?= e($customer['first_name'] . ' ' . $customer['last_name']) ?></strong><small>User #<?= (int)$customer['id'] ?></small></td><td><strong><?= e($customer['email']) ?></strong><small><?= e($customer['phone'] ?: 'No phone') ?></small></td><td><?= (int)$customer['booking_count'] ?></td><td><?= e(displayDate($customer['created_at'])) ?></td></tr><?php endforeach; ?>
+        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Customer</th><th>Contact</th><th>Bookings</th><th>Joined</th><th>Actions</th></tr></thead><tbody>
+        <?php foreach ($users as $customer): ?>
+        <tr>
+            <td><strong><?= e($customer['first_name'] . ' ' . $customer['last_name']) ?></strong><small>User #<?= (int)$customer['id'] ?></small></td>
+            <td><strong><?= e($customer['email']) ?></strong><small><?= e($customer['phone'] ?: 'No phone') ?></small></td>
+            <td><?= (int)$customer['booking_count'] ?></td>
+            <td><?= e(displayDate($customer['created_at'])) ?></td>
+            <td>
+                <button type="button" class="admin-edit-toggle">Edit</button>
+                <div class="admin-edit-panel admin-row-editor" hidden>
+                    <form method="post" action="admin-crud.php" class="admin-compact-edit">
+                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                        <input type="hidden" name="action" value="user_update">
+                        <input type="hidden" name="return_to" value="admin-dashboard.php#customers">
+                        <input type="hidden" name="user_id" value="<?= (int)$customer['id'] ?>">
+                        <input name="first_name" required maxlength="100" value="<?= e($customer['first_name']) ?>" aria-label="First name">
+                        <input name="last_name" required maxlength="100" value="<?= e($customer['last_name']) ?>" aria-label="Last name">
+                        <input type="email" name="email" required maxlength="150" value="<?= e($customer['email']) ?>" aria-label="Email">
+                        <input name="phone" maxlength="30" value="<?= e((string)$customer['phone']) ?>" placeholder="Phone" aria-label="Phone">
+                        <select name="role" aria-label="Role"><option value="user" <?= $customer['role'] === 'user' ? 'selected' : '' ?>>User</option><option value="admin" <?= $customer['role'] === 'admin' ? 'selected' : '' ?>>Admin</option></select>
+                        <button type="submit">Update</button>
+                    </form>
+                    <form method="post" action="admin-crud.php" onsubmit="return confirm('Delete this customer account? Accounts with booking history are protected.');">
+                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                        <input type="hidden" name="action" value="user_delete">
+                        <input type="hidden" name="return_to" value="admin-dashboard.php#customers">
+                        <input type="hidden" name="user_id" value="<?= (int)$customer['id'] ?>">
+                        <button type="submit" class="admin-danger-btn">Delete</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        <?php endforeach; ?>
         </tbody></table></div>
     </section>
 
     <section class="dash-panel admin-section" id="payments">
         <div class="dash-panel-head"><div><span class="dash-section-label">Records</span><h2>Recent payments</h2></div><span><?= count($payments) ?> shown</span></div>
-        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Customer</th><th>Booking</th><th>Method</th><th>Amount</th><th>Status</th><th>Reference</th></tr></thead><tbody>
-        <?php foreach ($payments as $payment): ?><tr><td><?= e($payment['first_name'] . ' ' . $payment['last_name']) ?></td><td>#<?= (int)$payment['booking_id'] ?> · <?= e($payment['vehicle_name']) ?></td><td><?= e(ucwords(str_replace('_',' ',$payment['payment_method']))) ?></td><td>₱<?= number_format((float)$payment['amount'], 2) ?></td><td><?= e(ucfirst($payment['payment_status'])) ?></td><td><?= e($payment['transaction_reference'] ?: '—') ?></td></tr><?php endforeach; ?>
+        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Customer</th><th>Booking</th><th>Method</th><th>Amount</th><th>Status</th><th>Reference</th><th>Actions</th></tr></thead><tbody>
+        <?php foreach ($payments as $payment): ?>
+        <tr>
+            <td><?= e($payment['first_name'] . ' ' . $payment['last_name']) ?></td>
+            <td>#<?= (int)$payment['booking_id'] ?> · <?= e($payment['vehicle_name']) ?></td>
+            <td><?= e(ucwords(str_replace('_',' ',$payment['payment_method']))) ?></td>
+            <td>₱<?= number_format((float)$payment['amount'], 2) ?></td>
+            <td><?= e(ucfirst($payment['payment_status'])) ?></td>
+            <td><?= e($payment['transaction_reference'] ?: '—') ?></td>
+            <td>
+                <button type="button" class="admin-edit-toggle">Edit</button>
+                <div class="admin-edit-panel admin-row-editor" hidden>
+                    <form method="post" action="admin-crud.php" class="admin-compact-edit">
+                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                        <input type="hidden" name="action" value="payment_update">
+                        <input type="hidden" name="return_to" value="admin-dashboard.php#payments">
+                        <input type="hidden" name="payment_id" value="<?= (int)$payment['id'] ?>">
+                        <input type="hidden" name="booking_id" value="<?= (int)$payment['booking_id'] ?>">
+                        <input type="number" min="0.01" step="0.01" name="amount" value="<?= e(number_format((float)$payment['amount'], 2, '.', '')) ?>" aria-label="Amount">
+                        <select name="payment_method" aria-label="Payment method"><?php foreach (['cash','gcash','card','bank_transfer'] as $method): ?><option value="<?= $method ?>" <?= $payment['payment_method'] === $method ? 'selected' : '' ?>><?= e(ucwords(str_replace('_',' ',$method))) ?></option><?php endforeach; ?></select>
+                        <select name="payment_status" aria-label="Payment status"><?php foreach (['pending','paid','failed','refunded'] as $status): ?><option value="<?= $status ?>" <?= $payment['payment_status'] === $status ? 'selected' : '' ?>><?= ucfirst($status) ?></option><?php endforeach; ?></select>
+                        <input name="transaction_reference" maxlength="100" value="<?= e((string)$payment['transaction_reference']) ?>" placeholder="Reference" aria-label="Transaction reference">
+                        <button type="submit">Update</button>
+                    </form>
+                    <form method="post" action="admin-crud.php" onsubmit="return confirm('Delete this payment record?');">
+                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                        <input type="hidden" name="action" value="payment_delete">
+                        <input type="hidden" name="return_to" value="admin-dashboard.php#payments">
+                        <input type="hidden" name="payment_id" value="<?= (int)$payment['id'] ?>">
+                        <button type="submit" class="admin-danger-btn">Delete</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        <?php endforeach; ?>
         </tbody></table></div>
     </section>
 
@@ -357,15 +437,45 @@ require dirname(__DIR__) . '/includes/header.php';
         <div class="message-admin-list">
             <?php foreach ($messages as $message): ?>
             <article class="message-admin-card">
-                <div class="message-admin-head"><div><strong><?= e($message['subject'] ?: 'General inquiry') ?></strong><span><?= e($message['name']) ?> · <?= e($message['email']) ?></span></div><small><?= e(date('m/d/Y g:i A', strtotime($message['created_at']))) ?></small></div>
+                <div class="message-admin-head">
+                    <div><strong><?= e($message['subject'] ?: 'General inquiry') ?></strong><span><?= e($message['name']) ?> · <?= e($message['email']) ?></span></div>
+                    <small><?= e(date('m/d/Y g:i A', strtotime($message['created_at']))) ?></small>
+                </div>
                 <p><?= e($message['message']) ?></p>
-                <form method="post" class="inline-admin-form message-status-form">
-                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
-                    <input type="hidden" name="action" value="message_status">
-                    <input type="hidden" name="message_id" value="<?= (int)$message['id'] ?>">
-                    <select name="status"><?php foreach (['unread','read','replied'] as $status): ?><option value="<?= $status ?>" <?= $message['status'] === $status ? 'selected' : '' ?>><?= ucfirst($status) ?></option><?php endforeach; ?></select>
-                    <button>Save status</button>
-                </form>
+                <?php if (!empty($message['admin_reply'])): ?>
+                    <div class="admin-existing-reply"><strong>Latest reply</strong><p><?= e($message['admin_reply']) ?></p><small><?= $message['replied_at'] ? e(date('m/d/Y g:i A', strtotime($message['replied_at']))) : '' ?></small></div>
+                <?php endif; ?>
+                <div class="message-admin-actions">
+                    <button type="button" class="admin-reply-toggle">Reply</button>
+                    <button type="button" class="admin-edit-toggle">Edit</button>
+                </div>
+                <div class="admin-reply-panel" hidden>
+                    <form method="post" action="admin-crud.php" class="admin-reply-form">
+                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                        <input type="hidden" name="action" value="message_reply">
+                        <input type="hidden" name="return_to" value="admin-dashboard.php#messages">
+                        <input type="hidden" name="message_id" value="<?= (int)$message['id'] ?>">
+                        <textarea name="admin_reply" maxlength="5000" required placeholder="Write a reply that will appear on the customer's dashboard..."><?= e((string)$message['admin_reply']) ?></textarea>
+                        <button type="submit">Send reply</button>
+                    </form>
+                </div>
+                <div class="admin-edit-panel" hidden>
+                    <form method="post" action="admin-crud.php" class="inline-admin-form message-status-form">
+                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                        <input type="hidden" name="action" value="message_update">
+                        <input type="hidden" name="return_to" value="admin-dashboard.php#messages">
+                        <input type="hidden" name="message_id" value="<?= (int)$message['id'] ?>">
+                        <select name="status"><?php foreach (['unread','read','replied'] as $status): ?><option value="<?= $status ?>" <?= $message['status'] === $status ? 'selected' : '' ?>><?= ucfirst($status) ?></option><?php endforeach; ?></select>
+                        <button type="submit">Update</button>
+                    </form>
+                    <form method="post" action="admin-crud.php" onsubmit="return confirm('Delete this support message?');">
+                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                        <input type="hidden" name="action" value="message_delete">
+                        <input type="hidden" name="return_to" value="admin-dashboard.php#messages">
+                        <input type="hidden" name="message_id" value="<?= (int)$message['id'] ?>">
+                        <button type="submit" class="admin-danger-btn">Delete</button>
+                    </form>
+                </div>
             </article>
             <?php endforeach; ?>
         </div>
@@ -390,6 +500,8 @@ require dirname(__DIR__) . '/includes/header.php';
         if (!option) return;
 
         row.querySelector('.variant-id-input').value = option.value;
+        const deleteId = row.querySelector('.variant-delete-id');
+        if (deleteId) deleteId.value = option.value;
         row.querySelector('.quantity-input').value = option.dataset.quantity || '0';
         row.querySelector('.status-input').value = option.dataset.status || 'available';
         row.querySelector('.variant-rate').textContent = `₱${Number(option.dataset.rate || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}/day`;
@@ -429,6 +541,26 @@ require dirname(__DIR__) . '/includes/header.php';
     });
 
     render();
+
+    document.querySelectorAll('.admin-edit-toggle').forEach(button => {
+        button.addEventListener('click', () => {
+            const panel = button.parentElement.querySelector(':scope > .admin-edit-panel') || button.nextElementSibling;
+            if (!panel) return;
+            panel.hidden = !panel.hidden;
+            button.textContent = panel.hidden ? 'Edit' : 'Close';
+        });
+    });
+
+    document.querySelectorAll('.admin-reply-toggle').forEach(button => {
+        button.addEventListener('click', () => {
+            const card = button.closest('.message-admin-card');
+            const panel = card?.querySelector('.admin-reply-panel');
+            if (!panel) return;
+            panel.hidden = !panel.hidden;
+            button.textContent = panel.hidden ? 'Reply' : 'Close reply';
+            if (!panel.hidden) panel.querySelector('textarea')?.focus();
+        });
+    });
 })();
 </script>
 </body>

@@ -331,6 +331,25 @@ try {
         redirectBack('Payment record deleted.');
     }
 
+
+    if ($action === 'message_reply') {
+        $messageId = requirePositiveId('message_id');
+        $reply = clean($_POST['admin_reply'] ?? '');
+        if ($reply === '' || strlen($reply) > 5000) {
+            throw new RuntimeException('Write a reply of up to 5000 characters.');
+        }
+
+        $stmt = $pdo->prepare('SELECT id FROM contact_messages WHERE id = ? LIMIT 1');
+        $stmt->execute([$messageId]);
+        if (!$stmt->fetchColumn()) {
+            throw new RuntimeException('Support message not found.');
+        }
+
+        $stmt = $pdo->prepare("UPDATE contact_messages SET admin_reply = ?, replied_at = NOW(), status = 'replied' WHERE id = ?");
+        $stmt->execute([$reply, $messageId]);
+        redirectBack('Reply sent to the customer dashboard.');
+    }
+
     if ($action === 'message_update') {
         $messageId = requirePositiveId('message_id');
         $status = $_POST['status'] ?? '';

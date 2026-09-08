@@ -48,7 +48,7 @@ Main changes:
 - The booking system was working before full database integration.
 
 GitHub commit:
-- Version 2.0: Phase 1 of website created, Booking system implemented without db yet
+- Version 2.0: Booking system implemented without db yet
 
 
 VERSION 2.1 — DATABASE INTEGRATION
@@ -288,3 +288,30 @@ FINAL STATUS
 ============
 
 NEXORA is complete and ready for final testing, demonstration, and submission.
+
+
+
+
+NEW FEATURES
+============
+
+VERSION 4.1: WHAT CHANGED
+- Admin dashboard rows now use an Edit button before showing update/delete controls.
+- Bookings: Edit reveals status update controls. Bookings are not hard-deleted because they are rental history.
+- Fleet inventory: Edit reveals Update and Delete for the selected transmission variant.
+- Customers: Edit reveals Update and Delete. Customer deletion is still blocked when booking history exists.
+- Payments: Edit reveals Update and Delete.
+- Support messages:
+  - Reply opens a reply box.
+  - Edit reveals message status Update and Delete.
+  - Sending a reply marks the message as Replied.
+  - The reply is shown in the customer's dashboard Support inbox.
+- Contact messages sent while logged in are linked to that user account.
+- Older contact messages are linked to an account by matching the message email to the user's account email.
+
+CUSTOMER DASHBOARD
+A new Support inbox shows:
+- original support message
+- message status
+- admin reply
+- reply date/time
