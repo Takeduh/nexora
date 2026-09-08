@@ -19,6 +19,11 @@ function bookingRef(array $booking): string
     return 'NXR-' . $stamp . '-' . str_pad((string)$booking['id'], 4, '0', STR_PAD_LEFT);
 }
 
+function methodName(string $type): string
+{
+    return ['gcash'=>'GCash','card'=>'Card','bank_transfer'=>'Bank transfer','cash'=>'Cash'][$type] ?? ucfirst($type);
+}
+
 if (empty($_SESSION['user_id'])) {
     header('Location: Login/login.php?next=../dashboard.php');
     exit;
@@ -65,6 +70,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
+            if ($action === 'payment_method_add') {
+                $type = $_POST['method_type'] ?? '';
+                $label = trim($_POST['display_label'] ?? '');
+                $lastFour = preg_replace('/\D/', '', $_POST['last_four'] ?? '');
+                if (!in_array($type, ['cash','gcash','card','bank_transfer'], true)) {
+                    throw new RuntimeException('Choose a valid payment method.');
+                }
+                if ($label === '') $label = methodName($type);
+                if ($type !== 'cash' && strlen($lastFour) !== 4) {
+                    throw new RuntimeException('Enter the last 4 digits for this payment method.');
+                }
+                if ($type === 'cash') {
+                    $label = 'Cash';
+                    $lastFour = '';
+                    $cashCheck = $pdo->prepare("SELECT id FROM user_payment_methods WHERE user_id = ? AND method_type = 'cash' LIMIT 1");
+                    $cashCheck->execute([$userId]);
+                    if ($cashCheck->fetch()) throw new RuntimeException('Cash is already saved as a payment method.');
+                }
+                $count = $pdo->prepare('SELECT COUNT(*) FROM user_payment_methods WHERE user_id = ?');
+                $count->execute([$userId]);
+                $isDefault = (int)$count->fetchColumn() === 0 ? 1 : 0;
+                $stmt = $pdo->prepare('INSERT INTO user_payment_methods (user_id, method_type, display_label, last_four, is_default) VALUES (?, ?, ?, ?, ?)');
+                $stmt->execute([$userId, $type, $label, $lastFour !== '' ? $lastFour : null, $isDefault]);
+                header('Location: dashboard.php?saved=method#payment-methods');
+                exit;
+            }
+
+            if ($action === 'payment_method_update') {
+                $methodId = filter_input(INPUT_POST, 'method_id', FILTER_VALIDATE_INT, ['options'=>['min_range'=>1]]);
+                $label = trim($_POST['display_label'] ?? '');
+                $lastFour = preg_replace('/\D/', '', $_POST['last_four'] ?? '');
+                $stmt = $pdo->prepare('SELECT method_type FROM user_payment_methods WHERE id = ? AND user_id = ? LIMIT 1');
+                $stmt->execute([(int)$methodId, $userId]);
+                $method = $stmt->fetch();
+                if (!$method) throw new RuntimeException('Payment method not found.');
+                if ($method['method_type'] === 'cash') {
+                    $label = 'Cash';
+                    $lastFour = '';
+                } else {
+                    if ($label === '') $label = methodName($method['method_type']);
+                    if (strlen($lastFour) !== 4) throw new RuntimeException('Enter exactly 4 digits.');
+                }
+                $stmt = $pdo->prepare('UPDATE user_payment_methods SET display_label = ?, last_four = ? WHERE id = ? AND user_id = ?');
+                $stmt->execute([$label, $lastFour !== '' ? $lastFour : null, (int)$methodId, $userId]);
+                header('Location: dashboard.php?saved=method#payment-methods');
+                exit;
+            }
+
+            if ($action === 'payment_method_default') {
+                $methodId = filter_input(INPUT_POST, 'method_id', FILTER_VALIDATE_INT, ['options'=>['min_range'=>1]]);
+                $pdo->beginTransaction();
+                $stmt = $pdo->prepare('SELECT id FROM user_payment_methods WHERE id = ? AND user_id = ? LIMIT 1 FOR UPDATE');
+                $stmt->execute([(int)$methodId, $userId]);
+                if (!$stmt->fetchColumn()) throw new RuntimeException('Payment method not found.');
+                $pdo->prepare('UPDATE user_payment_methods SET is_default = 0 WHERE user_id = ?')->execute([$userId]);
+                $pdo->prepare('UPDATE user_payment_methods SET is_default = 1 WHERE id = ? AND user_id = ?')->execute([(int)$methodId, $userId]);
+                $pdo->commit();
+                header('Location: dashboard.php?saved=method#payment-methods');
+                exit;
+            }
+
+            if ($action === 'payment_method_delete') {
+                $methodId = filter_input(INPUT_POST, 'method_id', FILTER_VALIDATE_INT, ['options'=>['min_range'=>1]]);
+                $stmt = $pdo->prepare('SELECT is_default FROM user_payment_methods WHERE id = ? AND user_id = ? LIMIT 1');
+                $stmt->execute([(int)$methodId, $userId]);
+                $wasDefault = $stmt->fetchColumn();
+                if ($wasDefault === false) throw new RuntimeException('Payment method not found.');
+                $pdo->prepare('DELETE FROM user_payment_methods WHERE id = ? AND user_id = ?')->execute([(int)$methodId, $userId]);
+                if ((int)$wasDefault === 1) {
+                    $stmt = $pdo->prepare('SELECT id FROM user_payment_methods WHERE user_id = ? ORDER BY created_at DESC LIMIT 1');
+                    $stmt->execute([$userId]);
+                    $nextId = $stmt->fetchColumn();
+                    if ($nextId) $pdo->prepare('UPDATE user_payment_methods SET is_default = 1 WHERE id = ?')->execute([(int)$nextId]);
+                }
+                header('Location: dashboard.php?saved=method#payment-methods');
+                exit;
+            }
+
             if ($action === 'booking_cancel') {
                 $bookingId = filter_input(INPUT_POST, 'booking_id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
                 if (!$bookingId) {
@@ -85,12 +168,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
         } catch (PDOException $exception) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
             $error = $exception->getCode() === '23000' ? 'That email address is already in use.' : 'The change could not be saved.';
         } catch (Throwable $exception) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
             $error = $exception instanceof RuntimeException ? $exception->getMessage() : 'The change could not be saved.';
         }
     }
 }
+
+$stmt = $pdo->prepare('SELECT id, method_type, display_label, last_four, is_default FROM user_payment_methods WHERE user_id = ? ORDER BY is_default DESC, created_at DESC');
+$stmt->execute([$userId]);
+$paymentMethods = $stmt->fetchAll();
 
 $stmt = $pdo->prepare(
     "SELECT b.*,
@@ -131,7 +220,7 @@ foreach ($bookings as $booking) {
     <title>My Dashboard — Nexora</title>
     <link rel="stylesheet" href="output.css">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="dashboard.css?v=1.3">
+    <link rel="stylesheet" href="dashboard.css?v=1.4">
 </head>
 <body class="dashboard-page">
 <header class="dash-header">
@@ -147,7 +236,20 @@ foreach ($bookings as $booking) {
 </header>
 
 <main class="dash-shell">
-    <?php if ($notice): ?><div class="dash-alert success"><?= $notice === 'profile' ? 'Profile updated.' : 'Booking cancelled.' ?></div><?php endif; ?>
+    <?php if ($notice): ?>
+        <div class="dash-alert success">
+            <?= $notice === 'profile' ? 'Profile updated.' : ($notice === 'method' ? 'Payment methods updated.' : 'Booking cancelled.') ?>
+        </div>
+    <?php endif; ?>
+    <?php if (!empty($_GET['booking_confirmed'])): ?>
+        <?php $confirmed = null; foreach ($bookings as $b) { if ((int)$b['id'] === (int)$_GET['booking_confirmed']) { $confirmed = $b; break; } } ?>
+        <?php if ($confirmed): ?>
+        <div class="booking-confirmation-banner">
+            <div><span class="dash-section-label">Booking submitted</span><strong><?= e(bookingRef($confirmed)) ?></strong><p>Your <?= e($confirmed['vehicle_name']) ?> reservation was submitted successfully and is pending Nexora approval.</p></div>
+            <a href="#bookings" class="dash-secondary-btn">View booking</a>
+        </div>
+        <?php endif; ?>
+    <?php endif; ?>
     <?php if ($error): ?><div class="dash-alert error"><?= e($error) ?></div><?php endif; ?>
     <section class="dash-hero">
         <div>
@@ -194,7 +296,7 @@ foreach ($bookings as $booking) {
     <?php endif; ?>
 
     <div class="dash-main-grid">
-        <section class="dash-panel">
+        <section class="dash-panel" id="bookings">
             <div class="dash-panel-head">
                 <div><span class="dash-section-label">Reservations</span><h2>Booking history</h2></div>
                 <a href="fleet.php">Browse fleet</a>
@@ -220,9 +322,7 @@ foreach ($bookings as $booking) {
                         <div class="booking-row-side">
                             <strong>₱<?= number_format((float)$booking['total_amount'], 2) ?></strong>
                             <span>Payment: <?= e(ucfirst((string)($booking['payment_status'] ?? 'not recorded'))) ?></span>
-                            <?php if (empty($booking['payment_status']) && !in_array($booking['status'], ['cancelled', 'completed'], true)): ?>
-                                <a href="payment.php?booking=<?= (int)$booking['id'] ?>">Add payment</a>
-                            <?php endif; ?>
+                            <?php if (!empty($booking['payment_method'])): ?><span><?= e(methodName((string)$booking['payment_method'])) ?></span><?php endif; ?>
                             <?php if (in_array($booking['status'], ['pending', 'confirmed'], true)): ?>
                                 <form method="post" class="user-cancel-form" onsubmit="return confirm('Cancel this booking?');">
                                     <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
@@ -254,6 +354,44 @@ foreach ($bookings as $booking) {
                 </form>
             </section>
 
+            <section class="dash-panel payment-methods-panel" id="payment-methods">
+                <span class="dash-section-label">Wallet</span>
+                <h2>Payment methods</h2>
+                <p class="dash-panel-intro">Save only a label and last 4 digits for non-cash methods. Cash requires no extra details. Nexora never needs your full card number, CVV, PIN, or bank password.</p>
+                <?php if ($paymentMethods): ?>
+                    <div class="dash-method-list">
+                    <?php foreach ($paymentMethods as $method): ?>
+                        <article class="dash-method-item">
+                            <div class="dash-method-title"><strong><?= e($method['display_label']) ?></strong><?php if ($method['is_default']): ?><span>Default</span><?php endif; ?></div>
+                            <small><?= e(methodName($method['method_type'])) ?><?= $method['last_four'] ? ' •••• ' . e($method['last_four']) : '' ?></small>
+                            <?php if ($method['method_type'] !== 'cash'): ?>
+                            <form method="post" class="dash-method-edit">
+                                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>"><input type="hidden" name="action" value="payment_method_update"><input type="hidden" name="method_id" value="<?= (int)$method['id'] ?>">
+                                <input name="display_label" maxlength="100" value="<?= e($method['display_label']) ?>" aria-label="Payment method label">
+                                <input name="last_four" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" value="<?= e((string)$method['last_four']) ?>" aria-label="Last four digits">
+                                <button type="submit">Save</button>
+                            </form>
+                            <?php endif; ?>
+                            <div class="dash-method-actions">
+                                <?php if (!$method['is_default']): ?><form method="post"><input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>"><input type="hidden" name="action" value="payment_method_default"><input type="hidden" name="method_id" value="<?= (int)$method['id'] ?>"><button type="submit">Set default</button></form><?php endif; ?>
+                                <form method="post" onsubmit="return confirm('Remove this saved payment method?');"><input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>"><input type="hidden" name="action" value="payment_method_delete"><input type="hidden" name="method_id" value="<?= (int)$method['id'] ?>"><button type="submit" class="danger">Remove</button></form>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+                <details class="dash-method-add">
+                    <summary>+ Add payment method</summary>
+                    <form method="post" class="profile-edit-form">
+                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>"><input type="hidden" name="action" value="payment_method_add">
+                        <label>Method<select name="method_type" id="dashboardMethodType" required><option value="gcash">GCash</option><option value="card">Card</option><option value="bank_transfer">Bank transfer</option><option value="cash">Cash</option></select></label>
+                        <label id="dashboardMethodLabelField">Label<input name="display_label" maxlength="100" placeholder="Personal GCash or Visa"></label>
+                        <label id="dashboardLastFourField">Last 4 digits<input name="last_four" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="1234"></label>
+                        <button class="dash-secondary-btn" type="submit">Add method</button>
+                    </form>
+                </details>
+            </section>
+
             <section class="dash-panel help-card">
                 <span class="dash-section-label">Need help?</span>
                 <h2>Rental support</h2>
@@ -263,5 +401,28 @@ foreach ($bookings as $booking) {
         </aside>
     </div>
 </main>
+<script>
+(() => {
+    const type = document.getElementById('dashboardMethodType');
+    const labelField = document.getElementById('dashboardMethodLabelField');
+    const lastFourField = document.getElementById('dashboardLastFourField');
+    if (!type || !labelField || !lastFourField) return;
+    const labelInput = labelField.querySelector('input');
+    const lastFourInput = lastFourField.querySelector('input');
+    const syncCashFields = () => {
+        const isCash = type.value === 'cash';
+        labelField.hidden = isCash;
+        lastFourField.hidden = isCash;
+        labelInput.required = !isCash;
+        lastFourInput.required = !isCash;
+        if (isCash) {
+            labelInput.value = '';
+            lastFourInput.value = '';
+        }
+    };
+    type.addEventListener('change', syncCashFields);
+    syncCashFields();
+})();
+</script>
 </body>
 </html>

@@ -93,7 +93,7 @@ if ($vehicle && validDate($pickup) && validDate($returnDate)) {
         <div>
           <p class="checkout-eyebrow">NEXORA RENTALS</p>
           <h1>Review your booking</h1>
-          <p>Confirm your rental details before continuing to payment.</p>
+          <p>Confirm your rental details before continuing to final confirmation.</p>
         </div>
         <a href="fleet.php" class="checkout-change-car">← Change vehicle</a>
       </div>
@@ -259,7 +259,7 @@ if ($vehicle && validDate($pickup) && validDate($returnDate)) {
             </div>
 
             <button id="continueBookingButton" type="submit" class="checkout-primary-button" <?= (!$days || $location === '') ? 'disabled' : '' ?>>
-              Continue to payment
+              Continue to confirmation
             </button>
 
             <p class="checkout-disclaimer">
