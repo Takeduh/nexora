@@ -17,6 +17,20 @@
   const dailyRate = Number(form.dataset.dailyRate || 0);
   const oneDay = 24 * 60 * 60 * 1000;
 
+  const supportedLocationKeywords = [
+    'cebu', 'dumaguete', 'bohol', 'bacolod', 'iloilo',
+    'manila', 'makati', 'pasay', 'taguig', 'quezon city',
+    'davao', 'cagayan de oro', 'cdo', 'general santos', 'gensan',
+    'puerto princesa', 'palawan', 'tagbilaran', 'panglao',
+    'tacloban', 'ormoc', 'lapu-lapu', 'lapu lapu', 'mandaue',
+    'siargao', 'surigao', 'boracay', 'aklan', 'negros', 'leyte'
+  ];
+
+  const hasSupportedLocation = (value) => {
+    const location = value.trim().toLowerCase();
+    return supportedLocationKeywords.some((keyword) => location.includes(keyword));
+  };
+
   const parseISODate = (value) => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
     const [year, month, day] = value.split('-').map(Number);
@@ -89,7 +103,13 @@
   const updateSummary = () => {
     const start = syncHiddenDate(pickupDateDisplay, pickupDate);
     const end = syncHiddenDate(returnDateDisplay, returnDate);
-    const locationReady = pickupLocation.value.trim().length > 0;
+    const locationReady = hasSupportedLocation(pickupLocation.value);
+
+    pickupLocation.setCustomValidity(
+      pickupLocation.value.trim() && !locationReady
+        ? 'Please include a supported major area such as Cebu, Dumaguete, Bohol, Bacolod, Iloilo, or Manila.'
+        : ''
+    );
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);

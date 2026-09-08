@@ -154,10 +154,12 @@ if ($vehicle && validDate($pickup) && validDate($returnDate)) {
                   name="pickup_location"
                   type="text"
                   value="<?= e($location) ?>"
-                  placeholder="Enter pick-up location"
+                  placeholder="Example: SM City Cebu"
                   autocomplete="street-address"
+                  aria-describedby="locationMessage"
                   required
                 >
+                <small id="locationMessage">Enter any address or landmark that includes a supported major area, such as Cebu, Dumaguete, Bohol, Bacolod, Iloilo, or Manila.</small>
               </div>
 
               <div class="checkout-field">

@@ -1,15 +1,189 @@
 <?php
 require_once __DIR__ . '/config/database.php';
-$success = false; $error = '';
-$name = ''; $email = ''; $subject = ''; $message = '';
+
+function e(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+}
+
+$name = '';
+$email = '';
+$subject = '';
+$message = '';
+$error = '';
+$sent = isset($_GET['sent']);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name'] ?? ''); $email = trim($_POST['email'] ?? ''); $subject = trim($_POST['subject'] ?? ''); $message = trim($_POST['message'] ?? '');
-    if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || $message === '') $error = 'Please provide your name, a valid email, and a message.';
-    else { $stmt=$pdo->prepare('INSERT INTO contact_messages (name,email,subject,message) VALUES (?,?,?,?)'); $stmt->execute([$name,$email,$subject!==''?$subject:null,$message]); $success=true; $name=$email=$subject=$message=''; }
+    $name = trim($_POST['name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $subject = trim($_POST['subject'] ?? '');
+    $message = trim($_POST['message'] ?? '');
+
+    if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || $message === '') {
+        $error = 'Please enter your name, a valid email address, and your message.';
+    } else {
+        $stmt = $pdo->prepare(
+            'INSERT INTO contact_messages (name, email, subject, message) VALUES (?, ?, ?, ?)'
+        );
+        $stmt->execute([
+            $name,
+            $email,
+            $subject !== '' ? $subject : null,
+            $message,
+        ]);
+
+        header('Location: contact.php?sent=1');
+        exit;
+    }
 }
 ?>
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Contact — Nexora</title><link rel="stylesheet" href="output.css"><link rel="stylesheet" href="styles.css"></head>
-<body class="bg-gray-50 text-ink antialiased"><header class="bg-navy-900"><nav class="flex items-center justify-between px-6 py-4 max-w-[1180px] mx-auto"><a href="index.php"><img src="Images/nexora-logo.png" alt="Nexora" class="nexora-logo"></a><a href="index.php" class="btn btn-outline btn-sm">Home</a></nav></header>
-<main class="max-w-[760px] mx-auto px-6 py-[70px]"><div class="bg-white rounded-[14px] shadow-card-lg p-[22px]"><h1 class="text-2xl font-extrabold mb-2">Contact Nexora</h1><p class="text-gray-600 mb-6">Send us a message and it will be saved to the Nexora contact inbox.</p>
-<?php if($success): ?><p class="mb-4 font-semibold">Message sent successfully.</p><?php endif; ?><?php if($error): ?><p class="mb-4 font-semibold"><?php echo htmlspecialchars($error); ?></p><?php endif; ?>
-<form method="post" class="grid gap-4"><label>Name<input type="text" name="name" required value="<?php echo htmlspecialchars($name); ?>" class="w-full border rounded-[9px] px-3 py-2.5 mt-1"></label><label>Email<input type="email" name="email" required value="<?php echo htmlspecialchars($email); ?>" class="w-full border rounded-[9px] px-3 py-2.5 mt-1"></label><label>Subject<input type="text" name="subject" value="<?php echo htmlspecialchars($subject); ?>" class="w-full border rounded-[9px] px-3 py-2.5 mt-1"></label><label>Message<textarea name="message" required rows="6" class="w-full border rounded-[9px] px-3 py-2.5 mt-1"><?php echo htmlspecialchars($message); ?></textarea></label><button type="submit" class="btn btn-primary">Send Message</button></form></div></main></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us — Nexora</title>
+    <meta name="description" content="Get in touch with Nexora for booking, fleet, payment, or rental support.">
+    <link rel="stylesheet" href="output.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="contact.css?v=3.0">
+</head>
+<body class="contact-page">
+<header class="contact-header">
+    <nav class="contact-nav">
+        <a href="index.php" class="contact-brand" aria-label="Nexora home">
+            <img src="Images/nexora-logo.png" alt="Nexora">
+        </a>
+        <div class="contact-nav-links">
+            <a href="index.php">Home</a>
+            <a href="fleet.php">Fleet</a>
+            <a href="contact.php" aria-current="page">Contact</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <section class="contact-hero">
+        <div class="contact-shell contact-hero-grid">
+            <div class="contact-hero-copy">
+                <span class="contact-eyebrow">Nexora support</span>
+                <h1>How can we help?</h1>
+                <p>Questions about a reservation, vehicle, payment, or your rental? Send us a message and we’ll keep it organized in your Nexora support inbox.</p>
+
+                <div class="contact-highlights" aria-label="Support highlights">
+                    <div>
+                        <strong>Simple</strong>
+                        <span>One form for rental concerns</span>
+                    </div>
+                    <div>
+                        <strong>Organized</strong>
+                        <span>Messages saved securely in your system</span>
+                    </div>
+                    <div>
+                        <strong>Helpful</strong>
+                        <span>Booking and payment support in one place</span>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="contact-info-card">
+                <span class="contact-info-kicker">Need assistance?</span>
+                <h2>Contact information</h2>
+                <div class="contact-info-list">
+                    <div class="contact-info-item">
+                        <span class="contact-info-icon" aria-hidden="true">@</span>
+                        <div>
+                            <small>Email</small>
+                            <strong>support@nexora.local</strong>
+                        </div>
+                    </div>
+                    <div class="contact-info-item">
+                        <span class="contact-info-icon" aria-hidden="true">?</span>
+                        <div>
+                            <small>Support</small>
+                            <strong>Booking & rental concerns</strong>
+                        </div>
+                    </div>
+                    <div class="contact-info-item">
+                        <span class="contact-info-icon" aria-hidden="true">24</span>
+                        <div>
+                            <small>Message access</small>
+                            <strong>Submit anytime</strong>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <section class="contact-form-section">
+        <div class="contact-shell contact-form-grid">
+            <div class="contact-form-intro">
+                <span class="contact-section-number">01</span>
+                <h2>Send us a message</h2>
+                <p>Give us enough detail to understand what you need. Required fields are marked with an asterisk.</p>
+
+                <div class="contact-topic-list">
+                    <span>Booking questions</span>
+                    <span>Vehicle availability</span>
+                    <span>Payment concerns</span>
+                    <span>General inquiries</span>
+                </div>
+            </div>
+
+            <div class="contact-form-card">
+                <?php if ($sent): ?>
+                    <div class="contact-alert contact-alert-success" role="status">
+                        <strong>Message sent.</strong>
+                        <span>Thanks for contacting Nexora. Your message has been saved successfully.</span>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($error !== ''): ?>
+                    <div class="contact-alert contact-alert-error" role="alert">
+                        <strong>Check your details.</strong>
+                        <span><?= e($error) ?></span>
+                    </div>
+                <?php endif; ?>
+
+                <form method="post" class="contact-form">
+                    <div class="contact-field-row">
+                        <label class="contact-field">
+                            <span>Full name *</span>
+                            <input type="text" name="name" autocomplete="name" required maxlength="150" value="<?= e($name) ?>" placeholder="Juan Dela Cruz">
+                        </label>
+
+                        <label class="contact-field">
+                            <span>Email address *</span>
+                            <input type="email" name="email" autocomplete="email" required maxlength="255" value="<?= e($email) ?>" placeholder="juan@example.com">
+                        </label>
+                    </div>
+
+                    <label class="contact-field">
+                        <span>Subject</span>
+                        <input type="text" name="subject" maxlength="255" value="<?= e($subject) ?>" placeholder="How can we help?">
+                    </label>
+
+                    <label class="contact-field">
+                        <span>Message *</span>
+                        <textarea name="message" required rows="7" maxlength="4000" placeholder="Tell us about your concern, booking, or question..."><?= e($message) ?></textarea>
+                    </label>
+
+                    <div class="contact-form-footer">
+                        <p>By submitting, your message will be stored in the Nexora support database.</p>
+                        <button type="submit" class="contact-submit">Send message <span aria-hidden="true">→</span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="contact-footer">
+    <div class="contact-shell">
+        <p>© <?= date('Y') ?> Nexora. Drive your journey.</p>
+        <a href="index.php">Back to homepage</a>
+    </div>
+</footer>
+</body>
+</html>

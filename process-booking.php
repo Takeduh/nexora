@@ -19,11 +19,33 @@ $pickup = $_POST['pickup_date'] ?? '';
 $returnDate = $_POST['return_date'] ?? '';
 $special = trim($_POST['special_requests'] ?? '');
 
+$supportedLocationKeywords = [
+    'cebu', 'dumaguete', 'bohol', 'bacolod', 'iloilo',
+    'manila', 'makati', 'pasay', 'taguig', 'quezon city',
+    'davao', 'cagayan de oro', 'cdo', 'general santos', 'gensan',
+    'puerto princesa', 'palawan', 'tagbilaran', 'panglao',
+    'tacloban', 'ormoc', 'lapu-lapu', 'lapu lapu', 'mandaue',
+    'siargao', 'surigao', 'boracay', 'aklan', 'negros', 'leyte',
+];
+
+$normalizedLocation = strtolower($location);
+$locationSupported = false;
+foreach ($supportedLocationKeywords as $keyword) {
+    if (str_contains($normalizedLocation, $keyword)) {
+        $locationSupported = true;
+        break;
+    }
+}
+
 $start = DateTime::createFromFormat('Y-m-d', $pickup);
 $end = DateTime::createFromFormat('Y-m-d', $returnDate);
 
 if (!$variantId || !$location || !$start || !$end || $start->format('Y-m-d') !== $pickup || $end->format('Y-m-d') !== $returnDate || $end <= $start) {
     exit('Invalid booking details. Please return to the fleet and try again.');
+}
+
+if (!$locationSupported) {
+    exit('Please enter a pick-up location containing a supported major area such as Cebu, Dumaguete, Bohol, Bacolod, Iloilo, or Manila.');
 }
 
 try {
