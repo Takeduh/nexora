@@ -37,6 +37,61 @@ if (!$user) {
 $_SESSION['user_name'] = $user['first_name'];
 $_SESSION['user_role'] = $user['role'];
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+$notice = $_GET['saved'] ?? '';
+$error = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
+        $error = 'Your session token expired. Refresh the page and try again.';
+    } else {
+        try {
+            $action = $_POST['action'] ?? '';
+            if ($action === 'profile_update') {
+                $firstName = trim($_POST['first_name'] ?? '');
+                $lastName = trim($_POST['last_name'] ?? '');
+                $email = strtolower(trim($_POST['email'] ?? ''));
+                $phone = trim($_POST['phone'] ?? '');
+                if ($firstName === '' || $lastName === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    throw new RuntimeException('Enter a valid name and email address.');
+                }
+                $stmt = $pdo->prepare('UPDATE users SET first_name = ?, last_name = ?, email = ?, phone = ? WHERE id = ?');
+                $stmt->execute([$firstName, $lastName, $email, $phone ?: null, $userId]);
+                $_SESSION['user_name'] = $firstName;
+                header('Location: dashboard.php?saved=profile#profile');
+                exit;
+            }
+
+            if ($action === 'booking_cancel') {
+                $bookingId = filter_input(INPUT_POST, 'booking_id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+                if (!$bookingId) {
+                    throw new RuntimeException('Invalid booking.');
+                }
+                $stmt = $pdo->prepare("SELECT b.status, (SELECT p.payment_status FROM payments p WHERE p.booking_id = b.id ORDER BY p.id DESC LIMIT 1) AS payment_status FROM bookings b WHERE b.id = ? AND b.user_id = ? LIMIT 1");
+                $stmt->execute([(int)$bookingId, $userId]);
+                $targetBooking = $stmt->fetch();
+                if (!$targetBooking || !in_array($targetBooking['status'], ['pending', 'confirmed'], true)) {
+                    throw new RuntimeException('Only pending or confirmed bookings can be cancelled from your dashboard.');
+                }
+                if (($targetBooking['payment_status'] ?? '') === 'paid') {
+                    throw new RuntimeException('Paid bookings need to be cancelled through Nexora support so the payment can be handled correctly.');
+                }
+                $stmt = $pdo->prepare("UPDATE bookings SET status = 'cancelled' WHERE id = ? AND user_id = ?");
+                $stmt->execute([(int)$bookingId, $userId]);
+                header('Location: dashboard.php?saved=cancelled#bookings');
+                exit;
+            }
+        } catch (PDOException $exception) {
+            $error = $exception->getCode() === '23000' ? 'That email address is already in use.' : 'The change could not be saved.';
+        } catch (Throwable $exception) {
+            $error = $exception instanceof RuntimeException ? $exception->getMessage() : 'The change could not be saved.';
+        }
+    }
+}
+
 $stmt = $pdo->prepare(
     "SELECT b.*,
         (SELECT p.payment_status FROM payments p WHERE p.booking_id = b.id ORDER BY p.id DESC LIMIT 1) AS payment_status,
@@ -76,7 +131,7 @@ foreach ($bookings as $booking) {
     <title>My Dashboard — Nexora</title>
     <link rel="stylesheet" href="output.css">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="dashboard.css?v=1.0">
+    <link rel="stylesheet" href="dashboard.css?v=1.3">
 </head>
 <body class="dashboard-page">
 <header class="dash-header">
@@ -92,6 +147,8 @@ foreach ($bookings as $booking) {
 </header>
 
 <main class="dash-shell">
+    <?php if ($notice): ?><div class="dash-alert success"><?= $notice === 'profile' ? 'Profile updated.' : 'Booking cancelled.' ?></div><?php endif; ?>
+    <?php if ($error): ?><div class="dash-alert error"><?= e($error) ?></div><?php endif; ?>
     <section class="dash-hero">
         <div>
             <span class="dash-eyebrow">My Nexora</span>
@@ -166,6 +223,14 @@ foreach ($bookings as $booking) {
                             <?php if (empty($booking['payment_status']) && !in_array($booking['status'], ['cancelled', 'completed'], true)): ?>
                                 <a href="payment.php?booking=<?= (int)$booking['id'] ?>">Add payment</a>
                             <?php endif; ?>
+                            <?php if (in_array($booking['status'], ['pending', 'confirmed'], true)): ?>
+                                <form method="post" class="user-cancel-form" onsubmit="return confirm('Cancel this booking?');">
+                                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                    <input type="hidden" name="action" value="booking_cancel">
+                                    <input type="hidden" name="booking_id" value="<?= (int)$booking['id'] ?>">
+                                    <button type="submit">Cancel booking</button>
+                                </form>
+                            <?php endif; ?>
                         </div>
                     </article>
                     <?php endforeach; ?>
@@ -174,15 +239,19 @@ foreach ($bookings as $booking) {
         </section>
 
         <aside class="dash-side-stack">
-            <section class="dash-panel profile-card">
+            <section class="dash-panel profile-card" id="profile">
                 <span class="dash-section-label">Account</span>
                 <h2>Your profile</h2>
-                <dl>
-                    <div><dt>Name</dt><dd><?= e($user['first_name'] . ' ' . $user['last_name']) ?></dd></div>
-                    <div><dt>Email</dt><dd><?= e($user['email']) ?></dd></div>
-                    <div><dt>Phone</dt><dd><?= e($user['phone'] ?: 'Not provided') ?></dd></div>
-                    <div><dt>Member since</dt><dd><?= e(date('m/d/Y', strtotime($user['created_at']))) ?></dd></div>
-                </dl>
+                <form method="post" class="profile-edit-form">
+                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                    <input type="hidden" name="action" value="profile_update">
+                    <label>First name<input name="first_name" required value="<?= e($user['first_name']) ?>"></label>
+                    <label>Last name<input name="last_name" required value="<?= e($user['last_name']) ?>"></label>
+                    <label>Email<input type="email" name="email" required value="<?= e($user['email']) ?>"></label>
+                    <label>Phone<input name="phone" value="<?= e((string)$user['phone']) ?>"></label>
+                    <small>Member since <?= e(date('m/d/Y', strtotime($user['created_at']))) ?></small>
+                    <button class="dash-secondary-btn" type="submit">Save profile</button>
+                </form>
             </section>
 
             <section class="dash-panel help-card">

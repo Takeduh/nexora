@@ -133,7 +133,7 @@ $payments = $pdo->query(
     <title>Admin Dashboard — Nexora</title>
     <link rel="stylesheet" href="output.css">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="dashboard.css?v=1.2">
+    <link rel="stylesheet" href="dashboard.css?v=1.3">
 </head>
 <body class="dashboard-page admin-page">
 <header class="dash-header">
@@ -155,7 +155,7 @@ $payments = $pdo->query(
             <h1>Operations dashboard</h1>
             <p>Manage bookings, fleet availability, customers, payments, and support messages.</p>
         </div>
-        <div class="admin-identity"><span>Administrator</span><strong><?= e($admin['first_name'] . ' ' . $admin['last_name']) ?></strong></div>
+        <div class="admin-hero-actions"><a href="admin-manage.php" class="dash-primary-btn">Manage records</a><div class="admin-identity"><span>Administrator</span><strong><?= e($admin['first_name'] . ' ' . $admin['last_name']) ?></strong></div></div>
     </section>
 
     <?php if ($notice): ?><div class="dash-alert success">Update saved successfully.</div><?php endif; ?>
@@ -169,6 +169,7 @@ $payments = $pdo->query(
     </section>
 
     <nav class="admin-section-nav" aria-label="Dashboard sections">
+        <a href="admin-manage.php">CRUD manager</a>
         <a href="#bookings">Bookings</a>
         <a href="#fleet">Fleet variants</a>
         <a href="#customers">Customers</a>
