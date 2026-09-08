@@ -24,7 +24,7 @@
         <a href="index.php#services" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Services</a>
         <a href="index.php#difference" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">About</a>
         <a href="index.php#blog" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Blog</a>
-        <a href="index.php#footer" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Contact</a>
+        <a href="contact.php" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Contact</a>
       </div>
       <div class="flex items-center gap-[18px]">
         <a href="Login/login.php" class="btn btn-outline btn-sm">Login</a>
@@ -135,6 +135,7 @@
 
         <section class="footer-column" aria-labelledby="footer-contact-title">
           <h2 id="footer-contact-title" class="footer-heading">Contact</h2>
+          <p><a href="contact.php" style="font-weight:700">Send us a message</a></p>
           <ul class="contact-list">
             <li class="contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><a href="mailto:hello@nexora-rentals.com">hello@nexora-rentals.com</a></li>
             <li class="contact-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h3l1.5 4-2 1.5a14 14 0 006 6l1.5-2 4 1.5v3a2 2 0 01-2 2C11.4 19 5 12.6 5 5a2 2 0 012-2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg><a href="tel:+63325550147">+63 32 555 0147</a></li>

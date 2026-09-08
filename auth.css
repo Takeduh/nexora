@@ -338,3 +338,6 @@ h1 {
   }
 }
 ```
+
+.auth-message { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 16px; font-size: 14px; }
+.auth-error { border-color: #efb4b4; background: #fff5f5; color: #9f1d1d; }

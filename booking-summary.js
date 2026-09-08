@@ -62,19 +62,23 @@ function renderSummary() {
         <div class="summary-row"><span>Rate</span><b>PHP ${car.price.toLocaleString()} /day</b></div>
         <div class="summary-row summary-total"><span>Estimated Total</span><b>${total ? "PHP " + total.toLocaleString() : "Select both dates to see a total"}</b></div>
 
-        <button type="button" class="btn btn-primary btn-block mt-7" id="continueBtn">Continue Booking</button>
-        <p class="text-sm text-gray-500 text-center mt-2.5 hidden" id="continueNote">Customer details and booking confirmation are coming in the next phase — this is as far as the booking flow goes for now.</p>
+        <form method="post" action="process-booking.php" class="mt-7">
+          <input type="hidden" name="vehicle_code" value="${car.id}">
+          <input type="hidden" name="vehicle_name" value="${car.name.replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">
+          <input type="hidden" name="pickup_location" value="${(loc || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">
+          <input type="hidden" name="pickup_date" value="${pickup || ''}">
+          <input type="hidden" name="return_date" value="${returnDate || ''}">
+          <input type="hidden" name="daily_rate" value="${car.price}">
+          <input type="hidden" name="return_query" value="${params.toString().replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">
+          <label class="block text-sm font-semibold mb-2" for="specialRequests">Special requests <span class="text-gray-500 font-normal">(optional)</span></label>
+          <textarea id="specialRequests" name="special_requests" rows="3" class="w-full border-[1.5px] border-gray-200 rounded-[9px] px-3 py-2.5 text-sm outline-none focus:border-blue-500" placeholder="Anything we should know about your booking?"></textarea>
+          <button type="submit" class="btn btn-primary btn-block mt-4" ${(!nights || !loc) ? 'disabled' : ''}>Continue Booking</button>
+        </form>
 
         <a href="fleet.php" class="block text-center mt-3.5 text-sm font-bold text-blue-500 hover:underline">← Choose a different car</a>
       </div>
     </div>
   `;
-
-  const continueBtn = document.getElementById("continueBtn");
-  const continueNote = document.getElementById("continueNote");
-  if (continueBtn && continueNote) {
-    continueBtn.addEventListener("click", () => continueNote.classList.remove("hidden"));
-  }
 }
 
 renderSummary();
