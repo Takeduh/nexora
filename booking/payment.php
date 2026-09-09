@@ -67,7 +67,7 @@ $availabilityStmt->execute([(int)$draft['car_variant_id'],$draft['return_date'],
 $reservedUnits=(int)$availabilityStmt->fetchColumn();
 $currentRemaining=max(0,(int)$vehicle['quantity']-$reservedUnits);
 ?>
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Confirm booking — Nexora</title><link rel="stylesheet" href="../css/output.css"><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="../css/payment.css?v=4.1">  <link rel="stylesheet" href="../css/responsive.css?v=1.0">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Confirm booking — Nexora</title><link rel="stylesheet" href="../base.css"><link rel="stylesheet" href="../styles.css"><link rel="stylesheet" href="payment.css?v=4.1">  <link rel="stylesheet" href="../responsive.css?v=1.0">
 </head><body class="payment-page">
 <?php $siteRoot='../'; $siteHeaderVariant='checkout'; $siteCheckoutLabel='Secure booking step'; require dirname(__DIR__) . '/includes/header.php'; ?>
 <main class="payment-shell"><div class="payment-progress"><span class="done">1. Vehicle</span><span class="done">2. Rental details</span><span class="current">3. Confirm booking</span></div>

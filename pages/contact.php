@@ -67,10 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us — Nexora</title>
     <meta name="description" content="Get in touch with Nexora for booking, fleet, payment, or rental support.">
-    <link rel="stylesheet" href="../css/output.css">
+    <link rel="stylesheet" href="../base.css">
     <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="../css/contact.css?v=3.0">
-  <link rel="stylesheet" href="../css/responsive.css?v=1.0">
+    <link rel="stylesheet" href="contact.css?v=3.0">
+  <link rel="stylesheet" href="../responsive.css?v=1.0">
 </head>
 <body class="contact-page">
 <?php

@@ -99,10 +99,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $stats = [
+    'bookings' => (int)$pdo->query("SELECT COUNT(*) FROM bookings")->fetchColumn(),
     'users' => (int)$pdo->query("SELECT COUNT(*) FROM users WHERE role = 'user'")->fetchColumn(),
-    'pending' => (int)$pdo->query("SELECT COUNT(*) FROM bookings WHERE status = 'pending'")->fetchColumn(),
     'active' => (int)$pdo->query("SELECT COUNT(*) FROM bookings WHERE status = 'active'")->fetchColumn(),
     'unread' => (int)$pdo->query("SELECT COUNT(*) FROM contact_messages WHERE status = 'unread'")->fetchColumn(),
+    'revenue' => (float)$pdo->query("SELECT COALESCE(SUM(amount), 0) FROM payments WHERE payment_status = 'paid'")->fetchColumn(),
 ];
 
 $bookings = $pdo->query(
@@ -184,53 +185,71 @@ $payments = $pdo->query(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard — Nexora</title>
-    <link rel="stylesheet" href="../css/output.css">
+    <link rel="stylesheet" href="../base.css">
     <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="../css/dashboard.css?v=1.5">
-  <link rel="stylesheet" href="../css/responsive.css?v=1.0">
+    <link rel="stylesheet" href="../shared.css?v=1.5">
+    <link rel="stylesheet" href="admin.css?v=1.0">
+  <link rel="stylesheet" href="../responsive.css?v=1.0">
 </head>
-<body class="dashboard-page admin-page">
-<?php
-$siteRoot = '../';
-$siteHeaderVariant = 'dashboard';
-$siteDashboardMode = 'admin';
-require dirname(__DIR__) . '/includes/header.php';
-?>
-
-<main class="dash-shell">
-    <section class="dash-hero admin-hero">
-        <div>
-            <span class="dash-eyebrow">Nexora administration</span>
-            <h1>Operations dashboard</h1>
-            <p>Manage bookings, fleet availability, customers, payments, and support messages.</p>
+<body class="dashboard-page admin-page admin-dashboard-v2">
+<div class="admin-app">
+    <aside class="admin-sidebar" id="adminSidebar">
+        <a href="../index.php" class="admin-sidebar-brand"><img src="../Images/nexora-logo.png" alt="Nexora"></a>
+        <nav class="admin-sidebar-nav" aria-label="Admin navigation">
+            <a class="active" href="#overview"><span>⌂</span>Overview</a>
+            <a href="#bookings"><span>▦</span>Bookings</a>
+            <a href="#fleet"><span>◆</span>Fleet</a>
+            <a href="#customers"><span>●</span>Customers</a>
+            <a href="#payments"><span>₱</span>Payments</a>
+            <a href="#messages"><span>✉</span>Support<?php if ($stats['unread'] > 0): ?><b><?= $stats['unread'] ?></b><?php endif; ?></a>
+            <a href="admin-manage.php"><span>⚙</span>Manage</a>
+        </nav>
+        <div class="admin-sidebar-bottom">
+            <a href="../pages/fleet.php">View public fleet</a>
+            <a href="../auth/logout.php" class="admin-sidebar-logout">Logout</a>
         </div>
-        <div class="admin-hero-actions"><a href="admin-manage.php" class="dash-primary-btn">Manage records</a><div class="admin-identity"><span>Administrator</span><strong><?= e($admin['first_name'] . ' ' . $admin['last_name']) ?></strong></div></div>
+    </aside>
+
+    <main class="admin-main" id="overview">
+        <header class="admin-topbar">
+            <button class="admin-menu-toggle" id="adminMenuToggle" type="button" aria-label="Toggle admin menu">☰</button>
+            <label class="admin-global-search">
+                <span>⌕</span>
+                <input type="search" id="adminGlobalSearch" placeholder="Search visible records...">
+            </label>
+            <div class="admin-profile">
+                <span class="admin-profile-role">Admin</span>
+                <span class="admin-avatar"><?= e(strtoupper(substr($admin['first_name'], 0, 1))) ?></span>
+                <div><strong><?= e($admin['first_name'] . ' ' . $admin['last_name']) ?></strong><small><?= e($admin['email']) ?></small></div>
+            </div>
+        </header>
+        <div class="dash-shell admin-shell">
+
+    <section class="admin-welcome">
+        <div>
+            <span class="dash-eyebrow">Overview</span>
+            <h1>Admin dashboard</h1>
+            <p>Here’s what is happening with NEXORA today.</p>
+        </div>
+        <a href="admin-manage.php" class="dash-primary-btn">Manage records</a>
     </section>
 
     <?php if ($notice): ?><div class="dash-alert success">Update saved successfully.</div><?php endif; ?>
     <?php if ($error): ?><div class="dash-alert error"><?= e($error) ?></div><?php endif; ?>
 
-    <section class="dash-stats">
-        <article><span>Customers</span><strong><?= $stats['users'] ?></strong></article>
-        <article><span>Pending bookings</span><strong><?= $stats['pending'] ?></strong></article>
-        <article><span>Active rentals</span><strong><?= $stats['active'] ?></strong></article>
-        <article><span>Unread messages</span><strong><?= $stats['unread'] ?></strong></article>
+    <section class="admin-stat-grid">
+        <article class="admin-stat-card"><span class="admin-stat-icon">▦</span><div><small>Total bookings</small><strong><?= $stats['bookings'] ?></strong></div></article>
+        <article class="admin-stat-card"><span class="admin-stat-icon">◆</span><div><small>Active rentals</small><strong><?= $stats['active'] ?></strong></div></article>
+        <article class="admin-stat-card"><span class="admin-stat-icon">₱</span><div><small>Paid revenue</small><strong>₱<?= number_format($stats['revenue'], 2) ?></strong></div></article>
+        <article class="admin-stat-card"><span class="admin-stat-icon">●</span><div><small>Customers</small><strong><?= $stats['users'] ?></strong></div></article>
+        <article class="admin-stat-card admin-stat-alert"><span class="admin-stat-icon">✉</span><div><small>Unread messages</small><strong><?= $stats['unread'] ?></strong></div></article>
     </section>
-
-    <nav class="admin-section-nav" aria-label="Dashboard sections">
-        <a href="admin-manage.php">CRUD manager</a>
-        <a href="#bookings">Bookings</a>
-        <a href="#fleet">Fleet variants</a>
-        <a href="#customers">Customers</a>
-        <a href="#payments">Payments</a>
-        <a href="#messages">Messages</a>
-    </nav>
 
     <section class="dash-panel admin-section" id="bookings">
         <div class="dash-panel-head"><div><span class="dash-section-label">Reservations</span><h2>Recent bookings</h2></div><span><?= count($bookings) ?> shown</span></div>
         <div class="admin-table-wrap">
             <table class="admin-table">
-                <thead><tr><th>Booking</th><th>Customer</th><th>Trip</th><th>Total</th><th>Payment</th><th>Status</th></tr></thead>
+                <thead><tr><th>Booking</th><th>Customer</th><th>Trip</th><th>Total</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead>
                 <tbody>
                 <?php foreach ($bookings as $booking): ?>
                     <tr>
@@ -238,7 +257,8 @@ require dirname(__DIR__) . '/includes/header.php';
                         <td><strong><?= e($booking['first_name'] . ' ' . $booking['last_name']) ?></strong><small><?= e($booking['email']) ?></small></td>
                         <td><strong><?= e(displayDate($booking['pickup_date'])) ?> → <?= e(displayDate($booking['return_date'])) ?></strong><small><?= e($booking['pickup_location']) ?></small></td>
                         <td>₱<?= number_format((float)$booking['total_amount'], 2) ?></td>
-                        <td><?= e(ucfirst((string)($booking['payment_status'] ?? 'not recorded'))) ?></td>
+                        <td><span class="admin-payment-state"><?= e(ucfirst((string)($booking['payment_status'] ?? 'not recorded'))) ?></span></td>
+                        <td><span class="status-badge status-<?= e($booking['status']) ?>"><?= e(ucfirst($booking['status'])) ?></span></td>
                         <td>
                             <button type="button" class="admin-edit-toggle">Edit</button>
                             <div class="admin-edit-panel" hidden>
@@ -401,7 +421,7 @@ require dirname(__DIR__) . '/includes/header.php';
             <td>#<?= (int)$payment['booking_id'] ?> · <?= e($payment['vehicle_name']) ?></td>
             <td><?= e(ucwords(str_replace('_',' ',$payment['payment_method']))) ?></td>
             <td>₱<?= number_format((float)$payment['amount'], 2) ?></td>
-            <td><?= e(ucfirst($payment['payment_status'])) ?></td>
+            <td><span class="admin-payment-state payment-<?= e($payment['payment_status']) ?>"><?= e(ucfirst($payment['payment_status'])) ?></span></td>
             <td><?= e($payment['transaction_reference'] ?: '—') ?></td>
             <td>
                 <button type="button" class="admin-edit-toggle">Edit</button>
@@ -480,7 +500,10 @@ require dirname(__DIR__) . '/includes/header.php';
             <?php endforeach; ?>
         </div>
     </section>
-</main>
+
+        </div>
+    </main>
+</div>
 <script>
 (() => {
     const list = document.getElementById('fleetCarList');
@@ -541,6 +564,18 @@ require dirname(__DIR__) . '/includes/header.php';
     });
 
     render();
+
+    const sidebar = document.getElementById('adminSidebar');
+    document.getElementById('adminMenuToggle')?.addEventListener('click', () => sidebar?.classList.toggle('open'));
+    document.querySelectorAll('.admin-sidebar-nav a[href^="#"]').forEach(link => link.addEventListener('click', () => sidebar?.classList.remove('open')));
+
+    const globalSearch = document.getElementById('adminGlobalSearch');
+    globalSearch?.addEventListener('input', () => {
+        const term = globalSearch.value.trim().toLowerCase();
+        document.querySelectorAll('.admin-table tbody tr, .message-admin-card').forEach(item => {
+            item.hidden = Boolean(term) && !item.textContent.toLowerCase().includes(term);
+        });
+    });
 
     document.querySelectorAll('.admin-edit-toggle').forEach(button => {
         button.addEventListener('click', () => {

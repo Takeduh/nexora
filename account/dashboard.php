@@ -227,9 +227,9 @@ foreach ($bookings as $booking) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Dashboard — Nexora</title>
-    <link rel="stylesheet" href="../css/output.css">
+    <link rel="stylesheet" href="../base.css">
     <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="../css/dashboard.css?v=1.5">
+    <link rel="stylesheet" href="../shared.css?v=1.5">
 </head>
 <body class="dashboard-page">
 <header class="dash-header">

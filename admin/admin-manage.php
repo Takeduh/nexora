@@ -66,10 +66,10 @@ $returnTo = 'admin-manage.php?section=' . urlencode($section);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Records — Nexora</title>
-    <link rel="stylesheet" href="../css/output.css">
+    <link rel="stylesheet" href="../base.css">
     <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="../css/dashboard.css?v=1.5">
-  <link rel="stylesheet" href="../css/responsive.css?v=1.0">
+    <link rel="stylesheet" href="../shared.css?v=1.5">
+  <link rel="stylesheet" href="../responsive.css?v=1.0">
 </head>
 <body class="dashboard-page admin-page">
 <?php

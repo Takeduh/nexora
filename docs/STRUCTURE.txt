@@ -1,0 +1,59 @@
+NEXORA PROJECT STRUCTURE
+
+Root
+- index.php              Main homepage
+- styles.css             Main website stylesheet
+- base.css               Shared base/utility styles used by public pages
+- responsive.css         Shared responsive fixes
+- shared.css             Shared user/admin dashboard styles
+- script.js              Homepage JavaScript
+
+account/
+- dashboard.php          Customer dashboard
+
+auth/
+- login.php
+- signup.php
+- logout.php
+- auth.css               Login and signup styling
+
+admin/
+- admin-dashboard.php
+- admin-manage.php
+- admin-crud.php
+- admin.css              Admin dashboard styling
+
+booking/
+- booking-summary.php
+- booking-summary.css
+- booking-summary.js
+- payment.php
+- payment.css
+- process-booking.php
+- availability.php
+
+pages/
+- fleet.php
+- fleet.css
+- fleet.js
+- contact.php
+- contact.css
+
+config/
+- database.php
+- fleet-data.php
+
+includes/
+- header.php
+- footer.php
+
+utils/
+- validation.php
+
+Images/
+- website and fleet images
+
+docs/
+- project notes and documentation
+
+The old css/ and js/ folders are no longer used. Page-specific CSS and JavaScript now live beside their PHP counterparts. Shared assets stay in the project root so they are not duplicated across folders.

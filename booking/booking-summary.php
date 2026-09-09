@@ -85,10 +85,10 @@ if ($vehicle && validDate($pickup) && validDate($returnDate)) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Checkout — Nexora</title>
-  <link rel="stylesheet" href="../css/output.css">
+  <link rel="stylesheet" href="../base.css">
   <link rel="stylesheet" href="../styles.css">
-  <link rel="stylesheet" href="../css/booking-summary.css?v=20260908-1">
-  <link rel="stylesheet" href="../css/responsive.css?v=1.0">
+  <link rel="stylesheet" href="booking-summary.css?v=20260908-1">
+  <link rel="stylesheet" href="../responsive.css?v=1.0">
 </head>
 <body class="checkout-page">
   <?php
@@ -301,7 +301,7 @@ if ($vehicle && validDate($pickup) && validDate($returnDate)) {
   </main>
 
   <?php if ($vehicle): ?>
-    <script src="../js/booking-summary.js?v=20260908-2"></script>
+    <script src="booking-summary.js?v=20260908-2"></script>
   <?php endif; ?>
 </body>
 </html>

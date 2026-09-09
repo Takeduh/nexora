@@ -9,14 +9,14 @@ $fleetCars = getFleetCars($pdo);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nexora — Rent the Perfect Car for Every Journey</title>
-  <link rel="stylesheet" href="css/output.css">
+  <link rel="stylesheet" href="base.css">
   <link rel="stylesheet" href="styles.css">
   <script>
     window.NEXORA_FLEET = <?= json_encode($fleetCars, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
     window.NEXORA_IS_AUTHENTICATED = <?= !empty($_SESSION['user_id']) ? 'true' : 'false' ?>;
   </script>
-  <script src="js/script.js" defer></script>
-  <link rel="stylesheet" href="css/responsive.css?v=1.0">
+  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="responsive.css?v=1.0">
 </head>
 <body class="bg-white text-ink antialiased">
   

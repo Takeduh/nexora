@@ -315,3 +315,17 @@ A new Support inbox shows:
 - message status
 - admin reply
 - reply date/time
+
+
+VERSION 4.2: REVAMPED ADMIN DASHBOARD
+The revamp keeps the existing admin behavior and adds a cleaner interface with:
+- fixed navy sidebar
+- compact top search/header
+- five summary cards
+- cleaner tables and inventory rows
+- status/payment badges
+- Edit-first controls
+- support Reply/Edit controls
+- responsive mobile sidebar
+
+Existing CRUD, booking lifecycle, inventory, payment, and support-reply logic remain intact.

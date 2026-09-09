@@ -62,8 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign Up | Nexora Car Rentals</title><link rel="stylesheet" href="../css/auth.css">
-    <link rel="stylesheet" href="../css/responsive.css?v=1.0">
+  <title>Sign Up | Nexora Car Rentals</title><link rel="stylesheet" href="auth.css">
+    <link rel="stylesheet" href="../responsive.css?v=1.0">
 </head>
 <body><main class="auth-page"><section class="auth-panel wide" aria-labelledby="signup-title">
 <a class="brand" href="../index.php" aria-label="Nexora home"><img src="../Images/nexora.png" alt="Nexora Car Rentals"></a>
