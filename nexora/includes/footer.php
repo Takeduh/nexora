@@ -35,7 +35,7 @@ $siteRoot = $siteRoot ?? '';
             <section class="footer-column" aria-labelledby="footer-explore-title">
                 <h2 id="footer-explore-title" class="footer-heading">Explore</h2>
                 <nav class="footer-links" aria-label="Footer navigation">
-                    <a href="<?= $siteRoot ?>pages/fleet.php">Our Fleet</a>
+                    <a href="<?= $siteRoot ?>fleet.php">Our Fleet</a>
                     <a href="<?= $siteRoot ?>index.php#services">Services</a>
                     <a href="<?= $siteRoot ?>index.php#difference">About Nexora</a>
                     <a href="<?= $siteRoot ?>index.php#blog">Customer Stories</a>
@@ -43,7 +43,7 @@ $siteRoot = $siteRoot ?? '';
             </section>
             <section class="footer-column" aria-labelledby="footer-contact-title">
                 <h2 id="footer-contact-title" class="footer-heading">Contact</h2>
-                <p><a href="<?= $siteRoot ?>pages/contact.php" style="font-weight:700">Send us a message</a></p>
+                <p><a href="<?= $siteRoot ?>contact.php" style="font-weight:700">Send us a message</a></p>
                 <ul class="contact-list">
                     <li class="contact-item">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="m5 7 7 6 7-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>

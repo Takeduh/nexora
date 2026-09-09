@@ -40,11 +40,11 @@ function buildBookingLink(variantId) {
   if (pickup?.value) params.set("pickup", pickup.value);
   if (ret?.value) params.set("return", ret.value);
 
-  const bookingUrl = `booking/booking-summary.php?${params.toString()}`;
+  const bookingUrl = `booking-summary.php?${params.toString()}`;
   if (window.NEXORA_IS_AUTHENTICATED) return bookingUrl;
 
   const next = `../${bookingUrl}`;
-  return `auth/login.php?next=${encodeURIComponent(next)}`;
+  return `login.php?next=${encodeURIComponent(next)}`;
 }
 
 function renderFleet(filter = "all") {

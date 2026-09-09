@@ -1,6 +1,6 @@
 <?php
-require_once dirname(__DIR__) . '/config/database.php';
-require_once dirname(__DIR__) . '/utils/validation.php';
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/includes/validation.php';
 header('Content-Type: application/json; charset=utf-8');
 $pickup = trim($_GET['pickup'] ?? '');
 $returnDate = trim($_GET['return'] ?? '');

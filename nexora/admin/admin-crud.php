@@ -1,10 +1,10 @@
 <?php
 session_start();
 require_once dirname(__DIR__) . '/config/database.php';
-require_once dirname(__DIR__) . '/utils/validation.php';
+require_once dirname(__DIR__) . '/includes/validation.php';
 
 if (empty($_SESSION['user_id'])) {
-    header('Location: ../auth/login.php?next=../admin/admin-dashboard.php');
+    header('Location: ../login.php?next=admin/admin-dashboard.php');
     exit;
 }
 

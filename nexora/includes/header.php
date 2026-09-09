@@ -17,19 +17,19 @@ if ($siteHeaderVariant === 'public'):
         </a>
         <div class="nav-links site-nav-links flex items-center gap-[30px]">
             <a href="<?= $siteRoot ?>index.php" class="<?= $siteActivePage === 'home' ? 'text-white' : 'text-white/78' ?> text-[14.5px] font-semibold hover:text-white transition">Home</a>
-            <a href="<?= $siteRoot ?>pages/fleet.php" class="<?= $siteActivePage === 'fleet' ? 'text-white' : 'text-white/78' ?> text-[14.5px] font-semibold hover:text-white transition">Fleet</a>
+            <a href="<?= $siteRoot ?>fleet.php" class="<?= $siteActivePage === 'fleet' ? 'text-white' : 'text-white/78' ?> text-[14.5px] font-semibold hover:text-white transition">Fleet</a>
             <a href="<?= $siteRoot ?>index.php#services" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Services</a>
             <a href="<?= $siteRoot ?>index.php#difference" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">About</a>
             <a href="<?= $siteRoot ?>index.php#blog" class="text-white/78 text-[14.5px] font-semibold hover:text-white transition">Blog</a>
-            <a href="<?= $siteRoot ?>pages/contact.php" class="<?= $siteActivePage === 'contact' ? 'text-white' : 'text-white/78' ?> text-[14.5px] font-semibold hover:text-white transition">Contact</a>
+            <a href="<?= $siteRoot ?>contact.php" class="<?= $siteActivePage === 'contact' ? 'text-white' : 'text-white/78' ?> text-[14.5px] font-semibold hover:text-white transition">Contact</a>
         </div>
         <div class="site-auth-links flex items-center gap-[18px]">
             <?php if ($loggedIn): ?>
-                <a href="<?= $siteRoot . ($role === 'admin' ? 'admin/admin-dashboard.php' : 'account/dashboard.php') ?>" class="btn btn-outline btn-sm">Dashboard</a>
-                <a href="<?= $siteRoot ?>auth/logout.php" class="btn btn-primary btn-sm">Logout</a>
+                <a href="<?= $siteRoot . ($role === 'admin' ? 'admin/admin-dashboard.php' : 'dashboard.php') ?>" class="btn btn-outline btn-sm">Dashboard</a>
+                <a href="<?= $siteRoot ?>logout.php" class="btn btn-primary btn-sm">Logout</a>
             <?php else: ?>
-                <a href="<?= $siteRoot ?>auth/login.php" class="btn btn-outline btn-sm">Login</a>
-                <a href="<?= $siteRoot ?>auth/signup.php" class="btn btn-primary btn-sm">Sign Up</a>
+                <a href="<?= $siteRoot ?>login.php" class="btn btn-outline btn-sm">Login</a>
+                <a href="<?= $siteRoot ?>signup.php" class="btn btn-primary btn-sm">Sign Up</a>
             <?php endif; ?>
         </div>
     </nav>
@@ -41,18 +41,18 @@ if ($siteHeaderVariant === 'public'):
         <div class="dash-nav-links">
             <?php if ($siteDashboardMode === 'manage'): ?>
                 <a href="<?= $siteRoot ?>admin/admin-dashboard.php">Admin dashboard</a>
-                <a href="<?= $siteRoot ?>account/dashboard.php">My dashboard</a>
-                <a href="<?= $siteRoot ?>pages/fleet.php">Fleet</a>
+                <a href="<?= $siteRoot ?>dashboard.php">My dashboard</a>
+                <a href="<?= $siteRoot ?>fleet.php">Fleet</a>
             <?php elseif ($siteDashboardMode === 'admin'): ?>
                 <a href="<?= $siteRoot ?>admin/admin-manage.php">Manage records</a>
-                <a href="<?= $siteRoot ?>account/dashboard.php">My dashboard</a>
-                <a href="<?= $siteRoot ?>pages/fleet.php">Fleet</a>
+                <a href="<?= $siteRoot ?>dashboard.php">My dashboard</a>
+                <a href="<?= $siteRoot ?>fleet.php">Fleet</a>
             <?php else: ?>
-                <a href="<?= $siteRoot ?>pages/fleet.php">Fleet</a>
-                <a href="<?= $siteRoot ?>pages/contact.php">Support</a>
+                <a href="<?= $siteRoot ?>fleet.php">Fleet</a>
+                <a href="<?= $siteRoot ?>contact.php">Support</a>
                 <?php if (($_SESSION['user_role'] ?? '') === 'admin'): ?><a href="<?= $siteRoot ?>admin/admin-dashboard.php">Admin</a><?php endif; ?>
             <?php endif; ?>
-            <a href="<?= $siteRoot ?>auth/logout.php" class="dash-logout">Logout</a>
+            <a href="<?= $siteRoot ?>logout.php" class="dash-logout">Logout</a>
         </div>
     </nav>
 </header>

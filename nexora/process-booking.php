@@ -1,12 +1,12 @@
 <?php
 session_start();
-require_once dirname(__DIR__) . '/config/database.php';
-require_once dirname(__DIR__) . '/utils/validation.php';
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/includes/validation.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: ../pages/fleet.php'); exit; }
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: fleet.php'); exit; }
 if (empty($_SESSION['user_id'])) {
-    $next = '../booking/booking-summary.php?' . ($_POST['return_query'] ?? '');
-    header('Location: ../auth/login.php?' . http_build_query(['next' => $next]));
+    $next = 'booking-summary.php?' . ($_POST['return_query'] ?? '');
+    header('Location: login.php?' . http_build_query(['next' => $next]));
     exit;
 }
 

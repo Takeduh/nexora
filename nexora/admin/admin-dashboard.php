@@ -26,7 +26,7 @@ function bookingStatusOptions(string $status): array
 }
 
 if (empty($_SESSION['user_id'])) {
-    header('Location: ../auth/login.php?next=../admin/admin-dashboard.php');
+    header('Location: ../login.php?next=admin/admin-dashboard.php');
     exit;
 }
 
@@ -185,11 +185,11 @@ $payments = $pdo->query(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard — Nexora</title>
-    <link rel="stylesheet" href="../base.css">
-    <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="../shared.css?v=1.5">
-    <link rel="stylesheet" href="admin.css?v=1.0">
-  <link rel="stylesheet" href="../responsive.css?v=1.0">
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/shared.css?v=1.5">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=1.0">
+  <link rel="stylesheet" href="../assets/css/responsive.css?v=1.0">
 </head>
 <body class="dashboard-page admin-page admin-dashboard-v2">
 <div class="admin-app">
@@ -202,11 +202,12 @@ $payments = $pdo->query(
             <a href="#customers"><span>●</span>Customers</a>
             <a href="#payments"><span>₱</span>Payments</a>
             <a href="#messages"><span>✉</span>Support<?php if ($stats['unread'] > 0): ?><b><?= $stats['unread'] ?></b><?php endif; ?></a>
-            <a href="admin-manage.php"><span>⚙</span>Manage Records</a>
+            <a href="admin-manage.php"><span>▤</span>Manage Records</a>
+            <a href="settings.php"><span>⚙</span>Account Settings</a>
         </nav>
         <div class="admin-sidebar-bottom">
-            <a href="../pages/fleet.php">View public fleet</a>
-            <a href="../auth/logout.php" class="admin-sidebar-logout">Logout</a>
+            <a href="../fleet.php">View public fleet</a>
+            <a href="../logout.php" class="admin-sidebar-logout">Logout</a>
         </div>
     </aside>
 
@@ -284,7 +285,7 @@ $payments = $pdo->query(
     <section class="dash-panel admin-section" id="fleet">
         <div class="dash-panel-head inventory-panel-head">
             <div><span class="dash-section-label">Inventory</span><h2>Fleet inventory</h2></div>
-            <a href="../pages/fleet.php">View public fleet</a>
+            <a href="../fleet.php">View public fleet</a>
         </div>
 
         <div class="inventory-toolbar">

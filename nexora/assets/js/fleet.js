@@ -85,11 +85,11 @@ function buildFleetBookingLink(variantId) {
   if (pickup?.value) params.set("pickup", pickup.value);
   if (ret?.value) params.set("return", ret.value);
 
-  const bookingUrl = `../booking/booking-summary.php?${params.toString()}`;
+  const bookingUrl = `booking-summary.php?${params.toString()}`;
   if (window.NEXORA_IS_AUTHENTICATED) return bookingUrl;
 
-  const next = `../booking/booking-summary.php?${params.toString()}`;
-  return `../auth/login.php?next=${encodeURIComponent(next)}`;
+  const next = `booking-summary.php?${params.toString()}`;
+  return `login.php?next=${encodeURIComponent(next)}`;
 }
 
 function parseUSDate(value) {
@@ -305,7 +305,7 @@ fleetSearchForm?.addEventListener("submit", async event => {
       formNote.className = "fleet-form-note show";
     }
     try {
-      const response = await fetch(`../booking/availability.php?pickup=${encodeURIComponent(toISODate(pickupDate))}&return=${encodeURIComponent(toISODate(returnDate))}`, { headers: { "Accept": "application/json" } });
+      const response = await fetch(`availability.php?pickup=${encodeURIComponent(toISODate(pickupDate))}&return=${encodeURIComponent(toISODate(returnDate))}`, { headers: { "Accept": "application/json" } });
       const data = await response.json();
       if (!response.ok || !data.ok) throw new Error(data.message || "Availability check failed.");
       availabilityByVariant = data.variants || {};

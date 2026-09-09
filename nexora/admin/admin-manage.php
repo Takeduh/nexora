@@ -17,7 +17,7 @@ function bookingStatusOptions(string $status): array
 }
 
 if (empty($_SESSION['user_id'])) {
-    header('Location: ../auth/login.php?next=../admin/admin-manage.php');
+    header('Location: ../login.php?next=admin/admin-manage.php');
     exit;
 }
 
@@ -65,11 +65,11 @@ $returnTo = 'admin-manage.php?section=' . urlencode($section);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Records — Nexora</title>
-    <link rel="stylesheet" href="../base.css">
-    <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="../shared.css?v=1.5">
-    <link rel="stylesheet" href="admin.css?v=1.1">
-    <link rel="stylesheet" href="../responsive.css?v=1.0">
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/shared.css?v=1.5">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=1.1">
+    <link rel="stylesheet" href="../assets/css/responsive.css?v=1.0">
 </head>
 <body class="dashboard-page admin-page admin-dashboard-v2 admin-manage-v2">
 <div class="admin-app">
@@ -82,11 +82,12 @@ $returnTo = 'admin-manage.php?section=' . urlencode($section);
             <a href="admin-dashboard.php#customers"><span>●</span>Customers</a>
             <a href="admin-dashboard.php#payments"><span>₱</span>Payments</a>
             <a href="admin-dashboard.php#messages"><span>✉</span>Support</a>
-            <a class="active" href="admin-manage.php"><span>⚙</span>Manage Records</a>
+            <a class="active" href="admin-manage.php"><span>▤</span>Manage Records</a>
+            <a href="settings.php"><span>⚙</span>Account Settings</a>
         </nav>
         <div class="admin-sidebar-bottom">
-            <a href="../pages/fleet.php">View public fleet</a>
-            <a href="../auth/logout.php" class="admin-sidebar-logout">Logout</a>
+            <a href="../fleet.php">View public fleet</a>
+            <a href="../logout.php" class="admin-sidebar-logout">Logout</a>
         </div>
     </aside>
 
@@ -109,7 +110,7 @@ $returnTo = 'admin-manage.php?section=' . urlencode($section);
                 <div>
                     <span class="dash-eyebrow">Data management</span>
                     <h1>Manage records</h1>
-                    <p>Use one workspace to manage fleet, customers, bookings, payments, and support records.</p>
+                    <p>Use one workspace to manage fleet, customers, bookings, and payment records.</p>
                 </div>
                 <a href="admin-dashboard.php" class="dash-secondary-btn">Back to dashboard</a>
             </section>

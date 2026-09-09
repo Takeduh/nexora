@@ -413,7 +413,7 @@ header nav > div:last-child {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 24px;
-  background: #050b1d url("Images/hero-bg.png") center / cover no-repeat;
+  background: #050b1d url("../../Images/hero-bg.png") center / cover no-repeat;
   isolation: isolate;
 }
 

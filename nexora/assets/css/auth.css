@@ -45,10 +45,10 @@ body {
 .auth-panel {
   width: min(100%, 440px);
   padding: 42px 44px 36px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(226, 231, 239, 0.95);
   border-radius: 18px;
-  background: rgba(15, 31, 61, 0.98);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+  background: #f6f8fb;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.20);
 }
 
 
@@ -69,7 +69,7 @@ body {
   width: 230px;
   height: 55px;
   object-fit: contain;
-  mix-blend-mode: screen;
+  mix-blend-mode: normal;
 }
 
 
@@ -89,7 +89,7 @@ body {
 
 h1 {
   margin: 0 0 10px;
-  color: #ffffff;
+  color: var(--navy-light);
   font-family: "Montserrat", sans-serif;
   font-size: 30px;
   line-height: 1.15;
@@ -97,7 +97,7 @@ h1 {
 
 .intro {
   margin: 0;
-  color: #b8c6dc;
+  color: var(--muted);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -119,13 +119,13 @@ h1 {
 }
 
 .field label {
-  color: #eaf1ff;
+  color: var(--navy-light);
   font-size: 13px;
   font-weight: 700;
 }
 
 .field label span {
-  color: #aebbd0;
+  color: var(--muted);
   font-weight: 400;
 }
 
@@ -177,7 +177,7 @@ h1 {
   align-items: center;
   gap: 9px;
 
-  color: #b8c6dc;
+  color: var(--muted);
   font-size: 13px;
 }
 
@@ -247,7 +247,7 @@ h1 {
 
 
 .auth-prompt {
-  color: #b8c6dc;
+  color: var(--muted);
 }
 
 .back-link {

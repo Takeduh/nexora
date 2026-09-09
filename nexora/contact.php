@@ -1,7 +1,7 @@
 <?php
 if (session_status() !== PHP_SESSION_ACTIVE) { session_start(); }
-require_once dirname(__DIR__) . '/config/database.php';
-require_once dirname(__DIR__) . '/utils/validation.php';
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/includes/validation.php';
 
 function e(string $value): string
 {
@@ -67,17 +67,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us — Nexora</title>
     <meta name="description" content="Get in touch with Nexora for booking, fleet, payment, or rental support.">
-    <link rel="stylesheet" href="../base.css">
-    <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="contact.css?v=3.0">
-  <link rel="stylesheet" href="../responsive.css?v=1.0">
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/contact.css?v=3.0">
+  <link rel="stylesheet" href="assets/css/responsive.css?v=1.0">
 </head>
 <body class="contact-page">
 <?php
-$siteRoot = '../';
+$siteRoot = '';
     $siteHeaderVariant = 'public';
 $siteActivePage = 'contact';
-require dirname(__DIR__) . '/includes/header.php';
+require __DIR__ . '/includes/header.php';
 ?>
 
 <main>
@@ -199,7 +199,7 @@ require dirname(__DIR__) . '/includes/header.php';
 
 <?php
 $siteFooterNewsletter = false;
-require dirname(__DIR__) . '/includes/footer.php';
+require __DIR__ . '/includes/footer.php';
 ?>
 </body>
 </html>

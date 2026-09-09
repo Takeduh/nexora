@@ -9,14 +9,14 @@ $fleetCars = getFleetCars($pdo);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nexora — Rent the Perfect Car for Every Journey</title>
-  <link rel="stylesheet" href="base.css">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
   <script>
     window.NEXORA_FLEET = <?= json_encode($fleetCars, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
     window.NEXORA_IS_AUTHENTICATED = <?= !empty($_SESSION['user_id']) ? 'true' : 'false' ?>;
   </script>
-  <script src="script.js" defer></script>
-  <link rel="stylesheet" href="responsive.css?v=1.0">
+  <script src="assets/js/script.js" defer></script>
+  <link rel="stylesheet" href="assets/css/responsive.css?v=1.0">
 </head>
 <body class="bg-white text-ink antialiased">
   
@@ -40,7 +40,7 @@ $fleetCars = getFleetCars($pdo);
         <div class="flex gap-3.5 mb-10">
           <a href="<?= !empty($_SESSION['user_id'])
             ? '#book'
-            : 'auth/login.php?next=' . rawurlencode('../index.php#book') ?>" class="btn btn-primary">Book Now</a>
+            : 'login.php?next=' . rawurlencode('index.php#book') ?>" class="btn btn-primary">Book Now</a>
           <a href="#fleet" class="btn btn-outline">See Our Fleet</a>
         </div>
       </div>
@@ -143,7 +143,7 @@ $fleetCars = getFleetCars($pdo);
       <div class="grid grid-cols-4 gap-[22px]" id="fleetGrid"></div>
 
       <div class="text-center mt-10">
-        <a href="pages/fleet.php" class="btn btn-dark-outline">View All Vehicles</a>
+        <a href="fleet.php" class="btn btn-dark-outline">View All Vehicles</a>
       </div>
     </div>
   </section>
@@ -222,7 +222,7 @@ $fleetCars = getFleetCars($pdo);
         <p>Fast booking, great cars, better journeys.</p>
         <a href="<?= !empty($_SESSION['user_id'])
             ? '#book'
-            : 'auth/login.php?next=' . rawurlencode('../index.php#book') ?>" class="btn btn-primary">Book Now</a>
+            : 'login.php?next=' . rawurlencode('index.php#book') ?>" class="btn btn-primary">Book Now</a>
       </div>
     </div>
   </section>

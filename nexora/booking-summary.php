@@ -5,12 +5,12 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 if (empty($_SESSION['user_id'])) {
     $query = $_SERVER['QUERY_STRING'] ?? '';
-    $next = '../booking/booking-summary.php' . ($query !== '' ? '?' . $query : '');
-    header('Location: ../auth/login.php?' . http_build_query(['next' => $next]));
+    $next = 'booking-summary.php' . ($query !== '' ? '?' . $query : '');
+    header('Location: login.php?' . http_build_query(['next' => $next]));
     exit;
 }
 
-require_once dirname(__DIR__) . '/config/database.php';
+require_once __DIR__ . '/config/database.php';
 $variantId = filter_input(INPUT_GET, 'variant', FILTER_VALIDATE_INT);
 $location = trim($_GET['loc'] ?? '');
 $pickup = $_GET['pickup'] ?? '';
@@ -85,16 +85,16 @@ if ($vehicle && validDate($pickup) && validDate($returnDate)) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Checkout — Nexora</title>
-  <link rel="stylesheet" href="../base.css">
-  <link rel="stylesheet" href="../styles.css">
-  <link rel="stylesheet" href="booking-summary.css?v=20260908-1">
-  <link rel="stylesheet" href="../responsive.css?v=1.0">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/booking-summary.css?v=20260908-1">
+  <link rel="stylesheet" href="assets/css/responsive.css?v=1.0">
 </head>
 <body class="checkout-page">
   <?php
-    $siteRoot = '../'; $siteHeaderVariant = 'checkout';
+    $siteRoot = ''; $siteHeaderVariant = 'checkout';
     $siteCheckoutLabel = 'Secure checkout';
-    require dirname(__DIR__) . '/includes/header.php';
+    require __DIR__ . '/includes/header.php';
   ?>
 
 <main class="checkout-shell">
@@ -102,7 +102,7 @@ if ($vehicle && validDate($pickup) && validDate($returnDate)) {
       <div class="checkout-not-found">
         <h1>We couldn't find that vehicle variant</h1>
         <p>The selected transmission may be unavailable or the booking link may be incomplete.</p>
-        <a href="../pages/fleet.php" class="btn btn-primary">Browse the Fleet</a>
+        <a href="fleet.php" class="btn btn-primary">Browse the Fleet</a>
       </div>
     <?php else: ?>
       <?php
@@ -117,7 +117,7 @@ if ($vehicle && validDate($pickup) && validDate($returnDate)) {
           <h1>Review your booking</h1>
           <p>Confirm your rental details before continuing to final confirmation.</p>
         </div>
-        <a href="../pages/fleet.php" class="checkout-change-car">← Change vehicle</a>
+        <a href="fleet.php" class="checkout-change-car">← Change vehicle</a>
       </div>
 
       <form id="bookingCheckoutForm" method="post" action="process-booking.php" class="checkout-grid"
@@ -138,7 +138,7 @@ if ($vehicle && validDate($pickup) && validDate($returnDate)) {
             <div class="checkout-vehicle">
               <div class="checkout-vehicle-media media-<?= e($categoryClass) ?>">
                 <?php if (!empty($vehicle['image'])): ?>
-                  <img src="<?= e((preg_match('~^(?:https?:)?//~i', (string)$vehicle['image']) ? '' : '../') . (string)$vehicle['image']) ?>" alt="<?= e($vehicleName) ?>" onerror="this.style.display='none'">
+                  <img src="<?= e((preg_match('~^(?:https?:)?//~i', (string)$vehicle['image']) ? '' : '') . (string)$vehicle['image']) ?>" alt="<?= e($vehicleName) ?>" onerror="this.style.display='none'">
                 <?php endif; ?>
               </div>
               <div class="checkout-vehicle-info">
@@ -301,7 +301,7 @@ if ($vehicle && validDate($pickup) && validDate($returnDate)) {
   </main>
 
   <?php if ($vehicle): ?>
-    <script src="booking-summary.js?v=20260908-2"></script>
+    <script src="assets/js/booking-summary.js?v=20260908-2"></script>
   <?php endif; ?>
 </body>
 </html>

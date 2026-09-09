@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once dirname(__DIR__) . '/config/database.php';
-require_once dirname(__DIR__) . '/utils/validation.php';
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/includes/validation.php';
 
 $errors = [];
 $values = ['first_name' => '', 'last_name' => '', 'email' => '', 'phone' => ''];
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = (int)$pdo->lastInsertId();
             $_SESSION['user_name'] = $values['first_name'];
             $_SESSION['user_role'] = 'user';
-            header('Location: ' . safeNext($next, '../account/dashboard.php'));
+            header('Location: ' . safeNext($next, 'dashboard.php'));
             exit;
         }
     }
@@ -62,11 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign Up | Nexora Car Rentals</title><link rel="stylesheet" href="auth.css">
-    <link rel="stylesheet" href="../responsive.css?v=1.0">
+  <title>Sign Up | Nexora Car Rentals</title><link rel="stylesheet" href="assets/css/auth.css">
+    <link rel="stylesheet" href="assets/css/responsive.css?v=1.0">
 </head>
 <body><main class="auth-page"><section class="auth-panel wide" aria-labelledby="signup-title">
-<a class="brand" href="../index.php" aria-label="Nexora home"><img src="../Images/nexora.png" alt="Nexora Car Rentals"></a>
+<a class="brand" href="index.php" aria-label="Nexora home"><img src="Images/nexora.png" alt="Nexora Car Rentals"></a>
 <div class="auth-heading"><p class="eyebrow">Start your journey</p><h1 id="signup-title">Create your Nexora account</h1><p class="intro">Sign up to manage bookings and make every trip easier.</p></div>
 <?php if ($errors): ?><div class="auth-message auth-error"><?php echo htmlspecialchars(implode(' ', $errors)); ?></div><?php endif; ?>
 <form class="auth-form compact-gap" method="post" autocomplete="on"><input type="hidden" name="next" value="<?php echo htmlspecialchars($next, ENT_QUOTES, 'UTF-8'); ?>">
@@ -78,5 +78,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="field"><label for="confirm-password">Confirm password</label><input type="password" id="confirm-password" name="confirm_password" autocomplete="new-password" placeholder="Re-enter your password" minlength="8" required></div>
 <label class="check-row top-align"><input type="checkbox" name="terms" value="1" required><span>I agree to Nexora's Terms of Service and Privacy Policy.</span></label>
 <button type="submit">Create account</button></form>
-<p class="auth-prompt">Already have an account? <a href="login.php<?php echo $next !== '' ? '?next=' . rawurlencode($next) : ''; ?>">Log in</a></p><a class="back-link" href="../index.php">Back to Nexora</a>
+<p class="auth-prompt">Already have an account? <a href="login.php<?php echo $next !== '' ? '?next=' . rawurlencode($next) : ''; ?>">Log in</a></p><a class="back-link" href="index.php">Back to Nexora</a>
 </section></main></body></html>

@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once dirname(__DIR__) . '/config/database.php';
+require_once __DIR__ . '/config/database.php';
 
 function e(string $value): string
 {
@@ -30,7 +30,7 @@ function methodName(string $type): string
 }
 
 if (empty($_SESSION['user_id'])) {
-    header('Location: ../auth/login.php?next=../account/dashboard.php');
+    header('Location: login.php?next=dashboard.php');
     exit;
 }
 
@@ -46,7 +46,7 @@ $stmt->execute([$userId]);
 $user = $stmt->fetch();
 
 if (!$user) {
-    header('Location: ../auth/logout.php');
+    header('Location: logout.php');
     exit;
 }
 
@@ -444,17 +444,17 @@ $noticeText = $noticeMessages[$notice] ?? '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Dashboard — Nexora</title>
-    <link rel="stylesheet" href="../base.css">
-    <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="../shared.css?v=1.5">
-    <link rel="stylesheet" href="dashboard.css?v=2.0">
-    <link rel="stylesheet" href="../responsive.css?v=1.0">
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/shared.css?v=1.5">
+    <link rel="stylesheet" href="assets/css/dashboard.css?v=2.0">
+    <link rel="stylesheet" href="assets/css/responsive.css?v=1.0">
 </head>
 <body class="customer-dashboard">
 <div class="user-app">
     <aside class="user-sidebar" id="userSidebar">
-        <a href="../index.php" class="user-sidebar-brand">
-            <img src="../Images/nexora-logo.png" alt="Nexora">
+        <a href="index.php" class="user-sidebar-brand">
+            <img src="Images/nexora-logo.png" alt="Nexora">
         </a>
 
         <nav class="user-sidebar-nav" aria-label="Dashboard navigation">
@@ -476,12 +476,12 @@ $noticeText = $noticeMessages[$notice] ?? '';
         </nav>
 
         <div class="user-sidebar-bottom">
-            <a href="../pages/fleet.php" class="user-book-link">Book a car</a>
+            <a href="fleet.php" class="user-book-link">Book a car</a>
             <?php if ($user['role'] === 'admin'): ?>
-                <a href="../admin/admin-dashboard.php">Admin dashboard</a>
+                <a href="admin/admin-dashboard.php">Admin dashboard</a>
             <?php endif; ?>
-            <a href="../index.php">Back to website</a>
-            <a href="../auth/logout.php" class="user-logout">Logout</a>
+            <a href="index.php">Back to website</a>
+            <a href="logout.php" class="user-logout">Logout</a>
         </div>
     </aside>
 
@@ -547,7 +547,7 @@ $noticeText = $noticeMessages[$notice] ?? '';
                             and account is now in one dashboard.
                         </p>
                     </div>
-                    <a href="../pages/fleet.php" class="user-primary-btn">Book another car</a>
+                    <a href="fleet.php" class="user-primary-btn">Book another car</a>
                 </div>
 
                 <div class="user-stats">
@@ -617,7 +617,7 @@ $noticeText = $noticeMessages[$notice] ?? '';
                                 !in_array($nextBooking['status'], ['cancelled', 'completed'], true)
                             ): ?>
                                 <a
-                                    href="../booking/payment.php?booking=<?= (int)$nextBooking['id'] ?>"
+                                    href="payment.php?booking=<?= (int)$nextBooking['id'] ?>"
                                     class="user-primary-btn"
                                 >
                                     Add payment method
@@ -636,7 +636,7 @@ $noticeText = $noticeMessages[$notice] ?? '';
                             <h2>No active rental right now.</h2>
                             <p>Browse the fleet when you are ready to make another reservation.</p>
                         </div>
-                        <a href="../pages/fleet.php" class="user-secondary-btn">Browse fleet</a>
+                        <a href="fleet.php" class="user-secondary-btn">Browse fleet</a>
                     </article>
                 <?php endif; ?>
             </section>
@@ -648,7 +648,7 @@ $noticeText = $noticeMessages[$notice] ?? '';
                         <h2>My bookings</h2>
                         <p>Review your rental history and manage eligible reservations.</p>
                     </div>
-                    <a href="../pages/fleet.php">Browse fleet</a>
+                    <a href="fleet.php">Browse fleet</a>
                 </div>
 
                 <?php if (!$bookings): ?>
@@ -918,7 +918,7 @@ $noticeText = $noticeMessages[$notice] ?? '';
                         <h2>Support inbox</h2>
                         <p>Keep track of your questions and Nexora's replies.</p>
                     </div>
-                    <a href="../pages/contact.php">New message</a>
+                    <a href="contact.php">New message</a>
                 </div>
 
                 <?php if (!$supportMessages): ?>
@@ -964,6 +964,6 @@ $noticeText = $noticeMessages[$notice] ?? '';
     </main>
 </div>
 
-<script src="dashboard.js?v=2.0"></script>
+<script src="assets/js/dashboard.js?v=2.0"></script>
 </body>
 </html>

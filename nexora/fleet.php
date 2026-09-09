@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once dirname(__DIR__) . '/config/fleet-data.php';
-$fleetCars = getFleetCars($pdo, '../');
+require_once __DIR__ . '/config/fleet-data.php';
+$fleetCars = getFleetCars($pdo);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,23 +9,23 @@ $fleetCars = getFleetCars($pdo, '../');
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Our Fleet — Nexora</title>
-  <link rel="stylesheet" href="../base.css">
-  <link rel="stylesheet" href="../styles.css">
-  <link rel="stylesheet" href="fleet.css?v=20260908-2">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/fleet.css?v=20260908-2">
   <script>
     window.NEXORA_FLEET = <?= json_encode($fleetCars, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
     window.NEXORA_IS_AUTHENTICATED = <?= !empty($_SESSION['user_id']) ? 'true' : 'false' ?>;
   </script>
-  <script src="fleet.js?v=20260908-2" defer></script>
-  <link rel="stylesheet" href="../responsive.css?v=1.0">
+  <script src="assets/js/fleet.js?v=20260908-2" defer></script>
+  <link rel="stylesheet" href="assets/css/responsive.css?v=1.0">
 </head>
 <body class="bg-white text-ink antialiased">
   
   <?php
-    $siteRoot = '../';
+    $siteRoot = '';
     $siteHeaderVariant = 'public';
     $siteActivePage = 'fleet';
-    require dirname(__DIR__) . '/includes/header.php';
+    require __DIR__ . '/includes/header.php';
   ?>
 
 
@@ -139,7 +139,7 @@ $fleetCars = getFleetCars($pdo, '../');
   
   <?php
     $siteFooterNewsletter = false;
-    require dirname(__DIR__) . '/includes/footer.php';
+    require __DIR__ . '/includes/footer.php';
   ?>
 
 </body>
