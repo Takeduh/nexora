@@ -467,3 +467,102 @@
     margin-right:-4px;
   }
 }
+
+
+/* Larger admin dashboard typography */
+.admin-dashboard-v2 .admin-sidebar-nav a{
+  font-size:13px;
+}
+.admin-dashboard-v2 .admin-sidebar-bottom a{
+  font-size:12px;
+}
+.admin-dashboard-v2 .admin-profile strong{
+  font-size:12px;
+}
+.admin-dashboard-v2 .admin-profile small{
+  font-size:11px;
+}
+.admin-dashboard-v2 .admin-profile-role{
+  font-size:10px;
+}
+.admin-dashboard-v2 .dash-eyebrow{
+  font-size:10px;
+}
+.admin-dashboard-v2 .admin-welcome h1,
+.admin-dashboard-v2 .admin-manage-heading h1{
+  font-size:32px;
+}
+.admin-dashboard-v2 .admin-welcome p,
+.admin-dashboard-v2 .admin-manage-heading p{
+  font-size:14px;
+}
+.admin-dashboard-v2 .dash-stat-card span{
+  font-size:11px;
+}
+.admin-dashboard-v2 .dash-stat-card strong{
+  font-size:25px;
+}
+.admin-dashboard-v2 .dash-stat-card small{
+  font-size:10px;
+}
+.admin-dashboard-v2 .dash-panel-head h2{
+  font-size:18px;
+}
+.admin-dashboard-v2 .dash-panel-head p{
+  font-size:11px;
+}
+.admin-dashboard-v2 .admin-table th{
+  font-size:9px;
+}
+.admin-dashboard-v2 .admin-table td,
+.admin-dashboard-v2 .admin-table td strong{
+  font-size:12px;
+}
+.admin-dashboard-v2 .admin-table td small{
+  font-size:10px;
+}
+.admin-dashboard-v2 .status-badge,
+.admin-dashboard-v2 .mini-action,
+.admin-dashboard-v2 .admin-edit-toggle{
+  font-size:10px;
+}
+.admin-dashboard-v2 #fleet .inventory-list-head{
+  font-size:9px;
+}
+.admin-dashboard-v2 #fleet .inventory-category{
+  font-size:9px;
+}
+.admin-dashboard-v2 #fleet .inventory-vehicle strong{
+  font-size:13px;
+}
+.admin-dashboard-v2 #fleet .inventory-vehicle small,
+.admin-dashboard-v2 #fleet .variant-rate,
+.admin-dashboard-v2 #fleet .inventory-live-stats span{
+  font-size:10px;
+}
+.admin-dashboard-v2 #fleet .inventory-live-stats strong{
+  font-size:12px;
+}
+.admin-dashboard-v2 #fleet .variant-selector{
+  font-size:11px;
+}
+.admin-manage-v2 .admin-manage-title strong{
+  font-size:16px;
+}
+.admin-manage-v2 .admin-manage-title small{
+  font-size:11px;
+}
+.admin-manage-v2 .manage-tabs a{
+  font-size:12px;
+}
+.admin-manage-v2 .crud-form-card h2{
+  font-size:19px;
+}
+.admin-manage-v2 .crud-form label{
+  font-size:11px;
+}
+.admin-manage-v2 .crud-form input,
+.admin-manage-v2 .crud-form select,
+.admin-manage-v2 .crud-form textarea{
+  font-size:12px;
+}
