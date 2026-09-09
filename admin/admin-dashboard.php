@@ -202,7 +202,7 @@ $payments = $pdo->query(
             <a href="#customers"><span>●</span>Customers</a>
             <a href="#payments"><span>₱</span>Payments</a>
             <a href="#messages"><span>✉</span>Support<?php if ($stats['unread'] > 0): ?><b><?= $stats['unread'] ?></b><?php endif; ?></a>
-            <a href="admin-manage.php"><span>⚙</span>Manage</a>
+            <a href="admin-manage.php"><span>⚙</span>Manage Records</a>
         </nav>
         <div class="admin-sidebar-bottom">
             <a href="../pages/fleet.php">View public fleet</a>
@@ -210,7 +210,7 @@ $payments = $pdo->query(
         </div>
     </aside>
 
-    <main class="admin-main" id="overview">
+    <main class="admin-main">
         <header class="admin-topbar">
             <button class="admin-menu-toggle" id="adminMenuToggle" type="button" aria-label="Toggle admin menu">☰</button>
             <label class="admin-global-search">
@@ -225,13 +225,12 @@ $payments = $pdo->query(
         </header>
         <div class="dash-shell admin-shell">
 
-    <section class="admin-welcome">
+    <section class="admin-welcome" id="overview">
         <div>
             <span class="dash-eyebrow">Overview</span>
             <h1>Admin dashboard</h1>
             <p>Here’s what is happening with NEXORA today.</p>
         </div>
-        <a href="admin-manage.php" class="dash-primary-btn">Manage records</a>
     </section>
 
     <?php if ($notice): ?><div class="dash-alert success">Update saved successfully.</div><?php endif; ?>
@@ -305,7 +304,7 @@ $payments = $pdo->query(
             ?>
             <article class="inventory-list-row inventory-car-row"
                      data-search="<?= e(strtolower($car['brand'] . ' ' . $car['model'] . ' ' . $car['category'])) ?>"
-                     <?= $index >= 8 ? ' hidden' : '' ?>>
+                     <?= $index >= 6 ? ' hidden' : '' ?>>
                 <div class="inventory-vehicle">
                     <span class="inventory-category"><?= e($car['category']) ?></span>
                     <strong><?= e($car['brand'] . ' ' . $car['model']) ?></strong>
@@ -369,7 +368,7 @@ $payments = $pdo->query(
                 <button type="button" id="loadMoreCars" class="dash-secondary-btn">Load more</button>
                 <button type="button" id="showLessCars" class="dash-secondary-btn" hidden>Show less</button>
             </div>
-            <span id="carCount">Showing 8 of <?= count($carsInventory) ?> cars</span>
+            <span id="carCount">Showing 6 of <?= count($carsInventory) ?> cars</span>
         </div>
         <?php endif; ?>
     </section>
@@ -511,7 +510,7 @@ $payments = $pdo->query(
     const loadMore = document.getElementById('loadMoreCars');
     const showLess = document.getElementById('showLessCars');
     const counter = document.getElementById('carCount');
-    const initialVisible = 8;
+    const initialVisible = 6;
     let visibleLimit = initialVisible;
 
     if (!list) return;
@@ -556,7 +555,7 @@ $payments = $pdo->query(
     };
 
     search?.addEventListener('input', () => { visibleLimit = initialVisible; render(); });
-    loadMore?.addEventListener('click', () => { visibleLimit += 8; render(); });
+    loadMore?.addEventListener('click', () => { visibleLimit += 6; render(); });
     showLess?.addEventListener('click', () => {
         visibleLimit = initialVisible;
         render();
@@ -566,8 +565,58 @@ $payments = $pdo->query(
     render();
 
     const sidebar = document.getElementById('adminSidebar');
+    const sectionLinks = [...document.querySelectorAll('.admin-sidebar-nav a[href^="#"]')];
     document.getElementById('adminMenuToggle')?.addEventListener('click', () => sidebar?.classList.toggle('open'));
-    document.querySelectorAll('.admin-sidebar-nav a[href^="#"]').forEach(link => link.addEventListener('click', () => sidebar?.classList.remove('open')));
+
+    const setActiveSection = (id) => {
+        sectionLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+        });
+    };
+
+    sectionLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            sidebar?.classList.remove('open');
+            const id = link.getAttribute('href').slice(1);
+            setActiveSection(id);
+        });
+    });
+
+    const trackedSections = sectionLinks
+        .map(link => document.getElementById(link.getAttribute('href').slice(1)))
+        .filter(Boolean);
+
+    const updateActiveSection = () => {
+        const topOffset = 120;
+        let currentId = 'overview';
+
+        trackedSections.forEach(section => {
+            if (section.getBoundingClientRect().top <= topOffset) {
+                currentId = section.id;
+            }
+        });
+
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) {
+            const lastSection = trackedSections[trackedSections.length - 1];
+            if (lastSection) currentId = lastSection.id;
+        }
+
+        setActiveSection(currentId);
+    };
+
+    let scrollTicking = false;
+    const requestSectionUpdate = () => {
+        if (scrollTicking) return;
+        scrollTicking = true;
+        requestAnimationFrame(() => {
+            updateActiveSection();
+            scrollTicking = false;
+        });
+    };
+
+    window.addEventListener('scroll', requestSectionUpdate, { passive: true });
+    window.addEventListener('resize', requestSectionUpdate);
+    updateActiveSection();
 
     const globalSearch = document.getElementById('adminGlobalSearch');
     globalSearch?.addEventListener('input', () => {

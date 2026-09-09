@@ -21,7 +21,7 @@ if (empty($_SESSION['user_id'])) {
     exit;
 }
 
-$stmt = $pdo->prepare('SELECT id, first_name, last_name, role FROM users WHERE id = ? LIMIT 1');
+$stmt = $pdo->prepare('SELECT id, first_name, last_name, email, role FROM users WHERE id = ? LIMIT 1');
 $stmt->execute([(int)$_SESSION['user_id']]);
 $admin = $stmt->fetch();
 if (!$admin || $admin['role'] !== 'admin') {
@@ -34,7 +34,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 $section = $_GET['section'] ?? 'fleet';
-$allowedSections = ['fleet', 'customers', 'bookings', 'payments', 'messages'];
+$allowedSections = ['fleet', 'customers', 'bookings', 'payments'];
 if (!in_array($section, $allowedSections, true)) $section = 'fleet';
 
 $notice = $_GET['crud_saved'] ?? '';
@@ -45,7 +45,6 @@ $variants = $pdo->query('SELECT v.*, c.brand, c.model FROM car_variants v JOIN c
 $users = $pdo->query("SELECT u.id, u.first_name, u.last_name, u.email, u.phone, u.role, u.created_at, (SELECT COUNT(*) FROM bookings b WHERE b.user_id = u.id) AS booking_count FROM users u ORDER BY u.created_at DESC")->fetchAll();
 $bookings = $pdo->query("SELECT b.*, u.first_name, u.last_name, u.email FROM bookings b JOIN users u ON u.id = b.user_id ORDER BY b.created_at DESC LIMIT 100")->fetchAll();
 $payments = $pdo->query("SELECT p.*, b.vehicle_name, u.first_name, u.last_name FROM payments p JOIN bookings b ON b.id = p.booking_id JOIN users u ON u.id = b.user_id ORDER BY p.created_at DESC LIMIT 100")->fetchAll();
-$messages = $pdo->query('SELECT * FROM contact_messages ORDER BY created_at DESC LIMIT 100')->fetchAll();
 
 $editCar = null;
 $editVariant = null;
@@ -69,32 +68,64 @@ $returnTo = 'admin-manage.php?section=' . urlencode($section);
     <link rel="stylesheet" href="../base.css">
     <link rel="stylesheet" href="../styles.css">
     <link rel="stylesheet" href="../shared.css?v=1.5">
-  <link rel="stylesheet" href="../responsive.css?v=1.0">
+    <link rel="stylesheet" href="admin.css?v=1.1">
+    <link rel="stylesheet" href="../responsive.css?v=1.0">
 </head>
-<body class="dashboard-page admin-page">
-<?php
-$siteRoot = '../';
-$siteHeaderVariant = 'dashboard';
-$siteDashboardMode = 'manage';
-require dirname(__DIR__) . '/includes/header.php';
-?>
+<body class="dashboard-page admin-page admin-dashboard-v2 admin-manage-v2">
+<div class="admin-app">
+    <aside class="admin-sidebar" id="adminSidebar">
+        <a href="../index.php" class="admin-sidebar-brand"><img src="../Images/nexora-logo.png" alt="Nexora"></a>
+        <nav class="admin-sidebar-nav" aria-label="Admin navigation">
+            <a href="admin-dashboard.php#overview"><span>⌂</span>Overview</a>
+            <a href="admin-dashboard.php#bookings"><span>▦</span>Bookings</a>
+            <a href="admin-dashboard.php#fleet"><span>◆</span>Fleet</a>
+            <a href="admin-dashboard.php#customers"><span>●</span>Customers</a>
+            <a href="admin-dashboard.php#payments"><span>₱</span>Payments</a>
+            <a href="admin-dashboard.php#messages"><span>✉</span>Support</a>
+            <a class="active" href="admin-manage.php"><span>⚙</span>Manage Records</a>
+        </nav>
+        <div class="admin-sidebar-bottom">
+            <a href="../pages/fleet.php">View public fleet</a>
+            <a href="../auth/logout.php" class="admin-sidebar-logout">Logout</a>
+        </div>
+    </aside>
 
-<main class="dash-shell">
-    <section class="dash-hero admin-hero">
-        <div><span class="dash-eyebrow">CRUD management</span><h1>Manage Nexora records</h1><p>Create, view, update, and safely remove operational records.</p></div>
-        <a href="admin-dashboard.php" class="dash-secondary-btn">Back to dashboard</a>
-    </section>
+    <main class="admin-main">
+        <header class="admin-topbar">
+            <button class="admin-menu-toggle" id="adminMenuToggle" type="button" aria-label="Toggle admin menu">☰</button>
+            <div class="admin-manage-title">
+                <strong>Manage Records</strong>
+                <small>Create, update, and maintain NEXORA data</small>
+            </div>
+            <div class="admin-profile">
+                <span class="admin-profile-role">Admin</span>
+                <span class="admin-avatar"><?= e(strtoupper(substr($admin['first_name'], 0, 1))) ?></span>
+                <div><strong><?= e($admin['first_name'] . ' ' . $admin['last_name']) ?></strong><small><?= e($admin['email']) ?></small></div>
+            </div>
+        </header>
 
-    <?php if ($notice): ?><div class="dash-alert success"><?= e($notice) ?></div><?php endif; ?>
-    <?php if ($error): ?><div class="dash-alert error"><?= e($error) ?></div><?php endif; ?>
+        <div class="dash-shell admin-shell admin-manage-shell">
+            <section class="admin-manage-heading">
+                <div>
+                    <span class="dash-eyebrow">Data management</span>
+                    <h1>Manage records</h1>
+                    <p>Use one workspace to manage fleet, customers, bookings, payments, and support records.</p>
+                </div>
+                <a href="admin-dashboard.php" class="dash-secondary-btn">Back to dashboard</a>
+            </section>
 
-    <nav class="admin-section-nav crud-tabs" aria-label="Management sections">
-        <a class="<?= $section === 'fleet' ? 'active' : '' ?>" href="?section=fleet">Fleet</a>
-        <a class="<?= $section === 'customers' ? 'active' : '' ?>" href="?section=customers">Customers</a>
-        <a class="<?= $section === 'bookings' ? 'active' : '' ?>" href="?section=bookings">Bookings</a>
-        <a class="<?= $section === 'payments' ? 'active' : '' ?>" href="?section=payments">Payments</a>
-        <a class="<?= $section === 'messages' ? 'active' : '' ?>" href="?section=messages">Messages</a>
-    </nav>
+            <?php if ($notice): ?><div class="dash-alert success"><?= e($notice) ?></div><?php endif; ?>
+            <?php if ($error): ?><div class="dash-alert error"><?= e($error) ?></div><?php endif; ?>
+
+            <nav class="manage-tabs" aria-label="Management sections">
+                <a class="<?= $section === 'fleet' ? 'active' : '' ?>" href="?section=fleet"><span>◆</span>Fleet</a>
+                <a class="<?= $section === 'customers' ? 'active' : '' ?>" href="?section=customers"><span>●</span>Customers</a>
+                <a class="<?= $section === 'bookings' ? 'active' : '' ?>" href="?section=bookings"><span>▦</span>Bookings</a>
+                <a class="<?= $section === 'payments' ? 'active' : '' ?>" href="?section=payments"><span>₱</span>Payments</a>
+            </nav>
+
+            <div class="manage-content">
+
 
     <?php if ($section === 'fleet'): ?>
         <section class="crud-grid">
@@ -171,10 +202,19 @@ require dirname(__DIR__) . '/includes/header.php';
         <section class="crud-grid one-form"><article class="dash-panel crud-form-card"><span class="dash-section-label"><?= $editPayment ? 'Update' : 'Create' ?></span><h2><?= $editPayment ? 'Edit payment record' : 'Add payment record' ?></h2><form action="admin-crud.php" method="post" class="crud-form"><input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>"><input type="hidden" name="return_to" value="<?= e($returnTo) ?>"><input type="hidden" name="action" value="<?= $editPayment ? 'payment_update' : 'payment_create' ?>"><?php if ($editPayment): ?><input type="hidden" name="payment_id" value="<?= (int)$editPayment['id'] ?>"><?php endif; ?><label>Booking<select name="booking_id" required><?php foreach ($bookings as $b): ?><option value="<?= (int)$b['id'] ?>" <?= (int)($editPayment['booking_id'] ?? 0) === (int)$b['id'] ? 'selected' : '' ?>>#<?= (int)$b['id'] ?> · <?= e($b['vehicle_name'] . ' · ' . $b['first_name'] . ' ' . $b['last_name']) ?></option><?php endforeach; ?></select></label><div class="crud-form-row"><label>Amount<input name="amount" type="number" min="0.01" step="0.01" required value="<?= e((string)($editPayment['amount'] ?? '')) ?>"></label><label>Method<select name="payment_method"><?php foreach (['cash','gcash','card','bank_transfer'] as $m): ?><option value="<?= $m ?>" <?= selected((string)($editPayment['payment_method'] ?? 'cash'), $m) ?>><?= ucwords(str_replace('_',' ',$m)) ?></option><?php endforeach; ?></select></label></div><label>Status<select name="payment_status"><?php foreach (['pending','paid','failed','refunded'] as $s): ?><option value="<?= $s ?>" <?= selected((string)($editPayment['payment_status'] ?? 'pending'), $s) ?>><?= ucfirst($s) ?></option><?php endforeach; ?></select></label><label>Transaction reference<input name="transaction_reference" value="<?= e((string)($editPayment['transaction_reference'] ?? '')) ?>"></label><div class="crud-actions"><button class="dash-primary-btn"><?= $editPayment ? 'Save payment' : 'Add payment' ?></button><?php if ($editPayment): ?><a class="dash-secondary-btn" href="?section=payments">Cancel</a><?php endif; ?></div></form></article></section>
         <section class="dash-panel admin-section"><div class="dash-panel-head"><div><span class="dash-section-label">Read / update / delete</span><h2>Payments</h2></div><span><?= count($payments) ?> shown</span></div><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Payment</th><th>Booking</th><th>Amount</th><th>Method</th><th>Status</th><th>Actions</th></tr></thead><tbody><?php foreach ($payments as $row): ?><tr><td><strong>#<?= (int)$row['id'] ?></strong><small><?= e((string)($row['transaction_reference'] ?: 'No reference')) ?></small></td><td>#<?= (int)$row['booking_id'] ?> · <?= e($row['vehicle_name']) ?><small><?= e($row['first_name'] . ' ' . $row['last_name']) ?></small></td><td>₱<?= number_format((float)$row['amount'],2) ?></td><td><?= e(ucwords(str_replace('_',' ',$row['payment_method']))) ?></td><td><?= e(ucfirst($row['payment_status'])) ?></td><td><div class="crud-row-actions"><a class="mini-action" href="?section=payments&edit_payment=<?= (int)$row['id'] ?>">Edit</a><form action="admin-crud.php" method="post" onsubmit="return confirm('Delete this payment record?');"><input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>"><input type="hidden" name="return_to" value="<?= e($returnTo) ?>"><input type="hidden" name="action" value="payment_delete"><input type="hidden" name="payment_id" value="<?= (int)$row['id'] ?>"><button class="mini-action danger">Delete</button></form></div></td></tr><?php endforeach; ?></tbody></table></div></section>
     <?php endif; ?>
+            </div>
+        </div>
+    </main>
+</div>
 
-    <?php if ($section === 'messages'): ?>
-        <section class="dash-panel admin-section"><div class="dash-panel-head"><div><span class="dash-section-label">Read / update / delete</span><h2>Contact messages</h2></div><span>Created by public contact form</span></div><div class="message-admin-list"><?php foreach ($messages as $row): ?><article class="message-admin-card"><div class="message-admin-head"><div><strong><?= e($row['subject'] ?: 'General inquiry') ?></strong><span><?= e($row['name']) ?> · <?= e($row['email']) ?></span></div><small><?= e(date('m/d/Y', strtotime($row['created_at']))) ?></small></div><p><?= e($row['message']) ?></p><div class="crud-row-actions"><form action="admin-crud.php" method="post" class="inline-admin-form"><input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>"><input type="hidden" name="return_to" value="<?= e($returnTo) ?>"><input type="hidden" name="action" value="message_update"><input type="hidden" name="message_id" value="<?= (int)$row['id'] ?>"><select name="status"><?php foreach (['unread','read','replied'] as $s): ?><option value="<?= $s ?>" <?= selected($row['status'],$s) ?>><?= ucfirst($s) ?></option><?php endforeach; ?></select><button>Save</button></form><form action="admin-crud.php" method="post" onsubmit="return confirm('Delete this contact message?');"><input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>"><input type="hidden" name="return_to" value="<?= e($returnTo) ?>"><input type="hidden" name="action" value="message_delete"><input type="hidden" name="message_id" value="<?= (int)$row['id'] ?>"><button class="mini-action danger">Delete</button></form></div></article><?php endforeach; ?></div></section>
-    <?php endif; ?>
-</main>
+<script>
+(() => {
+    const sidebar = document.getElementById('adminSidebar');
+    document.getElementById('adminMenuToggle')?.addEventListener('click', () => sidebar?.classList.toggle('open'));
+    document.querySelectorAll('.admin-sidebar-nav a').forEach(link => {
+        link.addEventListener('click', () => sidebar?.classList.remove('open'));
+    });
+})();
+</script>
 </body>
 </html>

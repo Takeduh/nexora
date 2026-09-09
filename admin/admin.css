@@ -65,3 +65,405 @@
 @media(max-width:1200px){.admin-stat-grid{grid-template-columns:repeat(3,1fr)}.admin-dashboard-v2 .message-admin-list{grid-template-columns:1fr}}
 @media(max-width:900px){.admin-app{grid-template-columns:1fr}.admin-sidebar{position:fixed;left:-250px;width:238px;transition:left .2s ease;box-shadow:18px 0 40px rgba(0,0,0,.18)}.admin-sidebar.open{left:0}.admin-menu-toggle{display:block}.admin-topbar{padding:0 18px}.admin-profile div{display:none}.admin-global-search{width:auto;flex:1}.admin-shell{padding:22px 18px 46px!important}.admin-stat-grid{grid-template-columns:repeat(2,1fr)}.admin-welcome{align-items:flex-start;flex-direction:column}.admin-dashboard-v2 .admin-row-editor{position:static;min-width:0}}
 @media(max-width:560px){.admin-topbar{height:66px}.admin-global-search{height:38px}.admin-stat-grid{grid-template-columns:1fr}.admin-stat-card{padding:15px}.admin-shell{padding:18px 14px 40px!important}.admin-welcome h1{font-size:26px}.admin-welcome .dash-primary-btn{width:100%}.admin-dashboard-v2 .inventory-toolbar{align-items:stretch;flex-direction:column}.admin-dashboard-v2 .inventory-list{margin:0 14px}.admin-dashboard-v2 .message-admin-list{padding:14px}}
+
+
+/* Larger centered sidebar logo */
+.admin-sidebar-brand{
+  justify-content:center;
+  padding:10px 4px 24px;
+}
+.admin-sidebar-brand img{
+  width:200px;
+  height:68px;
+  object-fit:contain;
+  object-position:center;
+}
+
+/* Scroll-spy navigation state */
+.admin-sidebar-nav a{
+  position:relative;
+}
+.admin-sidebar-nav a.active{
+  background:#1e67d7;
+  color:#fff;
+  box-shadow:0 7px 18px rgba(30,103,215,.22);
+}
+.admin-sidebar-nav a.active::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:10px;
+  bottom:10px;
+  width:3px;
+  border-radius:0 3px 3px 0;
+  background:#fff;
+}
+
+/* Compact fleet inventory */
+.admin-dashboard-v2 #fleet .dash-panel-head{
+  padding:15px 18px;
+}
+.admin-dashboard-v2 #fleet .inventory-toolbar{
+  align-items:center;
+  padding:11px 18px 9px;
+}
+.admin-dashboard-v2 #fleet .inventory-search{
+  width:min(310px,100%);
+}
+.admin-dashboard-v2 #fleet .inventory-search span{
+  display:none;
+}
+.admin-dashboard-v2 #fleet .inventory-search input{
+  height:34px;
+  border-radius:8px;
+  font-size:11px;
+}
+.admin-dashboard-v2 #fleet .inventory-summary{
+  font-size:10px;
+}
+.admin-dashboard-v2 #fleet .inventory-list{
+  margin:0 18px 2px;
+  border-radius:9px;
+}
+.admin-dashboard-v2 #fleet .inventory-list-head,
+.admin-dashboard-v2 #fleet .inventory-list-row{
+  grid-template-columns:minmax(175px,1.15fr) minmax(125px,.72fr) minmax(190px,1fr) minmax(110px,.58fr);
+  gap:10px;
+}
+.admin-dashboard-v2 #fleet .inventory-list-head{
+  padding:8px 11px;
+  font-size:8px;
+}
+.admin-dashboard-v2 #fleet .inventory-list-row{
+  padding:9px 11px;
+  min-height:58px;
+}
+.admin-dashboard-v2 #fleet .inventory-category{
+  margin-bottom:2px;
+  font-size:8px;
+}
+.admin-dashboard-v2 #fleet .inventory-vehicle strong{
+  font-size:12px;
+  line-height:1.25;
+}
+.admin-dashboard-v2 #fleet .inventory-vehicle small{
+  display:block;
+  margin-top:2px;
+  color:var(--admin-muted);
+  font-size:9px;
+}
+.admin-dashboard-v2 #fleet .inventory-transmission-control{
+  min-width:0;
+}
+.admin-dashboard-v2 #fleet .inventory-transmission-control label{
+  display:block;
+}
+.admin-dashboard-v2 #fleet .inventory-transmission-control label>span{
+  display:none;
+}
+.admin-dashboard-v2 #fleet .variant-selector{
+  width:100%;
+  max-width:130px;
+  height:31px;
+  border:1px solid var(--admin-line);
+  border-radius:7px;
+  padding:0 8px;
+  background:#fff;
+  color:var(--admin-text);
+  font:inherit;
+  font-size:10px;
+}
+.admin-dashboard-v2 #fleet .variant-rate{
+  display:block;
+  margin-top:3px;
+  color:var(--admin-muted);
+  font-size:9px;
+}
+.admin-dashboard-v2 #fleet .inventory-live-stats{
+  display:flex;
+  align-items:center;
+  gap:5px 10px;
+  flex-wrap:wrap;
+  min-width:0;
+}
+.admin-dashboard-v2 #fleet .inventory-live-stats strong{
+  width:100%;
+  color:var(--admin-text);
+  font-size:11px;
+}
+.admin-dashboard-v2 #fleet .inventory-live-stats span{
+  color:var(--admin-muted);
+  font-size:9px;
+  white-space:nowrap;
+}
+.admin-dashboard-v2 #fleet .inventory-edit-shell{
+  position:relative;
+  display:flex;
+  justify-content:flex-end;
+}
+.admin-dashboard-v2 #fleet .admin-edit-toggle{
+  min-width:58px;
+  padding:6px 9px;
+}
+.admin-dashboard-v2 #fleet .inventory-edit-panel{
+  position:absolute;
+  right:0;
+  top:calc(100% + 7px);
+  z-index:40;
+  width:310px;
+  margin:0;
+  padding:11px;
+  border:1px solid var(--admin-line);
+  border-radius:10px;
+  background:#fff;
+  box-shadow:0 14px 32px rgba(10,23,48,.14);
+}
+.admin-dashboard-v2 #fleet .grouped-form{
+  grid-template-columns:75px minmax(110px,1fr) auto;
+  gap:7px;
+}
+.admin-dashboard-v2 #fleet .inventory-field input,
+.admin-dashboard-v2 #fleet .inventory-field select,
+.admin-dashboard-v2 #fleet .inventory-row-form button{
+  height:32px;
+  font-size:10px;
+}
+.admin-dashboard-v2 #fleet .inventory-load-more{
+  padding:9px 18px 13px;
+}
+.admin-dashboard-v2 #fleet .inventory-load-more button{
+  padding:8px 11px;
+  font-size:10px;
+}
+.admin-dashboard-v2 #fleet .inventory-load-more span{
+  font-size:10px;
+}
+
+@media(max-width:900px){
+  .admin-sidebar-brand img{
+    width:185px;
+    height:62px;
+  }
+  .admin-dashboard-v2 #fleet .inventory-edit-panel{
+    position:static;
+    width:100%;
+    margin-top:8px;
+  }
+}
+@media(max-width:800px){
+  .admin-dashboard-v2 #fleet .inventory-list{
+    overflow-x:auto;
+  }
+  .admin-dashboard-v2 #fleet .inventory-list-head,
+  .admin-dashboard-v2 #fleet .inventory-list-row{
+    min-width:720px;
+  }
+}
+
+
+/* Manage Records workspace */
+.admin-manage-v2 .admin-topbar{
+  justify-content:space-between;
+}
+.admin-manage-title{
+  margin-right:auto;
+  display:flex;
+  flex-direction:column;
+  line-height:1.25;
+}
+.admin-manage-title strong{
+  color:var(--admin-text);
+  font-size:14px;
+}
+.admin-manage-title small{
+  margin-top:2px;
+  color:var(--admin-muted);
+  font-size:10px;
+}
+.admin-manage-shell{
+  padding-top:24px!important;
+}
+.admin-manage-heading{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:22px;
+  margin-bottom:18px;
+}
+.admin-manage-heading h1{
+  margin:5px 0 6px;
+  color:var(--admin-text);
+  font-size:30px;
+  line-height:1.15;
+}
+.admin-manage-heading p{
+  margin:0;
+  max-width:650px;
+  color:var(--admin-muted);
+  font-size:13px;
+  line-height:1.55;
+}
+.manage-tabs{
+  position:sticky;
+  top:76px;
+  z-index:45;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin:0 0 18px;
+  padding:9px;
+  overflow-x:auto;
+  border:1px solid var(--admin-line);
+  border-radius:12px;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 6px 18px rgba(10,23,48,.05);
+  backdrop-filter:blur(8px);
+}
+.manage-tabs a{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  min-height:36px;
+  padding:0 12px;
+  border-radius:8px;
+  color:#526176;
+  text-decoration:none;
+  font-size:11px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.manage-tabs a span{
+  color:#7fa4df;
+}
+.manage-tabs a:hover{
+  background:#f4f7fb;
+  color:var(--admin-text);
+}
+.manage-tabs a.active{
+  background:#eaf1ff;
+  color:var(--admin-blue);
+}
+.manage-tabs a.active span{
+  color:var(--admin-blue);
+}
+.manage-content{
+  min-width:0;
+}
+.admin-manage-v2 .crud-grid{
+  gap:16px;
+  margin-bottom:18px;
+}
+.admin-manage-v2 .crud-grid.one-form{
+  grid-template-columns:minmax(0,680px);
+}
+.admin-manage-v2 .crud-form-card{
+  padding:20px;
+  border:1px solid var(--admin-line);
+  border-radius:14px;
+  box-shadow:var(--admin-shadow);
+}
+.admin-manage-v2 .crud-form-card h2{
+  margin:4px 0 15px;
+  font-size:18px;
+}
+.admin-manage-v2 .crud-form{
+  gap:10px;
+}
+.admin-manage-v2 .crud-form-row{
+  gap:10px;
+}
+.admin-manage-v2 .crud-form label{
+  gap:5px;
+  color:#526176;
+  font-size:10px;
+}
+.admin-manage-v2 .crud-form input,
+.admin-manage-v2 .crud-form select,
+.admin-manage-v2 .crud-form textarea{
+  padding:9px 10px;
+  border-color:var(--admin-line);
+  border-radius:8px;
+  font-size:12px;
+}
+.admin-manage-v2 .crud-form textarea{
+  min-height:86px;
+}
+.admin-manage-v2 .crud-actions{
+  gap:8px;
+  margin-top:3px;
+}
+.admin-manage-v2 .crud-actions .dash-primary-btn,
+.admin-manage-v2 .crud-actions .dash-secondary-btn{
+  padding:9px 13px;
+  border-radius:8px;
+  font-size:11px;
+}
+.admin-manage-v2 .admin-section{
+  margin-bottom:18px;
+  overflow:visible;
+}
+.admin-manage-v2 .dash-panel-head{
+  padding:15px 18px;
+}
+.admin-manage-v2 .dash-panel-head h2{
+  font-size:17px;
+}
+.admin-manage-v2 .admin-table{
+  min-width:820px;
+}
+.admin-manage-v2 .admin-table th{
+  padding:9px 11px;
+  font-size:8px;
+}
+.admin-manage-v2 .admin-table td{
+  padding:10px 11px;
+  font-size:11px;
+}
+.admin-manage-v2 .admin-table td strong{
+  font-size:11px;
+}
+.admin-manage-v2 .admin-table td small{
+  font-size:9px;
+}
+.admin-manage-v2 .mini-action{
+  padding:6px 8px;
+  border-radius:7px;
+  font-size:10px;
+}
+.admin-manage-v2 .message-admin-list{
+  padding:14px 18px 18px;
+}
+.admin-manage-v2 .message-admin-card{
+  padding:14px;
+}
+.admin-manage-v2 .message-admin-card p{
+  margin:9px 0;
+  font-size:11px;
+}
+.admin-manage-v2 .crud-row-actions{
+  gap:6px;
+}
+@media(max-width:900px){
+  .admin-manage-heading{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .admin-manage-title small{
+    display:none;
+  }
+  .manage-tabs{
+    top:66px;
+  }
+}
+@media(max-width:560px){
+  .admin-manage-heading h1{
+    font-size:25px;
+  }
+  .admin-manage-heading .dash-secondary-btn{
+    width:100%;
+  }
+  .manage-tabs{
+    margin-left:-4px;
+    margin-right:-4px;
+  }
+}

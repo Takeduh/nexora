@@ -329,3 +329,19 @@ The revamp keeps the existing admin behavior and adds a cleaner interface with:
 - responsive mobile sidebar
 
 Existing CRUD, booking lifecycle, inventory, payment, and support-reply logic remain intact.
+
+
+Version 4.3: Version Changed folder directories, minor edits for Admin Dashboard
+
+Version 4.4: NEXORA MANAGE RECORDS REVAMP
+Changes:
+- Removed the large blue Manage Records button from the Admin Dashboard overview.
+- Renamed the sidebar item from Manage to Manage Records.
+- Manage Records is now the only main entry point for full CRUD management.
+- Revamped admin-manage.php to visually match the new Admin Dashboard.
+- Added the same NEXORA sidebar and admin profile topbar.
+- Added a cleaner sticky management tab bar for Fleet, Customers, Bookings,
+  Payments, and Messages.
+- Reduced oversized forms, tables, spacing, and buttons.
+- Preserved the existing PHP CRUD logic and admin-crud.php processing.
+- Responsive behavior is retained.
