@@ -216,36 +216,6 @@ if (bookingForm) {
 }
 
 
-const testimonials = [
-  { quote: "Nexora made our trips easier! The car was clean, the process was fast, and the staff were very helpful.", name: "Rad A.B.", loc: "Cagayan de Oro" },
-  { quote: "Best car rental experience I've ever had. Transparent pricing and great service!", name: "Harvey M.", loc: "Dumaguete" },
-  { quote: "Highly recommended for business trips. Reliable cars, on-time service.", name: "Sara D.", loc: "Manila" },
-  { quote: "Booking took less than five minutes and the car was waiting for us at the airport. Seamless.", name: "Jill T.", loc: "Cebu City" },
-  { quote: "Great value for a weekend road trip. No hidden charges at drop-off, exactly as quoted.", name: "Marco P.", loc: "Davao" },
-  { quote: "I said I would leave early, and Nexora had the car ready before I finished my coffee. Suspiciously efficient.", name: "R. U. Ready", loc: "Manila" },
-  { quote: "The booking was so smooth that I arrived on time. My friends are still processing this development.", name: "Mai B. Late", loc: "Cebu City" },
-  { quote: "The car was clean, comfortable, and had enough space for my luggage and my questionable snack decisions.", name: "Carrie O. Key", loc: "Dumaguete" },
-  { quote: "No hidden fees, no surprise detours, and no arguments with the GPS. A genuinely peaceful road trip.", name: "Will B. Back", loc: "Davao" }
-];
-
-const testimonialCard = document.getElementById("tCard");
-
-function renderTestimonials() {
-  if (!testimonialCard) return;
-
-  testimonialCard.innerHTML = testimonials.map(testimonial => `
-    <article class="t-slide">
-      <div class="t-stars">★★★★★</div>
-      <p class="t-quote">"${testimonial.quote}"</p>
-      <div class="t-person">
-        <div class="t-name">${testimonial.name}</div>
-        <div class="t-loc">${testimonial.loc}</div>
-      </div>
-    </article>
-  `).join("");
-}
-
-renderTestimonials();
 
 
 const newsletterForm = document.getElementById("newsletterForm");

@@ -198,17 +198,77 @@ $fleetCars = getFleetCars($pdo);
     </div>
   </section>
 
-  
-  <section class="bg-gray-50 py-[88px]" id="blog">
-    <div class="max-w-[1180px] mx-auto px-6">
-      <div class="text-center max-w-[620px] mx-auto mb-12">
-        <h3 class="section-kicker">Trusted by Thousands</h3>
-        <h2 class="text-[36px] font-bold mb-3.5">What Our Customers Say</h2>
+  <section class="testimonial-section" id="reviews">
+    <div class="testimonial-shell">
+      <div class="testimonial-heading">
+        <span class="section-kicker">Trusted by Thousands</span>
+        <h2>What Our Customers Say</h2>
+        <p>Real experiences from drivers who chose Nexora for their journey.</p>
       </div>
 
-      <div class="max-w-[760px] mx-auto relative">
-        
-        <div class="t-card" id="tCard"></div>
+      <div class="testimonial-stats" aria-label="Customer trust highlights">
+        <div class="testimonial-stat">
+          <strong>4.9<span>/5</span></strong>
+          <small>Average rating</small>
+        </div>
+        <div class="testimonial-stat">
+          <strong>2,500<span>+</span></strong>
+          <small>Successful rentals</small>
+        </div>
+        <div class="testimonial-stat">
+          <strong>98<span>%</span></strong>
+          <small>Customer satisfaction</small>
+        </div>
+      </div>
+
+      <div class="testimonial-grid">
+        <article class="testimonial-card">
+          <div class="testimonial-quote-mark" aria-hidden="true">“</div>
+          <div class="testimonial-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p>
+            Nexora made our trip much easier. The car was clean,
+            the booking process was fast, and the staff were very helpful.
+          </p>
+          <div class="testimonial-person">
+            <span class="testimonial-avatar">RA</span>
+            <div>
+              <strong>Rad A.B.</strong>
+              <small>Cagayan de Oro</small>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial-card">
+          <div class="testimonial-quote-mark" aria-hidden="true">“</div>
+          <div class="testimonial-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p>
+            The entire rental experience was smooth and transparent.
+            Pricing was clear, the vehicle was ready, and service was excellent.
+          </p>
+          <div class="testimonial-person">
+            <span class="testimonial-avatar">HM</span>
+            <div>
+              <strong>Harvey M.</strong>
+              <small>Dumaguete</small>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial-card">
+          <div class="testimonial-quote-mark" aria-hidden="true">“</div>
+          <div class="testimonial-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p>
+            Reliable cars and straightforward booking made my business trip
+            stress-free. I would gladly rent from Nexora again.
+          </p>
+          <div class="testimonial-person">
+            <span class="testimonial-avatar">SD</span>
+            <div>
+              <strong>Sara D.</strong>
+              <small>Manila</small>
+            </div>
+          </div>
+        </article>
       </div>
     </div>
   </section>

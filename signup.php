@@ -5,14 +5,79 @@ require_once __DIR__ . '/includes/validation.php';
 
 $errors = [];
 $values = ['first_name' => '', 'last_name' => '', 'email' => '', 'phone' => ''];
-$next = trim((string)($_GET['next'] ?? $_POST['next'] ?? ''));
+$requestedNext = trim((string)($_GET['next'] ?? $_POST['next'] ?? ''));
 
-function safeNext(string $next, string $fallback): string
+function normalizeNext(string $next, string $fallback): string
 {
-    if ($next === '' || str_contains($next, '://') || str_starts_with($next, '//')) {
+    $next = html_entity_decode(trim($next), ENT_QUOTES, 'UTF-8');
+
+    if (
+        $next === '' ||
+        str_contains($next, "") ||
+        str_contains($next, "
+") ||
+        str_contains($next, '://') ||
+        str_starts_with($next, '//')
+    ) {
         return $fallback;
     }
-    return $next;
+
+    $parts = parse_url($next);
+
+    if ($parts === false || isset($parts['scheme']) || isset($parts['host'])) {
+        return $fallback;
+    }
+
+    $path = ltrim($parts['path'] ?? '', '/');
+
+    $legacyPaths = [
+        '../booking/booking-summary.php' => 'booking-summary.php',
+        'booking/booking-summary.php' => 'booking-summary.php',
+        '../account/dashboard.php' => 'dashboard.php',
+        'account/dashboard.php' => 'dashboard.php',
+        '../account/settings.php' => 'settings.php',
+        'account/settings.php' => 'settings.php',
+        '../pages/fleet.php' => 'fleet.php',
+        'pages/fleet.php' => 'fleet.php',
+        '../index.php' => 'index.php'
+    ];
+
+    if (isset($legacyPaths[$path])) {
+        $path = $legacyPaths[$path];
+    }
+
+    $allowedPaths = [
+        'booking-summary.php',
+        'dashboard.php',
+        'settings.php',
+        'fleet.php',
+        'index.php'
+    ];
+
+    if (!in_array($path, $allowedPaths, true)) {
+        return $fallback;
+    }
+
+    $result = $path;
+
+    if (!empty($parts['query'])) {
+        $result .= '?' . $parts['query'];
+    }
+
+    if (!empty($parts['fragment'])) {
+        $result .= '#' . rawurlencode($parts['fragment']);
+    }
+
+    return $result;
+}
+
+$next = normalizeNext(
+    $requestedNext !== '' ? $requestedNext : (string)($_SESSION['auth_next'] ?? ''),
+    'dashboard.php'
+);
+
+if ($requestedNext !== '') {
+    $_SESSION['auth_next'] = $next;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -52,7 +117,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = (int)$pdo->lastInsertId();
             $_SESSION['user_name'] = $values['first_name'];
             $_SESSION['user_role'] = 'user';
-            header('Location: ' . safeNext($next, 'dashboard.php'));
+            $destination = normalizeNext($next, 'dashboard.php');
+            unset($_SESSION['auth_next']);
+            header('Location: ' . $destination);
             exit;
         }
     }
